@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Ticket;
+use Barryvdh\DomPDF\Facade\Pdf;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QROutputInterface;
+
+class TicketController extends Controller
+{
+    protected function generateQrCode(Ticket $ticket): string
+    {
+        $qrData = json_encode([
+            'ticket_id' => $ticket->id,
+            'booking_code' => $ticket->booking->booking_code,
+            'passenger_id' => $ticket->passenger->id,
+            'token' => $ticket->qr_token,
+            'schedule_id' => $ticket->booking->schedule_id,
+        ]);
+
+        $options = new QROptions;
+        $options->outputType = QROutputInterface::GDIMAGE_PNG;
+        $options->eccLevel = EccLevel::M;
+        $options->scale = 8;
+        $options->imageBase64 = true;
+        $options->bgColor = [255, 255, 255];
+        $options->imageTransparent = false;
+
+        return (new QRCode($options))->render($qrData);
+    }
+
+    public function download(Ticket $ticket)
+    {
+        $ticket->load(['passenger', 'booking.schedule.vessel', 'booking.schedule.route']);
+
+        $qrcode = $this->generateQrCode($ticket);
+
+        $pdf = Pdf::loadView('tickets.pdf', compact('ticket', 'qrcode'));
+
+        return $pdf->download('ticket-'.$ticket->ticket_number.'.pdf');
+    }
+
+    public function show(Ticket $ticket)
+    {
+        $ticket->load(['passenger', 'booking.schedule.vessel', 'booking.schedule.route']);
+
+        $qrcode = $this->generateQrCode($ticket);
+
+        $qrData = json_encode([
+            'ticket_id' => $ticket->id,
+            'booking_code' => $ticket->booking->booking_code,
+            'passenger_id' => $ticket->passenger->id,
+            'token' => $ticket->qr_token,
+            'schedule_id' => $ticket->booking->schedule_id,
+        ]);
+
+        return view('tickets.show', compact('ticket', 'qrcode', 'qrData'));
+    }
+}

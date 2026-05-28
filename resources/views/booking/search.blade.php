@@ -1,0 +1,208 @@
+@extends('layouts.app')
+@section('title', 'Search Schedule')
+
+@section('content')
+
+<div class="search-hero">
+    <div class="search-hero-bg"></div>
+    <div class="search-hero-content">
+        <div class="search-hero-text">
+            <h1 class="search-hero-title">Find Your Ferry</h1>
+            <p class="search-hero-sub">International Ferry — Malaysia ↔ Philippines</p>
+        </div>
+
+        <form action="{{ route('schedules') }}" method="GET" class="search-form">
+            <div class="search-form-row">
+                <div class="search-field search-field-from">
+                    <label class="search-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/></svg>
+                        From
+                    </label>
+                    <select name="origin_port" id="origin_port" class="search-input">
+                        <option value="">Select origin</option>
+                        @foreach($routes->unique('origin_port') as $route)
+                            <option value="{{ $route->origin_port }}" {{ request('origin_port') === $route->origin_port ? 'selected' : '' }}>{{ $route->origin_port }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="search-swap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </div>
+
+                <div class="search-field search-field-to">
+                    <label class="search-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/></svg>
+                        To
+                    </label>
+                    <select name="destination_port" id="destination_port" class="search-input">
+                        <option value="">Select destination</option>
+                        @foreach($routes->unique('destination_port') as $route)
+                            <option value="{{ $route->destination_port }}" {{ request('destination_port') === $route->destination_port ? 'selected' : '' }}>{{ $route->destination_port }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="search-field">
+                    <label class="search-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Date
+                    </label>
+                    <input type="date" name="departure_date" id="departure_date" value="{{ request('departure_date') }}" class="search-input" min="{{ date('Y-m-d') }}">
+                </div>
+
+                <div class="search-field search-field-narrow">
+                    <label class="search-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Pax
+                    </label>
+                    <input type="number" name="passenger_count" id="passenger_count" value="{{ request('passenger_count', 1) }}" min="1" max="8" class="search-input">
+                </div>
+
+                <button type="submit" class="search-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Search Ferry
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="results-section">
+    @if(count($schedules) > 0)
+        <div class="results-header">
+            <p class="results-count">{{ count($schedules) }} ferry schedule{{ count($schedules) > 1 ? 's' : '' }} found</p>
+        </div>
+    @endif
+
+    <div class="results-list">
+        @forelse($schedules as $schedule)
+            <div class="ticket-card">
+                <div class="ticket-card-body">
+                    <div class="ticket-top">
+                        <div class="ticket-vessel">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ticket-vessel-icon"><path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/><path d="M5 7h14l-2 5H7L5 7Z"/><circle cx="12" cy="7" r="1.5"/></svg>
+                            <span class="ticket-vessel-name">{{ $schedule->vessel->name }}</span>
+                            <span class="ticket-vessel-badge">International Ferry</span>
+                        </div>
+                    </div>
+
+                    <div class="ticket-route">
+                        <div class="ticket-route-point ticket-route-origin">
+                            <span class="ticket-route-label">Departure</span>
+                            <span class="ticket-route-port">{{ $schedule->route->origin_port }}</span>
+                            <span class="ticket-route-flag">&#127477;&#127472;</span>
+                        </div>
+                        <div class="ticket-route-line">
+                            <div class="ticket-route-dot"></div>
+                            <div class="ticket-route-arrow"></div>
+                            <div class="ticket-route-dot"></div>
+                        </div>
+                        <div class="ticket-route-point ticket-route-dest">
+                            <span class="ticket-route-label">Arrival</span>
+                            <span class="ticket-route-port">{{ $schedule->route->destination_port }}</span>
+                            <span class="ticket-route-flag">&#127474;&#127473;</span>
+                        </div>
+                    </div>
+
+                    <div class="ticket-times">
+                        <div class="ticket-time-block">
+                            <span class="ticket-time-value">{{ $schedule->departure_time->format('H:i') }}</span>
+                            <span class="ticket-time-date">{{ $schedule->departure_time->format('d M Y') }}</span>
+                        </div>
+                        <div class="ticket-time-duration">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>{{ $schedule->departure_time->diffInMinutes($schedule->arrival_time) >= 60 ? floor($schedule->departure_time->diffInMinutes($schedule->arrival_time) / 60).'h '.($schedule->departure_time->diffInMinutes($schedule->arrival_time) % 60).'m' : $schedule->departure_time->diffInMinutes($schedule->arrival_time).'m' }}</span>
+                        </div>
+                        <div class="ticket-time-block ticket-time-block-right">
+                            <span class="ticket-time-value">{{ $schedule->arrival_time->format('H:i') }}</span>
+                            <span class="ticket-time-date">{{ $schedule->arrival_time->format('d M Y') }}</span>
+                        </div>
+                    </div>
+
+                    @php
+                        $vipLeft = $schedule->vessel->vip_capacity - (int)$schedule->vipBooked;
+                        $regularLeft = $schedule->vessel->regular_capacity - (int)$schedule->regularBooked;
+                        $vipPct = $schedule->vessel->vip_capacity > 0 ? ($vipLeft / $schedule->vessel->vip_capacity) * 100 : 0;
+                        $regularPct = $schedule->vessel->regular_capacity > 0 ? ($regularLeft / $schedule->vessel->regular_capacity) * 100 : 0;
+                        $vipSeatClass = $vipPct > 50 ? 'seat-good' : ($vipPct > 20 ? 'seat-warn' : 'seat-low');
+                        $regularSeatClass = $regularPct > 50 ? 'seat-good' : ($regularPct > 20 ? 'seat-warn' : 'seat-low');
+                    @endphp
+
+                    <div class="ticket-seats">
+                        <div class="ticket-seat-item">
+                            <span class="ticket-seat-label">
+                                <span class="ticket-seat-dot vip-dot"></span>
+                                VIP
+                            </span>
+                            <span class="ticket-seat-count {{ $vipSeatClass }}">{{ $vipLeft }} left</span>
+                            <div class="ticket-seat-bar">
+                                <div class="ticket-seat-fill {{ $vipSeatClass }}" style="width: {{ $vipPct }}%"></div>
+                            </div>
+                        </div>
+                        <div class="ticket-seat-item">
+                            <span class="ticket-seat-label">
+                                <span class="ticket-seat-dot regular-dot"></span>
+                                Regular
+                            </span>
+                            <span class="ticket-seat-count {{ $regularSeatClass }}">{{ $regularLeft }} left</span>
+                            <div class="ticket-seat-bar">
+                                <div class="ticket-seat-fill {{ $regularSeatClass }}" style="width: {{ $regularPct }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ticket-prices">
+                        <div class="ticket-price-item">
+                            <span class="ticket-price-label">VIP</span>
+                            <span class="ticket-price-value">MYR {{ number_format($schedule->vip_price, 2) }}</span>
+                        </div>
+                        <div class="ticket-price-item">
+                            <span class="ticket-price-label">Regular</span>
+                            <span class="ticket-price-value">MYR {{ number_format($schedule->regular_price, 2) }}</span>
+                        </div>
+                    </div>
+
+                    @php
+                        $applicablePromo = $autoPromos->first(fn($p) => $p->isApplicableToSchedule($schedule, (int)(request('passenger_count', 1)), 'regular'));
+                    @endphp
+
+                    <div class="ticket-bottom">
+                        <div class="ticket-bottom-left">
+                            @if($applicablePromo)
+                                <span class="ticket-promo-badge">
+                                    <span>🔥</span>
+                                    {{ $applicablePromo->name }}
+                                    @if($applicablePromo->type === 'percentage')
+                                        ({{ $applicablePromo->value }}% OFF)
+                                    @else
+                                        (MYR {{ $applicablePromo->value }} OFF)
+                                    @endif
+                                </span>
+                            @endif
+                        </div>
+                        <div class="ticket-bottom-right">
+                            @if(!$schedule->isFullyBooked && !$schedule->isH6Passed)
+                                <a href="{{ route('booking.create', $schedule) }}?passenger_count={{ request('passenger_count', 1) }}" class="ticket-book-btn">
+                                    Book Now
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                </a>
+                            @elseif($schedule->isH6Passed)
+                                <span class="ticket-status-closed">Booking Closed</span>
+                            @else
+                                <span class="ticket-status-closed">Fully Booked</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <h3 class="empty-title">No schedules found</h3>
+                <p class="empty-desc">Try adjusting your search criteria or choose a different date.</p>
+            </div>
+        @endforelse
+    </div>
+</div>
+@endsection
