@@ -42,6 +42,11 @@ class Schedule extends Model
         return $this->hasMany(DeportationManifest::class);
     }
 
+    public function agePrices(): HasMany
+    {
+        return $this->hasMany(ScheduleAgePrice::class);
+    }
+
     public function getTotalBookedAttribute(): int
     {
         return $this->bookings()
@@ -91,5 +96,33 @@ class Schedule extends Model
     public function getIsBoardingClosedAttribute(): bool
     {
         return $this->departure_time?->copy()->subMinutes(30)->isPast() ?? true;
+    }
+
+    public function getAgeCategoryPrice(int $ageCategoryId): ?float
+    {
+        $price = $this->agePrices()->where('age_category_id', $ageCategoryId)->first();
+
+        return $price ? (float) $price->price : null;
+    }
+
+    public function getPassengerPrice(int $age, string $ticketClass): float
+    {
+        $category = AgeCategory::detectCategory($age);
+
+        if ($category) {
+            $agePrice = $this->getAgeCategoryPrice($category->id);
+            if ($agePrice !== null) {
+                return $agePrice;
+            }
+        }
+
+        return $ticketClass === 'vip' ? (float) $this->vip_price : (float) $this->regular_price;
+    }
+
+    public function getAgeCategoryName(int $age): string
+    {
+        $category = AgeCategory::detectCategory($age);
+
+        return $category ? $category->name : ($age <= 2 ? 'Infant' : ($age <= 12 ? 'Child' : 'Adult'));
     }
 }

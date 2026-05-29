@@ -31,21 +31,32 @@
 
                 <div class="nav-menu" id="navMenu">
                     @auth
-                        @php $isBoardingOnly = auth()->user()->hasRole('boarding_officer') && !auth()->user()->hasRole('admin'); @endphp
+                        @php
+                            $user = auth()->user();
+                            $isBoardingOnly = $user->hasRole('boarding_officer') && !$user->hasRole('admin');
+                            $isCounterOnly = $user->hasRole('ticket_counter_officer') && !$user->hasRole('admin');
+                            $isSpecialStaff = $isBoardingOnly || $isCounterOnly;
+                        @endphp
 
-                        @if(!$isBoardingOnly)
+                        @if(!$isSpecialStaff)
                             <a href="{{ route('schedules') }}" class="nav-link">Search</a>
+                            <a href="{{ route('seat-availability') }}" class="nav-link">Seat Availability</a>
                             <a href="{{ route('booking.history') }}" class="nav-link">My Bookings</a>
                             <a href="{{ route('profiles.index') }}" class="nav-link">My Passengers</a>
                         @endif
 
-                        @if(auth()->user()->hasRole('boarding_officer') || auth()->user()->hasRole('admin'))
+                        @if($isCounterOnly)
+                            <a href="{{ route('counter.dashboard') }}" class="nav-link">Ticket Counter</a>
+                            <a href="{{ route('counter.search', ['query' => '']) }}" class="nav-link">Find Booking</a>
+                        @endif
+
+                        @if($user->hasRole('boarding_officer') || $user->hasRole('admin'))
                             <a href="{{ route('boarding.scanner') }}" class="nav-link">Boarding</a>
                         @endif
-                        @if(auth()->user()->hasRole('deportation_officer') || auth()->user()->hasRole('admin'))
-                            <a href="{{ route('deportation.index') }}" class="nav-link">Deportation</a>
+                        @if($user->hasRole('ticket_counter_officer') && $user->hasRole('admin'))
+                            <a href="{{ route('counter.dashboard') }}" class="nav-link">Ticket Counter</a>
                         @endif
-                        @if(auth()->user()->hasRole('admin'))
+                        @if($user->hasRole('admin'))
                             <a href="/admin" class="nav-link">Admin</a>
                         @endif
                     @else
@@ -87,7 +98,7 @@
                             </div>
 
                             <div class="nav-dropdown" id="navDropdown">
-                                @if($isBoardingOnly)
+                                @if($isSpecialStaff)
                                     <form action="{{ route('logout') }}" method="POST" class="nav-dropdown-item nav-dropdown-logout">
                                         @csrf
                                         <button type="submit">

@@ -7,6 +7,7 @@ use App\Http\Controllers\DeportationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PassengerProfileController;
+use App\Http\Controllers\SeatAvailabilityController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('home'))->name('home');
@@ -21,6 +22,7 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::get('/schedules', [BookingController::class, 'search'])->name('schedules');
+Route::get('/seat-availability', [SeatAvailabilityController::class, 'index'])->name('seat-availability');
 Route::get('/booking/{schedule}', [BookingController::class, 'show'])->name('booking.create');
 Route::post('/booking', [BookingController::class, 'store'])->middleware('auth')->name('booking.store');
 Route::get('/booking/{code}/payment', [BookingController::class, 'showPayment'])->name('booking.payment');
@@ -60,8 +62,15 @@ Route::middleware(['auth', 'role:deportation_officer,admin'])->prefix('deportati
     Route::post('/boarding/scan', [DeportationController::class, 'boardingScan'])->name('boarding.scan');
 });
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/reports', [App\Http\Controllers\AdminReportController::class, 'index'])->name('reports');
-    Route::get('/reports/{schedule}', [App\Http\Controllers\AdminReportController::class, 'detail'])->name('reports.detail');
-    Route::get('/reports/export/csv', [App\Http\Controllers\AdminReportController::class, 'exportCsv'])->name('reports.csv');
+Route::middleware(['auth', 'role:admin'])->prefix('exports')->name('reports.')->group(function () {
+    Route::get('/csv', [App\Http\Controllers\AdminReportController::class, 'exportCsv'])->name('csv');
+    Route::get('/excel', [App\Http\Controllers\AdminReportController::class, 'exportExcel'])->name('excel');
+});
+
+Route::middleware(['auth', 'role:ticket_counter_officer,admin'])->prefix('counter')->name('counter.')->group(function () {
+    Route::get('/', [App\Http\Controllers\CounterController::class, 'dashboard'])->name('dashboard');
+    Route::get('/create/{schedule}', [App\Http\Controllers\CounterController::class, 'newBooking'])->name('create');
+    Route::post('/store', [App\Http\Controllers\CounterController::class, 'store'])->name('store');
+    Route::get('/success', [App\Http\Controllers\CounterController::class, 'success'])->name('success');
+    Route::get('/search', [App\Http\Controllers\CounterController::class, 'search'])->name('search');
 });

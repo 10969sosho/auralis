@@ -1,38 +1,40 @@
 <?php
 
-namespace App\Filament\Resources\Routes\Tables;
+namespace App\Filament\Resources\AgeCategories\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
-class RoutesTable
+class AgeCategoriesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('origin_port')
-                    ->searchable(),
-                TextColumn::make('destination_port')
-                    ->searchable(),
-                IconColumn::make('active')
-                    ->boolean(),
+                TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('min_age')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('max_age')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('sort_order')
+                    ->numeric()
+                    ->sortable(),
+                ToggleColumn::make('is_active'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->defaultSort('sort_order')
+            ->filters([])
             ->recordActions([
                 EditAction::make(),
             ])

@@ -16,9 +16,6 @@ class RouteForm
                     ->required(),
                 TextInput::make('destination_port')
                     ->required(),
-                TextInput::make('estimated_duration')
-                    ->required()
-                    ->numeric(),
                 Toggle::make('active')
                     ->required(),
             ]);

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\SeatAvailabilityUpdated;
+use App\Models\AgeCategory;
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Models\PassengerProfile;
 use App\Models\Promo;
 use App\Models\Refund;
 use App\Models\Route;
@@ -52,7 +54,7 @@ class BookingController extends Controller
 
     public function show(Schedule $schedule, Request $request)
     {
-        $schedule->load('vessel', 'route');
+        $schedule->load('vessel', 'route', 'agePrices.ageCategory');
 
         if ($schedule->isH6Passed || $schedule->status !== 'scheduled') {
             return back()->with('error', 'This schedule is no longer available for booking.');
@@ -66,7 +68,26 @@ class BookingController extends Controller
             ->get()
             ->filter(fn ($promo) => $promo->isApplicableToSchedule($schedule, (int) ($request->passenger_count ?? 1), 'regular'));
 
-        return view('booking.create', compact('schedule', 'autoPromos'));
+        $ageCategories = AgeCategory::where('is_active', true)->orderBy('sort_order')->get();
+        $userProfile = auth()->user() ? [
+            'name' => auth()->user()->name,
+            'birth_date' => auth()->user()->birth_date?->format('Y-m-d'),
+            'gender' => auth()->user()->gender,
+            'phone' => auth()->user()->phone,
+            'passport_number' => auth()->user()->passport_number,
+            'nationality' => auth()->user()->nationality,
+        ] : null;
+
+        $savedProfiles = auth()->user()
+            ? auth()->user()->passengerProfiles()->get()
+            : collect();
+
+        $passengerCount = (int) ($request->passenger_count ?? 1);
+
+        return view('booking.create', compact(
+            'schedule', 'autoPromos', 'ageCategories',
+            'userProfile', 'savedProfiles', 'passengerCount'
+        ));
     }
 
     public function store(Request $request)
@@ -107,8 +128,13 @@ class BookingController extends Controller
         }
 
         $totalAmount = 0;
+        $passengerPrices = [];
         foreach ($validated['passengers'] as $p) {
-            $totalAmount += $p['ticket_class'] === 'vip' ? $schedule->vip_price : $schedule->regular_price;
+            $birthDate = Carbon::parse($p['birth_date']);
+            $age = $birthDate->diffInYears(now());
+            $price = $schedule->getPassengerPrice($age, $p['ticket_class']);
+            $totalAmount += $price;
+            $passengerPrices[] = $price;
         }
 
         $promo = null;
@@ -143,6 +169,7 @@ class BookingController extends Controller
             foreach ($validated['passengers'] as $index => $passengerData) {
                 $birthDate = Carbon::parse($passengerData['birth_date']);
                 $age = $birthDate->diffInYears(now());
+                $category = AgeCategory::detectCategory($age);
 
                 $passenger = $booking->passengers()->create([
                     'full_name' => $passengerData['full_name'],
@@ -151,8 +178,9 @@ class BookingController extends Controller
                     'nationality' => $passengerData['nationality'],
                     'passport_number' => $passengerData['passport_number'],
                     'phone_number' => $passengerData['phone_number'] ?? null,
-                    'passenger_type' => $age <= 12 ? 'child' : 'adult',
+                    'passenger_type' => $category ? $category->name : ($age <= 12 ? 'Child' : 'Adult'),
                     'ticket_class' => $passengerData['ticket_class'],
+                    'age_category_id' => $category?->id,
                 ]);
 
                 $passportFile = $passengerData['passport_file'] ?? null;

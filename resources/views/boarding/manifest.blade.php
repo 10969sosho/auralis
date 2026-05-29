@@ -9,7 +9,7 @@
 <div class="mt-6 space-y-6">
     @foreach($bookings as $booking)
     <div class="card">
-        <h3 class="font-semibold">Booking: {{ $booking->booking_code }} ({{ $booking->user->name }})</h3>
+        <h3 class="font-semibold">Booking: {{ $booking->booking_code }} ({{ $booking->user?->name ?? 'Counter Sale' }})</h3>
         <div class="mt-4 table-wrap">
             <table>
                 <thead><tr><th>Name</th><th>Class</th><th>Type</th><th>Passport</th><th>Status</th></tr></thead>

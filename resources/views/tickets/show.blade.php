@@ -28,11 +28,6 @@
             </div>
         </div>
 
-        <div class="ticket-pass-qr-centered" style="text-align:center;margin:18px 0;">
-            <img src="{{ $qrcode }}" alt="QR Code" style="width:120px;height:120px;border-radius:8px;background:#fff;padding:6px;display:block;margin:0 auto;">
-            <div style="margin-top:6px;font-weight:600;">{{ $ticket->ticket_number }}</div>
-        </div>
-
         <div class="ticket-pass-route" style="margin-top:10px;">
             <div class="ticket-pass-point">
                 <span class="ticket-pass-point-label">Departure</span>
@@ -82,6 +77,10 @@
             </div>
         </div>
 
+        <div class="ticket-pass-qr-bottom" style="text-align:center;margin-top:18px;padding-top:18px;border-top:2px dashed #e5e7eb;">
+            <img src="{{ $qrcode }}" alt="QR Code" style="width:140px;height:140px;border-radius:8px;background:#fff;padding:6px;display:block;margin:0 auto;">
+            <div style="margin-top:6px;font-weight:600;font-size:0.85rem;">{{ $ticket->ticket_number }}</div>
+        </div>
     </div>
 </div>
 

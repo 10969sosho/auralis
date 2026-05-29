@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\AgeCategory;
 use App\Models\Promo;
 use App\Models\Route;
 use App\Models\Schedule;
+use App\Models\ScheduleAgePrice;
 use App\Models\User;
 use App\Models\Vessel;
 use Carbon\Carbon;
@@ -16,12 +18,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RoleAndPermissionSeeder::class);
+        $this->call(AgeCategorySeeder::class);
 
+        // ─── Users ────────────────────────────────────────────
         $admin = User::create([
             'name' => 'Admin System',
             'email' => 'admin@shipticketing.com',
             'password' => Hash::make('password'),
             'phone' => '0190000000',
+            'nationality' => 'Malaysian',
+            'passport_number' => 'A12345678',
+            'birth_date' => '1990-01-15',
+            'gender' => 'male',
         ]);
         $admin->assignRole('admin');
 
@@ -30,6 +38,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'boarding@shipticketing.com',
             'password' => Hash::make('password'),
             'phone' => '0191111111',
+            'nationality' => 'Malaysian',
+            'gender' => 'male',
         ]);
         $boardingOfficer->assignRole('boarding_officer');
 
@@ -38,6 +48,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'counter@shipticketing.com',
             'password' => Hash::make('password'),
             'phone' => '0192222222',
+            'nationality' => 'Malaysian',
+            'gender' => 'female',
         ]);
         $ticketCounter->assignRole('ticket_counter_officer');
 
@@ -54,9 +66,14 @@ class DatabaseSeeder extends Seeder
             'email' => 'john@example.com',
             'password' => Hash::make('password'),
             'phone' => '0194444444',
+            'nationality' => 'Filipino',
+            'passport_number' => 'P98765432',
+            'birth_date' => '1995-06-20',
+            'gender' => 'male',
         ]);
         $passenger->assignRole('passenger');
 
+        // ─── Vessel ───────────────────────────────────────────
         $vessel = Vessel::create([
             'name' => 'Auralis 8',
             'capacity' => 280,
@@ -66,6 +83,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'active',
         ]);
 
+        // ─── Routes ───────────────────────────────────────────
         $route1 = Route::create([
             'origin_port' => 'Bongao, Tawi-Tawi (Philippines)',
             'destination_port' => 'Lahad Datu, Sabah (Malaysia)',
@@ -80,6 +98,7 @@ class DatabaseSeeder extends Seeder
             'active' => true,
         ]);
 
+        // ─── Schedules ────────────────────────────────────────
         $schedule1 = Schedule::create([
             'vessel_id' => $vessel->id,
             'route_id' => $route1->id,
@@ -110,6 +129,36 @@ class DatabaseSeeder extends Seeder
             'status' => 'scheduled',
         ]);
 
+        // ─── Age Pricing ──────────────────────────────────────
+        $infant = AgeCategory::where('name', 'Infant')->first();
+        $child = AgeCategory::where('name', 'Child')->first();
+        $adult = AgeCategory::where('name', 'Adult')->first();
+
+        foreach ([$schedule1, $schedule2, $schedule3] as $s) {
+            if ($infant) {
+                ScheduleAgePrice::create([
+                    'schedule_id' => $s->id,
+                    'age_category_id' => $infant->id,
+                    'price' => 0,
+                ]);
+            }
+            if ($child) {
+                ScheduleAgePrice::create([
+                    'schedule_id' => $s->id,
+                    'age_category_id' => $child->id,
+                    'price' => 50.00,
+                ]);
+            }
+            if ($adult) {
+                ScheduleAgePrice::create([
+                    'schedule_id' => $s->id,
+                    'age_category_id' => $adult->id,
+                    'price' => $s->regular_price,
+                ]);
+            }
+        }
+
+        // ─── Promos ───────────────────────────────────────────
         Promo::create([
             'name' => 'Early Bird 20%',
             'code' => 'EARLY20',

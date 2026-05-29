@@ -25,6 +25,7 @@ class BoardingController extends Controller
 
         if (! $qrData || ! isset($qrData['ticket_id'])) {
             return response()->json([
+                'success' => false,
                 'status' => 'invalid',
                 'message' => 'Invalid QR code format.',
             ]);
@@ -35,6 +36,7 @@ class BoardingController extends Controller
 
         if (! $ticket) {
             return response()->json([
+                'success' => false,
                 'status' => 'invalid',
                 'message' => 'Ticket not found.',
             ]);
@@ -65,6 +67,7 @@ class BoardingController extends Controller
 
         if (! $ticket) {
             return response()->json([
+                'success' => false,
                 'status' => 'invalid',
                 'message' => 'Ticket not found.',
             ]);
@@ -89,6 +92,7 @@ class BoardingController extends Controller
 
         if ($ticket->ticket_status === 'used') {
             return [
+                'success' => false,
                 'status' => 'used',
                 'message' => 'This ticket has already been used.',
                 'type' => 'red_warning',
@@ -97,6 +101,7 @@ class BoardingController extends Controller
 
         if ($ticket->ticket_status === 'expired' || ($ticket->expiry_date && $ticket->expiry_date->isPast())) {
             return [
+                'success' => false,
                 'status' => 'expired',
                 'message' => 'This ticket has expired.',
                 'type' => 'orange_warning',
@@ -105,6 +110,7 @@ class BoardingController extends Controller
 
         if ($ticket->ticket_status === 'cancelled') {
             return [
+                'success' => false,
                 'status' => 'invalid',
                 'message' => 'This booking has been cancelled.',
                 'type' => 'red_rejection',
@@ -113,6 +119,7 @@ class BoardingController extends Controller
 
         if ($ticket->ticket_status === 'refunded') {
             return [
+                'success' => false,
                 'status' => 'invalid',
                 'message' => 'This ticket has been refunded.',
                 'type' => 'red_rejection',
@@ -121,6 +128,7 @@ class BoardingController extends Controller
 
         if ($schedule->isBoardingClosed) {
             return [
+                'success' => false,
                 'status' => 'expired',
                 'message' => 'Boarding time has closed.',
                 'type' => 'orange_warning',
@@ -129,6 +137,7 @@ class BoardingController extends Controller
 
         if ($ticket->ticket_status !== 'active') {
             return [
+                'success' => false,
                 'status' => 'invalid',
                 'message' => 'Ticket is not valid for boarding.',
                 'type' => 'red_rejection',
@@ -155,19 +164,17 @@ class BoardingController extends Controller
         });
 
         return [
+            'success' => true,
             'status' => 'valid',
             'message' => 'Boarding successful!',
             'type' => 'green_success',
-            'passenger' => [
-                'name' => $ticket->passenger->full_name,
-                'ticket_class' => $ticket->ticket_class,
-                'passenger_type' => $ticket->passenger->passenger_type,
-            ],
-            'schedule' => [
-                'vessel' => $schedule->vessel->name,
-                'route' => $schedule->route->origin_port.' → '.$schedule->route->destination_port,
-                'departure' => $schedule->departure_time->format('Y-m-d H:i'),
-            ],
+            'passenger_name' => $ticket->passenger->full_name,
+            'ticket_number' => $ticket->ticket_number,
+            'ticket_class' => ucfirst($ticket->ticket_class),
+            'passenger_type' => $ticket->passenger->passenger_type,
+            'route' => $schedule->route->origin_port.' → '.$schedule->route->destination_port,
+            'vessel' => $schedule->vessel->name,
+            'departure' => $schedule->departure_time->format('d M Y, H:i'),
         ];
     }
 

@@ -38,11 +38,19 @@ class AuthController extends Controller
             $request->session()->regenerate();
             RateLimiter::clear($throttleKey);
 
-            if (auth()->user()->hasRole('admin')) {
-                return redirect()->intended('/admin');
+            $user = auth()->user();
+
+            if ($user->hasRole('admin')) {
+                return redirect('/admin');
+            }
+            if ($user->hasRole('boarding_officer') && !$user->hasRole('admin')) {
+                return redirect()->route('boarding.scanner');
+            }
+            if ($user->hasRole('ticket_counter_officer') && !$user->hasRole('admin')) {
+                return redirect()->route('counter.dashboard');
             }
 
-            return redirect()->intended('/');
+            return redirect()->intended(route('schedules'));
         }
 
         RateLimiter::hit($throttleKey, 60);
