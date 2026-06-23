@@ -173,16 +173,16 @@ function updateCard(data) {
 .sa-class-header { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
 .sa-class-dot { width: 8px; height: 8px; border-radius: 50%; }
 .vip-dot { background: #F59E0B; }
-.regular-dot { background: #2563EB; }
-.sa-class-price { margin-left: auto; font-weight: 600; color: #374151; }
-.sa-class-bar { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.regular-dot { background: #0E9AEF; }
+.sa-class-price { margin-left: auto; font-weight: 600; color: #252B42; }
+.sa-class-bar { width: 100%; height: 6px; background: #E9ECEF; border-radius: 3px; overflow: hidden; margin-top: 4px; }
 .sa-class-fill { height: 100%; border-radius: 3px; }
 .sa-class-fill[data-class="vip"] { background: #F59E0B; }
-.sa-class-fill[data-class="regular"] { background: #2563EB; }
-.sa-class-info { font-size: 0.7rem; color: #6b7280; }
+.sa-class-fill[data-class="regular"] { background: #0E9AEF; }
+.sa-class-info { font-size: 0.7rem; color: #6C757D; }
 .sa-occupancy { display: flex; align-items: center; gap: 10px; }
-.sa-occ-bar { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-.sa-occ-fill { height: 100%; background: linear-gradient(90deg, #2563EB, #7C3AED); border-radius: 4px; transition: width 0.5s ease; }
-.sa-occ-text { font-size: 0.75rem; color: #6b7280; white-space: nowrap; }
+.sa-occ-bar { flex: 1; height: 8px; background: #E9ECEF; border-radius: 4px; overflow: hidden; }
+.sa-occ-fill { height: 100%; background: linear-gradient(90deg, #0E9AEF, #4EA2FF); border-radius: 4px; transition: width 0.5s ease; }
+.sa-occ-text { font-size: 0.75rem; color: #6C757D; white-space: nowrap; }
 </style>
 @endsection

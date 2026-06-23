@@ -1,0 +1,112 @@
+@extends('layouts.app')
+@section('title', 'Detail Pengumuman')
+
+@section('content')
+<div class="article-page">
+    <a href="{{ route('pengumuman') }}" class="article-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Kembali ke Pengumuman
+    </a>
+
+    <article class="article-card">
+        <span class="article-category">Informasi</span>
+        <h1 class="article-title">Jadwal Pelayaran Baru Rute Bongao - Lahad Datu</h1>
+        <div class="article-meta">
+            <span class="article-date">15 Juni 2026</span>
+            <span class="article-divider">|</span>
+            <span class="article-author">Admin ShipTicketing</span>
+        </div>
+        <div class="article-content">
+            <p>Kami dengan senang hati mengumumkan penambahan jadwal pelayaran baru untuk rute Bongao - Lahad Datu mulai 1 Juli 2026.</p>
+            <p>Dengan adanya penambahan ini, jadwal pelayaran menjadi 3 kali sehari, sehingga memberikan lebih banyak pilihan waktu keberangkatan bagi para penumpang.</p>
+            <h2>Jadwal Baru:</h2>
+            <ul>
+                <li>Keberangkatan 1: 08:00 WITA - 11:30 WITA</li>
+                <li>Keberangkatan 2: 13:00 WITA - 16:30 WITA</li>
+                <li>Keberangkatan 3: 18:00 WITA - 21:30 WITA</li>
+            </ul>
+            <p>Untuk informasi lebih lanjut, silakan hubungi customer service kami.</p>
+        </div>
+    </article>
+</div>
+
+<style>
+.article-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+.article-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #6C757D;
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+}
+.article-back svg { width: 20px; height: 20px; }
+.article-back:hover { color: #0E9AEF; }
+.article-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #E9ECEF;
+    padding: 48px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+}
+.article-category {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0E9AEF;
+    background: rgba(14,154,239,0.08);
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+.article-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #252B42;
+    line-height: 1.3;
+    margin-bottom: 16px;
+}
+.article-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #6C757D;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #E9ECEF;
+}
+.article-content {
+    font-size: 16px;
+    color: #6C757D;
+    line-height: 1.8;
+}
+.article-content p {
+    margin-bottom: 16px;
+}
+.article-content h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #252B42;
+    margin: 32px 0 16px;
+}
+.article-content ul {
+    padding-left: 24px;
+    margin-bottom: 16px;
+}
+.article-content li {
+    margin-bottom: 8px;
+}
+@media (max-width: 768px) {
+    .article-card { padding: 32px 24px; }
+    .article-title { font-size: 24px; }
+}
+</style>
+@endsection

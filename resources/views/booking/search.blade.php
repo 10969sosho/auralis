@@ -1,73 +1,57 @@
 @extends('layouts.app')
-@section('title', 'Search Schedule')
+@section('title', 'Cari Tiket - Booking')
 
 @section('content')
-
-<div class="search-hero">
-    <div class="search-hero-bg"></div>
-    <div class="search-hero-content">
-        <div class="search-hero-text">
-            <h1 class="search-hero-title">Find Your Ferry</h1>
-            <p class="search-hero-sub">International Ferry — Malaysia ↔ Philippines</p>
+<div class="guest-section booking-section" style="padding:40px 0;">
+    <div class="guest-container">
+        <p class="guest-section-label">Booking Tiket</p>
+        <h2 class="guest-section-title" style="font-size:32px;">Pesan Tiket Kapal</h2>
+        <p class="guest-section-subtitle">Cari jadwal kapal ferry sesuai rute dan tanggal keberangkatan Anda.</p>
+        <div class="booking-box">
+            <form action="{{ route('schedules') }}" method="GET">
+                <div class="booking-form-grid">
+                    <div class="booking-form-full">
+                        <label class="booking-label">Tanggal Keberangkatan</label>
+                        <input type="date" name="departure_date" value="{{ request('departure_date') }}" class="booking-input" required min="{{ date('Y-m-d') }}">
+                    </div>
+                    <div>
+                        <label class="booking-label">Pelabuhan Asal</label>
+                        <select name="origin_port" id="origin_port" class="booking-input" required>
+                            <option value="">Pilih Pelabuhan</option>
+                            @foreach($routes->unique('origin_port') as $route)
+                                <option value="{{ $route->origin_port }}" {{ request('origin_port') === $route->origin_port ? 'selected' : '' }}>{{ $route->origin_port }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="booking-label">Pelabuhan Tujuan</label>
+                        <select name="destination_port" id="destination_port" class="booking-input" required>
+                            <option value="">Pilih Pelabuhan</option>
+                            @foreach($routes->unique('destination_port') as $route)
+                                <option value="{{ $route->destination_port }}" {{ request('destination_port') === $route->destination_port ? 'selected' : '' }}>{{ $route->destination_port }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="booking-label">Jumlah Penumpang</label>
+                        <div class="booking-counter-group">
+                            <button type="button" class="booking-counter-btn" onclick="adjustPax(-1)">−</button>
+                            <span class="booking-counter-value" id="paxCount">{{ request('passenger_count', 1) }}</span>
+                            <button type="button" class="booking-counter-btn" onclick="adjustPax(1)">+</button>
+                        </div>
+                        <input type="hidden" name="passenger_count" id="paxInput" value="{{ request('passenger_count', 1) }}">
+                    </div>
+                    <button type="submit" class="booking-submit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Cari Tiket
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <form action="{{ route('schedules') }}" method="GET" class="search-form">
-            <div class="search-form-row">
-                <div class="search-field search-field-from">
-                    <label class="search-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/></svg>
-                        From
-                    </label>
-                    <select name="origin_port" id="origin_port" class="search-input">
-                        <option value="">Select origin</option>
-                        @foreach($routes->unique('origin_port') as $route)
-                            <option value="{{ $route->origin_port }}" {{ request('origin_port') === $route->origin_port ? 'selected' : '' }}>{{ $route->origin_port }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="search-swap">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                </div>
-
-                <div class="search-field search-field-to">
-                    <label class="search-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/></svg>
-                        To
-                    </label>
-                    <select name="destination_port" id="destination_port" class="search-input">
-                        <option value="">Select destination</option>
-                        @foreach($routes->unique('destination_port') as $route)
-                            <option value="{{ $route->destination_port }}" {{ request('destination_port') === $route->destination_port ? 'selected' : '' }}>{{ $route->destination_port }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="search-field">
-                    <label class="search-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        Date
-                    </label>
-                    <input type="date" name="departure_date" id="departure_date" value="{{ request('departure_date') }}" class="search-input" min="{{ date('Y-m-d') }}">
-                </div>
-
-                <div class="search-field search-field-narrow">
-                    <label class="search-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        Pax
-                    </label>
-                    <input type="number" name="passenger_count" id="passenger_count" value="{{ request('passenger_count', 1) }}" min="1" max="8" class="search-input">
-                </div>
-
-                <button type="submit" class="search-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    Search Ferry
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 
+<div class="guest-container" style="margin-bottom:60px;">
 <div class="results-section">
     @if(count($schedules) > 0)
         <div class="results-header">
@@ -205,4 +189,16 @@
         @endforelse
     </div>
 </div>
+</div>
+
+<script>
+function adjustPax(delta) {
+    var countEl = document.getElementById('paxCount');
+    var inputEl = document.getElementById('paxInput');
+    var current = parseInt(countEl.textContent);
+    var newVal = Math.max(1, Math.min(8, current + delta));
+    countEl.textContent = newVal;
+    inputEl.value = newVal;
+}
+</script>
 @endsection

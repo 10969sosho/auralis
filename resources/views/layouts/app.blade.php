@@ -4,32 +4,73 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', config('app.name')) - Ship Ticketing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/app.css">
+    @stack('styles')
 </head>
 <body>
 
-    <nav class="nav" id="navbar">
-        <div class="nav-inner">
+    {{-- Top Bar --}}
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <div class="top-bar-left">
+                <div class="top-bar-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <span>+62 852 1234 5678</span>
+                </div>
+                <div class="top-bar-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>info@shipticketing.com</span>
+                </div>
+                <div class="top-bar-item top-bar-item-hours">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Mon - Sat: 08:00 - 17:00</span>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <a href="#" class="top-bar-social" aria-label="Instagram">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                </a>
+                <a href="#" class="top-bar-social" aria-label="Facebook">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+                @auth
+                @else
+                <a href="{{ route('login') }}" class="top-bar-cta">Sign In</a>
+                @endauth
+            </div>
+        </div>
+    </div>
 
-            <a href="{{ route('home') }}" class="nav-brand">
-                <svg class="nav-brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    {{-- Navbar --}}
+    <nav class="guest-nav" id="navbar">
+        <div class="guest-nav-inner">
+            <a href="{{ route('home') }}" class="guest-nav-brand">
+                <svg class="guest-nav-logo" viewBox="0 0 24 24" fill="none" stroke="#0E9AEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/>
                     <path d="M5 7h14l-2 5H7L5 7Z"/>
-                    <circle cx="12" cy="7" r="1.5"/>
                 </svg>
-                <span class="nav-brand-text">
-                    <span class="nav-brand-name">ShipTicketing</span>
-                    <span class="nav-brand-sub">International Ferry</span>
-                </span>
+                <span class="guest-nav-name">ShipTicketing</span>
             </a>
 
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+            <button class="guest-nav-toggle" id="navToggle" aria-label="Toggle menu">
                 <span></span><span></span><span></span>
             </button>
 
-            <div class="nav-collapse" id="navCollapse">
+            <div class="guest-nav-collapse" id="navCollapse">
+                <div class="guest-nav-menu">
+                    {{-- Main navigation — same for ALL users --}}
+                    <a href="{{ route('home') }}" class="guest-nav-link">Home</a>
+                    <a href="{{ route('schedules') }}" class="guest-nav-link">Booking</a>
+                    <a href="{{ route('jadwal') }}" class="guest-nav-link">Jadwal</a>
+                    <a href="{{ route('harga') }}" class="guest-nav-link">Harga</a>
+                    <a href="{{ route('pengumuman') }}" class="guest-nav-link">Pengumuman</a>
+                    <a href="{{ route('informasi') }}" class="guest-nav-link">Informasi</a>
+                </div>
 
-                <div class="nav-menu" id="navMenu">
+                <div class="guest-nav-actions">
                     @auth
                         @php
                             $user = auth()->user();
@@ -37,42 +78,13 @@
                             $isCounterOnly = $user->hasRole('ticket_counter_officer') && !$user->hasRole('admin');
                             $isSpecialStaff = $isBoardingOnly || $isCounterOnly;
                         @endphp
-
-                        @if(!$isSpecialStaff)
-                            <a href="{{ route('schedules') }}" class="nav-link">Search</a>
-                            <a href="{{ route('seat-availability') }}" class="nav-link">Seat Availability</a>
-                            <a href="{{ route('booking.history') }}" class="nav-link">My Bookings</a>
-                            <a href="{{ route('profiles.index') }}" class="nav-link">My Passengers</a>
-                        @endif
-
-                        @if($isCounterOnly)
-                            <a href="{{ route('counter.dashboard') }}" class="nav-link">Ticket Counter</a>
-                            <a href="{{ route('counter.search', ['query' => '']) }}" class="nav-link">Find Booking</a>
-                        @endif
-
-                        @if($user->hasRole('boarding_officer') || $user->hasRole('admin'))
-                            <a href="{{ route('boarding.scanner') }}" class="nav-link">Boarding</a>
-                        @endif
-                        @if($user->hasRole('ticket_counter_officer') && $user->hasRole('admin'))
-                            <a href="{{ route('counter.dashboard') }}" class="nav-link">Ticket Counter</a>
-                        @endif
-                        @if($user->hasRole('admin'))
-                            <a href="/admin" class="nav-link">Admin</a>
-                        @endif
-                    @else
-                        <a href="{{ route('schedules') }}" class="nav-link">Search Schedule</a>
-                    @endauth
-                </div>
-
-                <div class="nav-actions">
-                    @auth
-                        <div class="nav-profile" id="navProfile">
-                            <div class="nav-profile-trigger" id="profileTrigger">
-                                <div class="nav-avatar">
+                        <div class="guest-nav-profile" id="navProfile">
+                            <div class="guest-nav-profile-trigger" id="profileTrigger">
+                                <div class="guest-nav-avatar">
                                     <span>{{ substr(auth()->user()->name, 0, 1) }}</span>
                                 </div>
-                                <div class="nav-profile-info">
-                                    <span class="nav-profile-name">{{ auth()->user()->name }}</span>
+                                <div class="guest-nav-profile-info">
+                                    <span class="guest-nav-profile-name">{{ auth()->user()->name }}</span>
                                     @php
                                         $role = auth()->user()->getRoleNames()->first() ?? 'passenger';
                                         $roleClass = match($role) {
@@ -90,62 +102,59 @@
                                             default => 'Passenger',
                                         };
                                     @endphp
-                                    <span class="nav-role-badge {{ $roleClass }}">{{ $roleLabel }}</span>
+                                    <span class="guest-nav-role-badge {{ $roleClass }}">{{ $roleLabel }}</span>
                                 </div>
-                                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="guest-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="6 9 12 15 18 9"/>
                                 </svg>
                             </div>
 
-                            <div class="nav-dropdown" id="navDropdown">
-                                @if($isSpecialStaff)
-                                    <form action="{{ route('logout') }}" method="POST" class="nav-dropdown-item nav-dropdown-logout">
-                                        @csrf
-                                        <button type="submit">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                                            Logout
-                                        </button>
-                                    </form>
-                                @else
-                                    <a href="{{ route('booking.history') }}" class="nav-dropdown-item">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                                        My Bookings
-                                    </a>
-                                    <a href="{{ route('profiles.index') }}" class="nav-dropdown-item">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                        My Passengers
-                                    </a>
-                                    <a href="{{ route('notifications.index') }}" class="nav-dropdown-item">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                                        Notifications
-                                    </a>
-                                    @if(auth()->user()->hasRole('admin'))
-                                    <a href="/admin" class="nav-dropdown-item">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                                        Admin Panel
-                                    </a>
-                                    @endif
-                                    <div class="nav-dropdown-divider"></div>
-                                    <form action="{{ route('logout') }}" method="POST" class="nav-dropdown-item nav-dropdown-logout">
-                                        @csrf
-                                        <button type="submit">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                                            Logout
-                                        </button>
-                                    </form>
+                            <div class="guest-nav-dropdown" id="navDropdown">
+                                {{-- Regular passenger links --}}
+                                @if(!$isSpecialStaff)
+                                    <a href="{{ route('booking.history') }}" class="guest-nav-dropdown-item">My Bookings</a>
+                                    <a href="{{ route('profiles.index') }}" class="guest-nav-dropdown-item">My Passengers</a>
+                                    <a href="{{ route('notifications.index') }}" class="guest-nav-dropdown-item">Notifications</a>
+                                    <div class="guest-nav-dropdown-divider"></div>
                                 @endif
+
+                                {{-- Staff-specific links --}}
+                                @if($isCounterOnly)
+                                    <a href="{{ route('counter.dashboard') }}" class="guest-nav-dropdown-item">Ticket Counter</a>
+                                    <a href="{{ route('counter.search', ['query' => '']) }}" class="guest-nav-dropdown-item">Find Booking</a>
+                                    <div class="guest-nav-dropdown-divider"></div>
+                                @endif
+                                @if($user->hasRole('boarding_officer') || $user->hasRole('admin'))
+                                    <a href="{{ route('boarding.scanner') }}" class="guest-nav-dropdown-item">Boarding</a>
+                                @endif
+                                @if($user->hasRole('ticket_counter_officer') && $user->hasRole('admin'))
+                                    <a href="{{ route('counter.dashboard') }}" class="guest-nav-dropdown-item">Ticket Counter</a>
+                                @endif
+                                @if($user->hasRole('admin'))
+                                    <a href="/admin" class="guest-nav-dropdown-item">Admin Panel</a>
+                                @endif
+
+                                @if($user->hasRole('boarding_officer') || $user->hasRole('ticket_counter_officer') || $user->hasRole('admin'))
+                                <div class="guest-nav-dropdown-divider"></div>
+                                @endif
+
+                                {{-- Logout --}}
+                                <form action="{{ route('logout') }}" method="POST" class="guest-nav-dropdown-item guest-nav-dropdown-logout">
+                                    @csrf
+                                    <button type="submit">Logout</button>
+                                </form>
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">Login</a>
+                        <a href="{{ route('login') }}" class="guest-nav-btn guest-nav-btn-primary">Sign In</a>
                     @endauth
                 </div>
-
             </div>
-
         </div>
     </nav>
 
+    {{-- Main Content --}}
+    @section('main_content')
     <main class="main @yield('page_class', 'main-padded')">
         <div class="container">
             @if(session('success'))
@@ -157,16 +166,76 @@
             @yield('content')
         </div>
     </main>
+    @show
 
-    <footer class="footer">
-        &copy; {{ date('Y') }} Ship Ticketing. All rights reserved.
+    {{-- Footer --}}
+    <footer class="guest-footer">
+        <div class="guest-footer-inner">
+            <div class="guest-footer-grid">
+                <div class="guest-footer-col">
+                    <div class="guest-footer-brand">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#0E9AEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+                            <path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/>
+                            <path d="M5 7h14l-2 5H7L5 7Z"/>
+                        </svg>
+                        <span>ShipTicketing</span>
+                    </div>
+                    <p class="guest-footer-desc">
+                        Your trusted partner for inter-island ferry travel. We provide safe, comfortable, and affordable sea transportation across Indonesia.
+                    </p>
+                    <div class="guest-footer-social">
+                        <a href="#" class="guest-footer-social-icon" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                        <a href="#" class="guest-footer-social-icon" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+                        <a href="#" class="guest-footer-social-icon" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+                        <a href="#" class="guest-footer-social-icon" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg></a>
+                    </div>
+                </div>
+                <div class="guest-footer-col">
+                    <h4 class="guest-footer-heading">Contact Info</h4>
+                    <ul class="guest-footer-contact">
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Jl. Pelabuhan No. 1, Bongao, Tawi-Tawi</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+62 852 1234 5678</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>info@shipticketing.com</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Mon - Sat: 08:00 - 17:00</span></li>
+                    </ul>
+                </div>
+                <div class="guest-footer-col">
+                    <h4 class="guest-footer-heading">Navigation</h4>
+                    <ul class="guest-footer-links">
+                        <li><a href="{{ route('home') }}">Home</a></li>
+                        <li><a href="{{ route('schedules') }}">Booking</a></li>
+                        <li><a href="{{ route('jadwal') }}">Jadwal</a></li>
+                        <li><a href="{{ route('harga') }}">Harga</a></li>
+                        <li><a href="{{ route('pengumuman') }}">Pengumuman</a></li>
+                        <li><a href="{{ route('informasi') }}">Tentang Kami</a></li>
+                    </ul>
+                </div>
+                <div class="guest-footer-col">
+                    <h4 class="guest-footer-heading">Layanan</h4>
+                    <ul class="guest-footer-links">
+                        <li><a href="#">Pemesanan Tiket</a></li>
+                        <li><a href="#">Pembatalan</a></li>
+                        <li><a href="#">Informasi Rute</a></li>
+                        <li><a href="#">Jadwal Kapal</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Kebijakan Privasi</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="guest-footer-bottom">
+            <div class="guest-footer-bottom-inner">
+                &copy; {{ date('Y') }} ShipTicketing. All rights reserved.
+            </div>
+        </div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.18.1/echo.iife.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/8.3.0/pusher.min.js"></script>
+    @stack('scripts')
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-
+        // Navbar toggle
         var toggle = document.getElementById('navToggle');
         var collapse = document.getElementById('navCollapse');
         if (toggle && collapse) {
@@ -176,6 +245,19 @@
             });
         }
 
+        // Navbar scroll effect
+        var nav = document.getElementById('navbar');
+        if (nav) {
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 50) {
+                    nav.classList.add('guest-nav-scrolled');
+                } else {
+                    nav.classList.remove('guest-nav-scrolled');
+                }
+            });
+        }
+
+        // Profile dropdown
         var trigger = document.getElementById('profileTrigger');
         var dropdown = document.getElementById('navDropdown');
         if (trigger && dropdown) {
@@ -191,6 +273,7 @@
             });
         }
 
+        // Echo / Pusher
         if (typeof Pusher !== 'undefined' && typeof Echo === 'undefined') {
             window.Echo = new Echo({
                 broadcaster: 'pusher',
@@ -200,6 +283,44 @@
                 forceTLS: false,
                 disableStats: true,
                 enabledTransports: ['ws', 'wss'],
+            });
+        }
+
+        // Active nav link highlighting
+        var currentPath = window.location.pathname;
+        var navLinks = document.querySelectorAll('.guest-nav-link');
+        navLinks.forEach(function(link) {
+            link.classList.remove('active');
+            var href = link.getAttribute('href');
+            if (href) {
+                var linkPath = new URL(href, window.location.origin).pathname;
+                if (currentPath === linkPath || (linkPath === '/' && currentPath === '/')) {
+                    link.classList.add('active');
+                }
+            }
+        });
+
+        // Smooth scroll to section on home page anchor clicks
+        if (currentPath === '/') {
+            document.querySelectorAll('.guest-nav-link[href*="#"]').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    var hash = this.getAttribute('href').split('#')[1];
+                    if (!hash) return;
+                    var target = document.getElementById(hash);
+                    if (target) {
+                        e.preventDefault();
+                        var topBarHeight = document.querySelector('.top-bar') ? document.querySelector('.top-bar').offsetHeight : 50;
+                        var navHeight = nav ? nav.offsetHeight : 90;
+                        window.scrollTo({
+                            top: target.offsetTop - topBarHeight - navHeight,
+                            behavior: 'smooth'
+                        });
+                        var collapse2 = document.getElementById('navCollapse');
+                        var toggle2 = document.getElementById('navToggle');
+                        if (collapse2) collapse2.classList.remove('show');
+                        if (toggle2) toggle2.classList.remove('active');
+                    }
+                });
             });
         }
     });

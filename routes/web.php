@@ -8,9 +8,44 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PassengerProfileController;
 use App\Http\Controllers\SeatAvailabilityController;
+use App\Models\Route as RouteModel;
+use App\Models\Schedule;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => view('home'))->name('home');
+Route::get('/', function () {
+    $prices = Schedule::where('status', 'scheduled')
+        ->where('departure_time', '>=', now())
+        ->with('route')
+        ->select('route_id', 'vip_price', 'regular_price')
+        ->distinct()
+        ->get()
+        ->groupBy(fn($s) => $s->route->origin_port . '→' . $s->route->destination_port)
+        ->map(fn($group) => $group->first())
+        ->take(3);
+
+    return view('home', compact('prices'));
+})->name('home');
+Route::get('/harga', function () {
+    $prices = Schedule::where('status', 'scheduled')
+        ->where('departure_time', '>=', now())
+        ->with('route')
+        ->select('route_id', 'vip_price', 'regular_price')
+        ->distinct()
+        ->get()
+        ->groupBy(fn($s) => $s->route->origin_port . '→' . $s->route->destination_port)
+        ->map(fn($group) => $group->first());
+
+    $ports = RouteModel::where('active', true)
+        ->pluck('origin_port')
+        ->unique()
+        ->values();
+
+    return view('harga', compact('prices', 'ports'));
+})->name('harga');
+Route::get('/pengumuman', fn () => view('pengumuman'))->name('pengumuman');
+Route::get('/pengumuman/{id}', fn ($id) => view('pengumuman-detail', ['id' => $id]))->name('pengumuman.detail');
+Route::get('/informasi', fn () => view('informasi'))->name('informasi');
+Route::get('/jadwal', fn () => view('jadwal'))->name('jadwal');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
