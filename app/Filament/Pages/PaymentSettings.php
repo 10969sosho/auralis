@@ -15,7 +15,7 @@ class PaymentSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    public $payment_qr_image = null;
+    public $payment_qr_image = [];
 
     public function getView(): string
     {
@@ -54,10 +54,8 @@ class PaymentSettings extends Page implements HasForms
 
     public function mount(): void
     {
-        $this->payment_qr_image = Setting::getValue('payment_qr_image');
-        $this->form->fill([
-            'payment_qr_image' => $this->payment_qr_image ? [$this->payment_qr_image] : [],
-        ]);
+        $path = Setting::getValue('payment_qr_image');
+        $this->payment_qr_image = $path ? [$path] : [];
     }
 
     public function form(Schema $form): Schema
@@ -85,13 +83,13 @@ class PaymentSettings extends Page implements HasForms
     {
         $data = $this->form->getState();
 
-        // Only update QR image if a new file was uploaded (not null/empty)
         $qrImage = $data['payment_qr_image'] ?? null;
         if ($qrImage !== null && $qrImage !== '' && !(is_array($qrImage) && empty($qrImage))) {
             $path = is_array($qrImage) ? ($qrImage[0] ?? null) : $qrImage;
             if ($path) {
                 Setting::setValue('payment_qr_image', $path);
-                $this->payment_qr_image = $path;
+                // Keep as array for FileUpload compatibility
+                $this->payment_qr_image = [$path];
             }
         }
 
