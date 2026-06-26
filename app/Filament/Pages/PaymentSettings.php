@@ -60,14 +60,6 @@ class PaymentSettings extends Page implements HasForms
         ]);
     }
 
-    public function updatedPaymentQrImage(): void
-    {
-        // Normalize array from FileUpload to string for preview
-        if (is_array($this->payment_qr_image)) {
-            $this->payment_qr_image = $this->payment_qr_image[0] ?? null;
-        }
-    }
-
     public function form(Schema $form): Schema
     {
         return $form
