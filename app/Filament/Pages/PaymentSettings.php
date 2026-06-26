@@ -15,7 +15,7 @@ class PaymentSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    public array | string | null $payment_qr_image = null;
+    public $payment_qr_image = null;
 
     public function getView(): string
     {
