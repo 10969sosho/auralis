@@ -18,7 +18,19 @@ class VesselResource extends Resource
 {
     protected static ?string $model = Vessel::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
+
+    protected static ?string $navigationLabel = 'Ships';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Operational';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
 
     public static function form(Schema $schema): Schema
     {

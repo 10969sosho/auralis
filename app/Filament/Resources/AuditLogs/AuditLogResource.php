@@ -18,7 +18,19 @@ class AuditLogResource extends Resource
 {
     protected static ?string $model = AuditLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
+
+    protected static ?string $navigationLabel = 'Audit Logs';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Admin';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 3;
+    }
 
     public static function form(Schema $schema): Schema
     {

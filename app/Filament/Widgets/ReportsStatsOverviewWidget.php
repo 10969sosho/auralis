@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Http\Controllers\AdminReportController;
 use App\Models\Booking;
 use App\Models\Schedule;
+use App\Models\Ticket;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Carbon\Carbon;
@@ -36,6 +37,7 @@ class ReportsStatsOverviewWidget extends StatsOverviewWidget
         $totalPending = Booking::where('booking_status', 'pending_payment')->count();
         $totalRefunded = Booking::where('booking_status', 'refunded')->count();
         $totalCancelled = Booking::whereIn('booking_status', ['cancelled', 'expired'])->count();
+        $totalBoarded = Ticket::where('ticket_status', 'used')->count();
 
         $totalBookings = Booking::count();
 
@@ -76,6 +78,11 @@ class ReportsStatsOverviewWidget extends StatsOverviewWidget
                 ->description(number_format($totalBookings).' total bookings')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
+
+            Stat::make('Boarded', $totalBoarded)
+                ->description(number_format($totalPaidPassengers).' paid passengers')
+                ->descriptionIcon('heroicon-m-arrow-right-circle')
+                ->color('info'),
 
             Stat::make('Pending', $totalPending)
                 ->description(number_format($totalRefunded).' refunded · '.number_format($totalCancelled).' cancelled')

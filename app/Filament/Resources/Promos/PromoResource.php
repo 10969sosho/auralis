@@ -18,7 +18,19 @@ class PromoResource extends Resource
 {
     protected static ?string $model = Promo::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
+
+    protected static ?string $navigationLabel = 'Promos';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Booking Settings';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
 
     public static function form(Schema $schema): Schema
     {

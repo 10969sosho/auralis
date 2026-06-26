@@ -11,6 +11,13 @@ use chillerlan\QRCode\Output\QROutputInterface;
 
 class TicketController extends Controller
 {
+    protected function authorizeTicketAccess(Ticket $ticket): void
+    {
+        if ($ticket->booking->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this ticket.');
+        }
+    }
+
     protected function generateQrCode(Ticket $ticket): string
     {
         $qrData = json_encode([
@@ -34,6 +41,8 @@ class TicketController extends Controller
 
     public function download(Ticket $ticket)
     {
+        $this->authorizeTicketAccess($ticket);
+
         $ticket->load(['passenger', 'booking.schedule.vessel', 'booking.schedule.route']);
 
         $qrcode = $this->generateQrCode($ticket);
@@ -45,6 +54,8 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket)
     {
+        $this->authorizeTicketAccess($ticket);
+
         $ticket->load(['passenger', 'booking.schedule.vessel', 'booking.schedule.route']);
 
         $qrcode = $this->generateQrCode($ticket);

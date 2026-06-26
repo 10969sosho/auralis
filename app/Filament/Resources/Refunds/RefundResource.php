@@ -2,15 +2,11 @@
 
 namespace App\Filament\Resources\Refunds;
 
-use App\Filament\Resources\Refunds\Pages\CreateRefund;
-use App\Filament\Resources\Refunds\Pages\EditRefund;
 use App\Filament\Resources\Refunds\Pages\ListRefunds;
-use App\Filament\Resources\Refunds\Schemas\RefundForm;
 use App\Filament\Resources\Refunds\Tables\RefundsTable;
 use App\Models\Refund;
 use BackedEnum;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
@@ -18,11 +14,18 @@ class RefundResource extends Resource
 {
     protected static ?string $model = Refund::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedReceiptRefund;
 
-    public static function form(Schema $schema): Schema
+    protected static ?string $navigationLabel = 'Refunds';
+
+    public static function getNavigationGroup(): ?string
     {
-        return RefundForm::configure($schema);
+        return 'Transactions';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
     }
 
     public static function table(Table $table): Table
@@ -41,8 +44,6 @@ class RefundResource extends Resource
     {
         return [
             'index' => ListRefunds::route('/'),
-            'create' => CreateRefund::route('/create'),
-            'edit' => EditRefund::route('/{record}/edit'),
         ];
     }
 }

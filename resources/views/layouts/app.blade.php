@@ -64,10 +64,10 @@
                     {{-- Main navigation — same for ALL users --}}
                     <a href="{{ route('home') }}" class="guest-nav-link">Home</a>
                     <a href="{{ route('schedules') }}" class="guest-nav-link">Booking</a>
-                    <a href="{{ route('jadwal') }}" class="guest-nav-link">Jadwal</a>
-                    <a href="{{ route('harga') }}" class="guest-nav-link">Harga</a>
-                    <a href="{{ route('pengumuman') }}" class="guest-nav-link">Pengumuman</a>
-                    <a href="{{ route('informasi') }}" class="guest-nav-link">Informasi</a>
+                    <a href="{{ route('jadwal') }}" class="guest-nav-link">Schedule</a>
+                    <a href="{{ route('harga') }}" class="guest-nav-link">Prices</a>
+                    <a href="{{ route('pengumuman') }}" class="guest-nav-link">Announcements</a>
+                    <a href="{{ route('informasi') }}" class="guest-nav-link">About</a>
                 </div>
 
                 <div class="guest-nav-actions">
@@ -156,6 +156,9 @@
     {{-- Main Content --}}
     @section('main_content')
     <main class="main @yield('page_class', 'main-padded')">
+        @if(trim($__env->yieldContent('full_width')))
+            @yield('content')
+        @else
         <div class="container">
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -165,6 +168,7 @@
             @endif
             @yield('content')
         </div>
+        @endif
     </main>
     @show
 
@@ -204,21 +208,21 @@
                     <ul class="guest-footer-links">
                         <li><a href="{{ route('home') }}">Home</a></li>
                         <li><a href="{{ route('schedules') }}">Booking</a></li>
-                        <li><a href="{{ route('jadwal') }}">Jadwal</a></li>
-                        <li><a href="{{ route('harga') }}">Harga</a></li>
-                        <li><a href="{{ route('pengumuman') }}">Pengumuman</a></li>
-                        <li><a href="{{ route('informasi') }}">Tentang Kami</a></li>
+                        <li><a href="{{ route('jadwal') }}">Schedule</a></li>
+                        <li><a href="{{ route('harga') }}">Prices</a></li>
+                        <li><a href="{{ route('pengumuman') }}">Announcements</a></li>
+                        <li><a href="{{ route('informasi') }}">About</a></li>
                     </ul>
                 </div>
                 <div class="guest-footer-col">
-                    <h4 class="guest-footer-heading">Layanan</h4>
+                    <h4 class="guest-footer-heading">Services</h4>
                     <ul class="guest-footer-links">
-                        <li><a href="#">Pemesanan Tiket</a></li>
-                        <li><a href="#">Pembatalan</a></li>
-                        <li><a href="#">Informasi Rute</a></li>
-                        <li><a href="#">Jadwal Kapal</a></li>
+                        <li><a href="#">Ticket Booking</a></li>
+                        <li><a href="#">Cancellation</a></li>
+                        <li><a href="#">Route Info</a></li>
+                        <li><a href="#">Ship Schedule</a></li>
                         <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Kebijakan Privasi</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
                     </ul>
                 </div>
             </div>

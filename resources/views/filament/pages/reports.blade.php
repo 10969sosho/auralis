@@ -33,6 +33,7 @@
                 <option value="">All Status</option>
                 <option value="scheduled">Scheduled</option>
                 <option value="departed">Departed</option>
+                <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
             </select>
             <input type="date" wire:model.live="dateFrom" class="rd-input" placeholder="Date From">
@@ -45,22 +46,22 @@
     </div>
 
     {{-- KPI Cards --}}
-    <div class="rd-section">
+    <div class="rd-section" wire:poll.30s>
         @livewire(\App\Filament\Widgets\ReportsStatsOverviewWidget::class)
     </div>
 
     {{-- Charts --}}
     <div class="rd-charts-row">
-        <div class="rd-chart-box">
+        <div class="rd-chart-box" wire:poll.30s>
             @livewire(\App\Filament\Widgets\RevenueChartWidget::class)
         </div>
-        <div class="rd-chart-box">
+        <div class="rd-chart-box" wire:poll.30s>
             @livewire(\App\Filament\Widgets\BookingTrendChartWidget::class)
         </div>
     </div>
 
     {{-- Table --}}
-    <div class="rd-section">
+    <div class="rd-section" wire:poll.30s>
         @livewire(\App\Filament\Widgets\ScheduleTableWidget::class)
     </div>
 

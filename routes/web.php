@@ -68,6 +68,7 @@ Route::post('/booking/{code}/refund', [BookingController::class, 'refundRequest'
 
 Route::middleware('auth')->group(function () {
     Route::get('/my-bookings', [BookingController::class, 'history'])->name('booking.history');
+    Route::post('/booking/{code}/cancel-expired', [BookingController::class, 'cancelExpired'])->name('booking.cancel-expired');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
@@ -76,10 +77,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profiles', [PassengerProfileController::class, 'index'])->name('profiles.index');
     Route::post('/profiles', [PassengerProfileController::class, 'store'])->name('profiles.store');
     Route::delete('/profiles/{profile}', [PassengerProfileController::class, 'destroy'])->name('profiles.destroy');
-});
 
-Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
-Route::get('/tickets/{ticket}/download', [TicketController::class, 'download'])->name('tickets.download');
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::get('/tickets/{ticket}/download', [TicketController::class, 'download'])->name('tickets.download');
+});
 
 Route::middleware(['auth', 'role:boarding_officer,admin'])->prefix('boarding')->name('boarding.')->group(function () {
     Route::get('/scanner', [BoardingController::class, 'scanner'])->name('scanner');

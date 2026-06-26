@@ -158,6 +158,10 @@ class BoardingController extends Controller
             $allUsed = $booking->tickets()->where('ticket_status', '!=', 'used')->doesntExist();
             if ($allUsed) {
                 $booking->update(['booking_status' => 'used']);
+                // Mark payment as completed when all passengers have boarded
+                if ($booking->payment) {
+                    $booking->payment->update(['payment_status' => 'completed']);
+                }
             }
 
             event(new SeatAvailabilityUpdated($booking->schedule));
