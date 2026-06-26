@@ -29,18 +29,24 @@ class BookingController extends Controller
 
         $routes = Route::where('active', true)->get();
 
-        $schedules = Schedule::with(['vessel', 'route'])
-            ->where('status', 'scheduled')
-            ->where('departure_time', '>', now())
-            ->when($request->origin_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('origin_port', $request->origin_port)))
-            ->when($request->destination_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('destination_port', $request->destination_port)))
-            ->when($request->departure_date, fn ($q) => $q->whereDate('departure_time', $request->departure_date))
-            ->orderBy('departure_time')
-            ->get();
+        // Only search when at least departure_date is provided
+        $hasSearch = $request->filled('departure_date') || $request->filled('origin_port') || $request->filled('destination_port');
 
-        $schedules->each(function ($schedule) {
-            $schedule->loadMissing(['vessel', 'route']);
-        });
+        $schedules = collect();
+        if ($hasSearch) {
+            $schedules = Schedule::with(['vessel', 'route'])
+                ->where('status', 'scheduled')
+                ->where('departure_time', '>', now())
+                ->when($request->origin_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('origin_port', $request->origin_port)))
+                ->when($request->destination_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('destination_port', $request->destination_port)))
+                ->when($request->departure_date, fn ($q) => $q->whereDate('departure_time', $request->departure_date))
+                ->orderBy('departure_time')
+                ->get();
+
+            $schedules->each(function ($schedule) {
+                $schedule->loadMissing(['vessel', 'route']);
+            });
+        }
 
         $autoPromos = Promo::where('is_active', true)
             ->where('auto_apply', true)
@@ -49,7 +55,14 @@ class BookingController extends Controller
             ->whereColumn('used_count', '<', 'usage_quota')
             ->get();
 
-        return view('booking.search', compact('schedules', 'routes', 'autoPromos'));
+        // Prepare destination ports based on selected origin for linked dropdown
+        $destinationPorts = Route::where('active', true)
+            ->when($request->origin_port, fn ($q) => $q->where('origin_port', $request->origin_port))
+            ->pluck('destination_port')
+            ->unique()
+            ->values();
+
+        return view('booking.search', compact('schedules', 'routes', 'autoPromos', 'destinationPorts', 'hasSearch'));
     }
 
     public function show(Schedule $schedule, Request $request)
@@ -233,9 +246,22 @@ class BookingController extends Controller
             ->firstOrFail();
 
         if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
-            $booking->update(['booking_status' => 'expired', 'payment_status' => 'expired']);
+            DB::transaction(function () use ($booking) {
+                $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
+                event(new SeatAvailabilityUpdated($booking->schedule));
+            });
 
             return view('booking.expired', compact('booking'));
+        }
+
+        // If payment is awaiting approval, show waiting page
+        if ($booking->payment_status === 'awaiting_approval') {
+            return view('booking.payment', compact('booking'));
+        }
+
+        // If payment is already approved/paid, redirect to success
+        if (in_array($booking->payment_status, ['paid', 'approved'])) {
+            return redirect()->route('booking.success', $booking->booking_code);
         }
 
         return view('booking.payment', compact('booking'));
@@ -247,51 +273,49 @@ class BookingController extends Controller
             ->with('payment')
             ->firstOrFail();
 
-        if ($booking->payment_status !== 'pending') {
+        if (!in_array($booking->payment_status, ['pending', 'rejected'])) {
             return back()->with('error', 'Payment already processed.');
         }
 
         if ($booking->expires_at && $booking->expires_at->isPast()) {
-            $booking->update(['booking_status' => 'expired', 'payment_status' => 'expired']);
+            DB::transaction(function () use ($booking) {
+                $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
+                event(new SeatAvailabilityUpdated($booking->schedule));
+            });
 
-            return back()->with('error', 'Payment time has expired.');
+            return back()->with('error', 'Payment time has expired. Booking has been cancelled.');
         }
 
         $validated = $request->validate([
-            'payment_method' => ['required', 'in:fpx,ewallet,online_banking'],
+            'payment_method' => ['required', 'in:manual_transfer'],
+            'proof_of_transfer' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         $payment = $booking->payment;
 
-        DB::transaction(function () use ($booking, $payment, $validated) {
+        $proofPath = $request->file('proof_of_transfer')->store('payments/proofs', 'public');
+
+        DB::transaction(function () use ($booking, $payment, $validated, $proofPath) {
             $payment->update([
                 'payment_method' => $validated['payment_method'],
                 'transaction_id' => 'TXN-'.strtoupper(uniqid()),
-                'payment_status' => 'paid',
-                'paid_at' => now(),
+                'proof_of_transfer' => $proofPath,
+                'payment_status' => 'awaiting_approval',
+                'rejection_reason' => null,
+                'approved_by' => null,
+                'approved_at' => null,
             ]);
 
             $booking->update([
-                'booking_status' => 'paid',
-                'payment_status' => 'paid',
-                'paid_at' => now(),
+                'booking_status' => 'awaiting_approval',
+                'payment_status' => 'awaiting_approval',
             ]);
-
-            foreach ($booking->passengers as $passenger) {
-                $ticket = $passenger->ticket()->create([
-                    'booking_id' => $booking->id,
-                    'ticket_class' => $passenger->ticket_class,
-                    'qr_token' => Ticket::generateQrToken(),
-                    'ticket_number' => Ticket::generateTicketNumber(),
-                    'ticket_status' => 'active',
-                    'expiry_date' => $booking->schedule->departure_time->startOfDay(),
-                ]);
-            }
 
             event(new SeatAvailabilityUpdated($booking->schedule));
         });
 
-        return redirect()->route('booking.success', $booking->booking_code);
+        return redirect()->route('booking.payment', $booking->booking_code)
+            ->with('success', 'Proof of transfer uploaded successfully. Please wait for admin confirmation.');
     }
 
     public function success($code)
@@ -321,6 +345,23 @@ class BookingController extends Controller
             ->firstOrFail();
 
         return view('booking.detail', compact('booking'));
+    }
+
+    public function cancelExpired($code)
+    {
+        $booking = Booking::where('booking_code', $code)->firstOrFail();
+
+        if ($booking->payment_status === 'pending' && $booking->expires_at && $booking->expires_at->isPast()) {
+            DB::transaction(function () use ($booking) {
+                $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
+
+                event(new SeatAvailabilityUpdated($booking->schedule));
+            });
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Booking cannot be cancelled.']);
     }
 
     public function refundRequest(Request $request, $code)

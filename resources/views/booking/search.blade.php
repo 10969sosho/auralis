@@ -1,66 +1,75 @@
 @extends('layouts.app')
-@section('title', 'Cari Tiket - Booking')
+@section('title', 'Search Schedules')
+@section('page_class', 'search-schedules-page')
+@section('full_width', true)
 
 @section('content')
-<div class="guest-section booking-section" style="padding:40px 0;">
-    <div class="guest-container">
-        <p class="guest-section-label">Booking Tiket</p>
-        <h2 class="guest-section-title" style="font-size:32px;">Pesan Tiket Kapal</h2>
-        <p class="guest-section-subtitle">Cari jadwal kapal ferry sesuai rute dan tanggal keberangkatan Anda.</p>
-        <div class="booking-box">
-            <form action="{{ route('schedules') }}" method="GET">
-                <div class="booking-form-grid">
-                    <div class="booking-form-full">
-                        <label class="booking-label">Tanggal Keberangkatan</label>
-                        <input type="date" name="departure_date" value="{{ request('departure_date') }}" class="booking-input" required min="{{ date('Y-m-d') }}">
-                    </div>
-                    <div>
-                        <label class="booking-label">Pelabuhan Asal</label>
-                        <select name="origin_port" id="origin_port" class="booking-input" required>
-                            <option value="">Pilih Pelabuhan</option>
-                            @foreach($routes->unique('origin_port') as $route)
-                                <option value="{{ $route->origin_port }}" {{ request('origin_port') === $route->origin_port ? 'selected' : '' }}>{{ $route->origin_port }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="booking-label">Pelabuhan Tujuan</label>
-                        <select name="destination_port" id="destination_port" class="booking-input" required>
-                            <option value="">Pilih Pelabuhan</option>
-                            @foreach($routes->unique('destination_port') as $route)
-                                <option value="{{ $route->destination_port }}" {{ request('destination_port') === $route->destination_port ? 'selected' : '' }}>{{ $route->destination_port }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="booking-label">Jumlah Penumpang</label>
-                        <div class="booking-counter-group">
-                            <button type="button" class="booking-counter-btn" onclick="adjustPax(-1)">−</button>
-                            <span class="booking-counter-value" id="paxCount">{{ request('passenger_count', 1) }}</span>
-                            <button type="button" class="booking-counter-btn" onclick="adjustPax(1)">+</button>
-                        </div>
-                        <input type="hidden" name="passenger_count" id="paxInput" value="{{ request('passenger_count', 1) }}">
-                    </div>
-                    <button type="submit" class="booking-submit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        Cari Tiket
-                    </button>
+{{-- Search Form --}}
+<div class="search-hero">
+    <div class="search-hero-content">
+        <p class="search-hero-label">Book Ticket</p>
+        <h1 class="search-hero-title">Search Ferry Tickets</h1>
+        <p class="search-hero-desc">Find ferry schedules based on your route and departure date.</p>
+
+        <form action="{{ route('schedules') }}" method="GET" id="searchForm" class="search-form">
+            <div class="search-form-grid">
+                <div class="search-form-full">
+                    <label class="search-label">Departure Date</label>
+                    <input type="date" name="departure_date" value="{{ request('departure_date') }}" class="search-input" required min="{{ date('Y-m-d') }}">
                 </div>
-            </form>
-        </div>
+                <div>
+                    <label class="search-label">Origin Port</label>
+                    <select name="origin_port" id="origin_port" class="search-input" required onchange="updateDestinations()">
+                        <option value="">Select Port</option>
+                        @foreach($routes->unique('origin_port') as $route)
+                            <option value="{{ $route->origin_port }}" {{ request('origin_port') === $route->origin_port ? 'selected' : '' }}>{{ $route->origin_port }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="search-label">Destination Port</label>
+                    <select name="destination_port" id="destination_port" class="search-input" required>
+                        <option value="">Select Port</option>
+                        @php
+                            $destPorts = isset($destinationPorts) && $destinationPorts->isNotEmpty() ? $destinationPorts : $routes->unique('destination_port')->pluck('destination_port');
+                        @endphp
+                        @foreach($destPorts as $port)
+                            <option value="{{ $port }}" {{ request('destination_port') === $port ? 'selected' : '' }}>{{ $port }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="search-label">Passengers</label>
+                    <div class="search-counter-group">
+                        <button type="button" class="search-counter-btn" onclick="adjustPax(-1)">−</button>
+                        <span class="search-counter-value" id="paxCount">{{ request('passenger_count', 1) }}</span>
+                        <button type="button" class="search-counter-btn" onclick="adjustPax(1)">+</button>
+                    </div>
+                    <input type="hidden" name="passenger_count" id="paxInput" value="{{ request('passenger_count', 1) }}">
+                </div>
+                <button type="submit" class="search-submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Search
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<div class="guest-container" style="margin-bottom:60px;">
-<div class="results-section">
-    @if(count($schedules) > 0)
-        <div class="results-header">
-            <p class="results-count">{{ count($schedules) }} ferry schedule{{ count($schedules) > 1 ? 's' : '' }} found</p>
+{{-- Results --}}
+<div class="search-results">
+    @if(isset($hasSearch) && !$hasSearch)
+        <div class="search-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-empty-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h3 class="search-empty-title">Search Schedules</h3>
+            <p class="search-empty-desc">Fill in the search form above to find available ferry schedules.</p>
         </div>
-    @endif
-
-    <div class="results-list">
-        @forelse($schedules as $schedule)
+    @elseif(count($schedules) > 0)
+        <div class="search-results-header">
+            <p class="search-results-count">{{ count($schedules) }} schedule{{ count($schedules) > 1 ? 's' : '' }} found</p>
+        </div>
+        <div class="search-results-list">
+            @foreach($schedules as $schedule)
             <div class="ticket-card">
                 <div class="ticket-card-body">
                     <div class="ticket-top">
@@ -180,18 +189,48 @@
                     </div>
                 </div>
             </div>
-        @empty
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <h3 class="empty-title">No schedules found</h3>
-                <p class="empty-desc">Try adjusting your search criteria or choose a different date.</p>
-            </div>
-        @endforelse
-    </div>
-</div>
+            @endforeach
+        </div>
+    @else
+        <div class="search-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-empty-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h3 class="search-empty-title">No Schedules Found</h3>
+            <p class="search-empty-desc">Try adjusting your search criteria or choose a different date.</p>
+        </div>
+    @endif
 </div>
 
 <script>
+const routeMap = {
+    @foreach($routes->groupBy('origin_port') as $origin => $group)
+        "{{ $origin }}": [
+            @foreach($group as $route)
+                "{{ $route->destination_port }}",
+            @endforeach
+        ],
+    @endforeach
+};
+
+function updateDestinations() {
+    const originSelect = document.getElementById('origin_port');
+    const destSelect = document.getElementById('destination_port');
+    const selectedOrigin = originSelect.value;
+    const currentDest = "{{ request('destination_port') }}";
+
+    const destinations = routeMap[selectedOrigin] || [];
+    destSelect.innerHTML = '<option value="">Select Port</option>';
+    destinations.forEach(function(port) {
+        const selected = (port === currentDest) ? 'selected' : '';
+        destSelect.innerHTML += '<option value="' + port + '" ' + selected + '>' + port + '</option>';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('origin_port').value) {
+        updateDestinations();
+    }
+});
+
 function adjustPax(delta) {
     var countEl = document.getElementById('paxCount');
     var inputEl = document.getElementById('paxInput');

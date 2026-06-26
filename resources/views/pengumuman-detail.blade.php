@@ -1,31 +1,31 @@
 @extends('layouts.app')
-@section('title', 'Detail Pengumuman')
+@section('title', 'Announcement Detail')
 
 @section('content')
 <div class="article-page">
     <a href="{{ route('pengumuman') }}" class="article-back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Kembali ke Pengumuman
+        Back to Announcements
     </a>
 
     <article class="article-card">
-        <span class="article-category">Informasi</span>
-        <h1 class="article-title">Jadwal Pelayaran Baru Rute Bongao - Lahad Datu</h1>
+        <span class="article-category">Information</span>
+        <h1 class="article-title">New Schedule Route Bongao - Lahad Datu</h1>
         <div class="article-meta">
-            <span class="article-date">15 Juni 2026</span>
+            <span class="article-date">June 15, 2026</span>
             <span class="article-divider">|</span>
             <span class="article-author">Admin ShipTicketing</span>
         </div>
         <div class="article-content">
-            <p>Kami dengan senang hati mengumumkan penambahan jadwal pelayaran baru untuk rute Bongao - Lahad Datu mulai 1 Juli 2026.</p>
-            <p>Dengan adanya penambahan ini, jadwal pelayaran menjadi 3 kali sehari, sehingga memberikan lebih banyak pilihan waktu keberangkatan bagi para penumpang.</p>
-            <h2>Jadwal Baru:</h2>
+            <p>We are pleased to announce the addition of new sailing schedules for the Bongao - Lahad Datu route starting July 1, 2026.</p>
+            <p>With this addition, sailing schedules will be 3 times daily, providing more departure time options for passengers.</p>
+            <h2>New Schedule:</h2>
             <ul>
-                <li>Keberangkatan 1: 08:00 WITA - 11:30 WITA</li>
-                <li>Keberangkatan 2: 13:00 WITA - 16:30 WITA</li>
-                <li>Keberangkatan 3: 18:00 WITA - 21:30 WITA</li>
+                <li>Departure 1: 08:00 WITA - 11:30 WITA</li>
+                <li>Departure 2: 13:00 WITA - 16:30 WITA</li>
+                <li>Departure 3: 18:00 WITA - 21:30 WITA</li>
             </ul>
-            <p>Untuk informasi lebih lanjut, silakan hubungi customer service kami.</p>
+            <p>For more information, please contact our customer service.</p>
         </div>
     </article>
 </div>
@@ -98,14 +98,13 @@
     margin: 32px 0 16px;
 }
 .article-content ul {
-    padding-left: 24px;
-    margin-bottom: 16px;
+    margin: 0 0 16px 24px;
 }
 .article-content li {
     margin-bottom: 8px;
 }
 @media (max-width: 768px) {
-    .article-card { padding: 32px 24px; }
+    .article-card { padding: 28px 20px; }
     .article-title { font-size: 24px; }
 }
 </style>

@@ -18,7 +18,19 @@ class NotificationResource extends Resource
 {
     protected static ?string $model = Notification::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBellAlert;
+
+    protected static ?string $navigationLabel = 'Notifications';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Admin';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
 
     public static function form(Schema $schema): Schema
     {

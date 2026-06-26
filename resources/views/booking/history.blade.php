@@ -13,8 +13,9 @@
 
     <div class="bookings-tabs">
         <a href="{{ route('booking.history') }}?status=" class="bookings-tab {{ !request('status') ? 'bookings-tab-active' : '' }}">All</a>
+        <a href="{{ route('booking.history') }}?status=pending_payment" class="bookings-tab {{ request('status') === 'pending_payment' ? 'bookings-tab-active' : '' }}">Pending Payment</a>
+        <a href="{{ route('booking.history') }}?status=awaiting_approval" class="bookings-tab {{ request('status') === 'awaiting_approval' ? 'bookings-tab-active' : '' }}">Awaiting Approval</a>
         <a href="{{ route('booking.history') }}?status=paid" class="bookings-tab {{ request('status') === 'paid' ? 'bookings-tab-active' : '' }}">Paid</a>
-        <a href="{{ route('booking.history') }}?status=pending_payment" class="bookings-tab {{ request('status') === 'pending_payment' ? 'bookings-tab-active' : '' }}">Pending</a>
         <a href="{{ route('booking.history') }}?status=used" class="bookings-tab {{ request('status') === 'used' ? 'bookings-tab-active' : '' }}">Completed</a>
         <a href="{{ route('booking.history') }}?status=cancelled" class="bookings-tab {{ request('status') === 'cancelled' ? 'bookings-tab-active' : '' }}">Cancelled</a>
         <a href="{{ route('booking.history') }}?status=refunded" class="bookings-tab {{ request('status') === 'refunded' ? 'bookings-tab-active' : '' }}">Refunded</a>
@@ -23,16 +24,8 @@
     <div class="bookings-list">
         @forelse($bookings as $booking)
             @php
-                $statusMap = [
-                    'paid' => ['label' => 'Paid', 'class' => 'bs-green'],
-                    'pending_payment' => ['label' => 'Pending', 'class' => 'bs-yellow'],
-                    'used' => ['label' => 'Completed', 'class' => 'bs-blue'],
-                    'expired' => ['label' => 'Expired', 'class' => 'bs-red'],
-                    'cancelled' => ['label' => 'Cancelled', 'class' => 'bs-red'],
-                    'refund_requested' => ['label' => 'Refund Req.', 'class' => 'bs-orange'],
-                    'refunded' => ['label' => 'Refunded', 'class' => 'bs-gray'],
-                ];
-                $status = $statusMap[$booking->booking_status] ?? ['label' => $booking->booking_status, 'class' => 'bs-gray'];
+                $statusLabel = \App\Helpers\StatusHelper::effectiveStatusLabel($booking);
+                $badgeClass = \App\Helpers\StatusHelper::effectiveBadgeClass($booking);
             @endphp
 
             <div class="booking-card">
@@ -41,7 +34,7 @@
                         <span class="booking-code-label">Booking Code</span>
                         <span class="booking-code-value">#{{ $booking->booking_code }}</span>
                     </div>
-                    <span class="booking-card-status {{ $status['class'] }}">{{ $status['label'] }}</span>
+                    <span class="booking-card-status {{ $badgeClass }}">{{ $statusLabel }}</span>
                 </div>
 
                 <div class="booking-card-route">

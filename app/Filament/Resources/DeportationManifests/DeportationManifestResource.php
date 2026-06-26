@@ -18,7 +18,19 @@ class DeportationManifestResource extends Resource
 {
     protected static ?string $model = DeportationManifest::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
+
+    protected static ?string $navigationLabel = 'Manifests';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Operational';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 5;
+    }
 
     public static function form(Schema $schema): Schema
     {

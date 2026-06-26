@@ -9,6 +9,7 @@ class Payment extends Model
 {
     protected $fillable = [
         'booking_id', 'payment_method', 'transaction_id',
+        'proof_of_transfer', 'approved_by', 'rejection_reason', 'approved_at',
         'amount', 'payment_status', 'payment_meta', 'paid_at',
     ];
 
@@ -16,10 +17,16 @@ class Payment extends Model
         'amount' => 'decimal:2',
         'payment_meta' => 'array',
         'paid_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

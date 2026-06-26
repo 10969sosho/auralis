@@ -5,9 +5,65 @@
 <div class="payment-page">
     <h1 class="payment-title">Complete Payment</h1>
 
-    <div class="payment-expiry">
+    @if(session('success'))
+    <div class="payment-success-alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span>{{ session('success') }}</span>
+    </div>
+    @endif
+
+    @if($booking->payment_status === 'awaiting_approval')
+    {{-- Waiting for approval state --}}
+    <div class="payment-waiting">
+        <div class="payment-waiting-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h2 class="payment-waiting-title">Awaiting Admin Confirmation</h2>
+        <p class="payment-waiting-desc">Your proof of transfer has been uploaded. Admin will verify your payment shortly.</p>
+        <div class="payment-waiting-details">
+            <div class="payment-waiting-row">
+                <span>Booking Code</span>
+                <strong>#{{ $booking->booking_code }}</strong>
+            </div>
+            <div class="payment-waiting-row">
+                <span>Total Payment</span>
+                <strong>MYR {{ number_format($booking->total_amount, 2) }}</strong>
+            </div>
+            <div class="payment-waiting-row">
+                <span>Status</span>
+                <span class="payment-status-badge bs-yellow">Awaiting Verification</span>
+            </div>
+        </div>
+        <p class="payment-waiting-hint">Once admin approves, tickets will be issued automatically. Please check your booking page regularly.</p>
+        <div class="payment-actions">
+            <a href="{{ route('booking.detail', $booking->booking_code) }}" class="payment-btn payment-btn-primary">View Booking Details</a>
+            <a href="{{ route('booking.history') }}" class="payment-btn payment-btn-outline">My Bookings</a>
+        </div>
+    </div>
+    @else
+    @if($booking->payment_status === 'rejected')
+    <div class="payment-rejected-banner">
+        <div class="payment-rejected-banner-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <div class="payment-rejected-banner-body">
+            <h3>Payment Rejected</h3>
+            @if($booking->payment->rejection_reason)
+            <p><strong>Reason:</strong> {{ $booking->payment->rejection_reason }}</p>
+            @endif
+            <p class="payment-rejected-banner-hint">Please re-upload a valid proof of transfer or contact support if you need assistance.</p>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+                <a href="https://wa.me/6285212345678?text=Help%3A%20Booking%20%23{{ $booking->booking_code }}%20-%20Payment%20Rejected" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;font-size:0.85rem;font-weight:600;text-decoration:none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:16px;height:16px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Contact Support
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
+    <div class="payment-expiry" id="paymentExpiry">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>Booking will expire in <strong>{{ $booking->expires_at->diffForHumans(null, true) }}</strong>.</span>
+        <span>Booking expires in <strong id="expiryDisplay">{{ $booking->expires_at->diffForHumans(null, true) }}</strong>.</span>
     </div>
 
     <div class="payment-grid">
@@ -50,35 +106,66 @@
         <div class="payment-card">
             <div class="payment-card-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Payment Method
+                Transfer Manual
             </div>
             <div class="payment-card-body">
-                <form action="{{ route('booking.process-payment', $booking->booking_code) }}" method="POST" class="payment-form">
-                    @csrf
-                    <div class="payment-options">
-                        <label class="payment-option">
-                            <input type="radio" name="payment_method" value="fpx" required>
-                            <div class="payment-option-content">
-                                <span class="payment-option-name">FPX (Online Banking)</span>
-                                <span class="payment-option-desc">Pay via Malaysian online banking</span>
-                            </div>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment_method" value="ewallet" required>
-                            <div class="payment-option-content">
-                                <span class="payment-option-name">E-Wallet</span>
-                                <span class="payment-option-desc">Touch 'n Go, GrabPay, etc.</span>
-                            </div>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment_method" value="online_banking" required>
-                            <div class="payment-option-content">
-                                <span class="payment-option-name">Online Banking</span>
-                                <span class="payment-option-desc">Manual bank transfer</span>
-                            </div>
-                        </label>
+                {{-- QR Code Display with Timer --}}
+                @php
+                    $qrValue = App\Models\Setting::getValue('payment_qr_image');
+                @endphp
+                @if($qrValue)
+                <div class="payment-qr-section" id="qrSection">
+                    <h3 class="payment-qr-title">Scan QR Code to Pay</h3>
+                    <div class="payment-qr-timer" id="bookingTimer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Booking expires in <strong id="timerDisplay">--:--</strong></span>
                     </div>
-                    <button type="submit" class="payment-submit">Pay MYR {{ number_format($booking->total_amount, 2) }}</button>
+                    <div class="payment-qr-image-wrap" id="qrImageWrap" onclick="openQrModal(this)" style="cursor:pointer;">
+                        <img src="{{ asset('storage/' . $qrValue) }}" alt="Payment QR Code" class="payment-qr-image">
+                        <span class="payment-qr-zoom-hint">Click to enlarge</span>
+                    </div>
+                    <p class="payment-qr-hint" id="qrHint">Scan the QR above using your e-wallet or mobile banking app.</p>
+                    <div class="payment-qr-expired" id="qrExpired" style="display:none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;color:#ef4444;margin:0 auto 10px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <h4 style="color:#ef4444;margin:0 0 4px;">Booking Cancelled</h4>
+                        <p style="color:#6b7280;font-size:0.85rem;">Payment time has expired. Please make a new booking.</p>
+                        <a href="{{ route('schedules') }}" class="payment-btn payment-btn-primary" style="display:inline-flex;margin-top:16px;">Book Again</a>
+                    </div>
+                </div>
+                @else
+                <div class="payment-qr-section">
+                    <h3 class="payment-qr-title">Transfer to Account</h3>
+                    <div class="payment-bank-info">
+                        <p class="payment-bank-name">Bank Muamalat</p>
+                        <p class="payment-bank-account">5706016718</p>
+                        <p class="payment-bank-holder">a.n Fajar Pratama</p>
+                    </div>
+                </div>
+                @endif
+
+                <div class="payment-divider"></div>
+
+                <form action="{{ route('booking.process-payment', $booking->booking_code) }}" method="POST" enctype="multipart/form-data" class="payment-form">
+                    @csrf
+                    <input type="hidden" name="payment_method" value="manual_transfer">
+
+                    <div class="payment-upload-section">
+                        <h3 class="payment-upload-title">Upload Proof of Transfer</h3>
+                        <p class="payment-upload-desc">Upload a screenshot or photo of your transfer (max 5MB, format: JPG/PNG/WebP)</p>
+                        <div class="payment-upload-dropzone" id="dropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="payment-upload-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <p class="payment-upload-text">Click or drag & drop your proof of transfer here</p>
+                            <span class="payment-upload-filename" id="filename"></span>
+                            <input type="file" name="proof_of_transfer" id="proof_of_transfer" accept="image/*" required class="payment-upload-input">
+                        </div>
+                        @error('proof_of_transfer')
+                            <span class="payment-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="payment-submit" id="submitBtn">
+                        Upload Proof of Transfer & Confirm
+                    </button>
                 </form>
             </div>
         </div>
@@ -114,5 +201,239 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
+
+{{-- QR Image Modal --}}
+<div class="qr-modal-overlay" id="qrModalOverlay" onclick="closeQrModal()">
+    <div class="qr-modal-content" onclick="event.stopPropagation()">
+        <button class="qr-modal-close" onclick="closeQrModal()">&times;</button>
+        <img class="qr-modal-image" id="qrModalImage" src="" alt="QR Code Full Size">
+    </div>
+</div>
+
+<style>
+.payment-success-alert {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 18px;
+    background:#ecfdf5;
+    border:1px solid #a7f3d0;
+    border-radius:10px;
+    color:#065f46;
+    font-size:0.9rem;
+    margin-bottom:20px;
+}
+.payment-success-alert svg { width:22px;height:22px;flex-shrink:0;color:#059669; }
+.payment-waiting { text-align:center;padding:40px 20px; }
+.payment-waiting-icon svg { width:64px;height:64px;color:#f59e0b;margin:0 auto 16px; }
+.payment-waiting-title { font-size:1.4rem;font-weight:700;margin-bottom:8px;color:#1f2937; }
+.payment-waiting-desc { color:#6b7280;margin-bottom:24px; }
+.payment-waiting-details { max-width:400px;margin:0 auto 20px;background:#f9fafb;border-radius:12px;padding:20px; }
+.payment-waiting-row { display:flex;justify-content:space-between;padding:8px 0;font-size:0.9rem; }
+.payment-waiting-row span { color:#6b7280; }
+.payment-waiting-hint { font-size:0.85rem;color:#9ca3af;margin-bottom:24px; }
+.payment-status-badge { font-size:0.8rem;padding:4px 12px;border-radius:20px;font-weight:600; }
+.payment-actions { display:flex;gap:12px;justify-content:center;flex-wrap:wrap; }
+.payment-btn { display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-weight:600;font-size:0.9rem;text-decoration:none;transition:all 0.2s; }
+.payment-btn-primary { background:#2563eb;color:#fff; }
+.payment-btn-primary:hover { background:#1d4ed8; }
+.payment-btn-outline { border:2px solid #d1d5db;color:#374151; }
+.payment-btn-outline:hover { border-color:#9ca3af; }
+.payment-rejected { text-align:center;padding:40px 20px; }
+.payment-rejected-icon svg { width:64px;height:64px;color:#ef4444;margin:0 auto 16px; }
+.payment-rejected-title { font-size:1.4rem;font-weight:700;margin-bottom:8px;color:#dc2626; }
+.payment-rejected-reason { background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;color:#dc2626;display:inline-block;margin-bottom:12px;font-size:0.9rem; }
+.payment-rejected-desc { color:#6b7280;margin-bottom:20px; }
+.payment-qr-section { text-align:center;padding:10px 0; }
+.payment-qr-title { font-size:0.95rem;font-weight:600;color:#1f2937;margin-bottom:14px; }
+.payment-qr-image-wrap { background:#fff;border:2px solid #e5e7eb;border-radius:12px;padding:12px;display:inline-block; }
+.payment-qr-image { width:180px;height:180px;object-fit:contain;display:block; }
+.payment-qr-hint { font-size:0.8rem;color:#9ca3af;margin-top:10px; }
+.payment-bank-info { text-align:center;padding:10px 0; }
+.payment-bank-name { font-weight:600;color:#1f2937;font-size:0.95rem;margin-bottom:4px; }
+.payment-bank-account { font-size:1.2rem;font-weight:700;color:#2563eb;letter-spacing:2px;margin-bottom:4px; }
+.payment-bank-holder { font-size:0.85rem;color:#6b7280; }
+.payment-upload-section { padding:10px 0; }
+.payment-upload-title { font-size:0.95rem;font-weight:600;color:#1f2937;margin-bottom:6px; }
+.payment-upload-desc { font-size:0.8rem;color:#6b7280;margin-bottom:14px; }
+.payment-upload-dropzone { position:relative;border:2px dashed #d1d5db;border-radius:12px;padding:30px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafafa; }
+.payment-upload-dropzone:hover { border-color:#2563eb;background:#eff6ff; }
+.payment-upload-dropzone.dragover { border-color:#2563eb;background:#eff6ff; }
+.payment-upload-icon { width:40px;height:40px;color:#9ca3af;margin:0 auto 10px; }
+.payment-upload-text { font-size:0.85rem;color:#6b7280; }
+.payment-upload-filename { display:block;font-size:0.85rem;color:#2563eb;font-weight:600;margin-top:8px; }
+.payment-upload-input { position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer; }
+.payment-error { display:block;color:#dc2626;font-size:0.8rem;margin-top:6px; }
+.payment-rejected-banner { display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;margin-bottom:20px; }
+.payment-rejected-banner-icon svg { width:28px;height:28px;color:#ef4444;flex-shrink:0;margin-top:2px; }
+.payment-rejected-banner-body h3 { font-weight:700;color:#dc2626;font-size:0.95rem;margin-bottom:4px; }
+.payment-rejected-banner-body p { color:#991b1b;font-size:0.85rem; }
+.payment-rejected-banner-hint { margin-top:6px !important;color:#6b7280 !important;font-size:0.8rem !important; }
+.payment-qr-timer { display:flex;align-items:center;justify-content:center;gap:8px;font-size:0.9rem;color:#6b7280;margin-bottom:14px;padding:8px 16px;background:#fefce8;border:1px solid #fde68a;border-radius:8px; }
+.payment-qr-timer svg { color:#f59e0b;flex-shrink:0; }
+.payment-qr-timer strong { color:#d97706;font-family:monospace;font-size:1.1rem; }
+.payment-qr-expired { text-align:center;padding:20px; }
+
+/* QR Image Modal */
+.qr-modal-overlay {
+    display:none; position:fixed; z-index:9999; inset:0;
+    background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+    padding:24px;
+}
+.qr-modal-overlay.open { display:flex; }
+.qr-modal-content {
+    position:relative; max-width:90vw; max-height:90vh;
+    background:#fff; border-radius:20px; padding:24px;
+    box-shadow:0 24px 80px rgba(0,0,0,0.35);
+    animation:qrModalFadeIn 0.25s ease;
+}
+@keyframes qrModalFadeIn {
+    from { opacity:0; transform:scale(0.9); }
+    to { opacity:1; transform:scale(1); }
+}
+.qr-modal-close {
+    position:absolute; top:-14px; right:-14px;
+    width:36px; height:36px; border-radius:50%;
+    border:none; background:#fff; color:#374151;
+    font-size:22px; font-weight:700; cursor:pointer;
+    box-shadow:0 2px 12px rgba(0,0,0,0.15);
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s; line-height:1;
+}
+.qr-modal-close:hover { background:#ef4444; color:#fff; transform:scale(1.1); }
+.qr-modal-image {
+    max-width:70vw; max-height:75vh; object-fit:contain;
+    display:block; border-radius:12px;
+}
+.payment-qr-zoom-hint {
+    display:block; font-size:0.72rem; color:#3b82f6; font-weight:600;
+    margin-top:6px; text-align:center;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Single countdown timer based on server expires_at timestamp (timezone-safe)
+    const expiresAt = {{ $booking->expires_at->timestamp }} * 1000;
+    const timerDisplay = document.getElementById('timerDisplay');
+    const expiryDisplay = document.getElementById('expiryDisplay');
+    const qrImageWrap = document.getElementById('qrImageWrap');
+    const qrHint = document.getElementById('qrHint');
+    const qrExpired = document.getElementById('qrExpired');
+    const bookingTimer = document.getElementById('bookingTimer');
+    const paymentExpiry = document.getElementById('paymentExpiry');
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const diff = expiresAt - now;
+
+        if (diff <= 0) {
+            // Expired — cancel on server via AJAX and show expired UI
+            if (!window.bookingCancelled) {
+                window.bookingCancelled = true;
+                cancelBookingOnServer();
+            }
+            if (timerDisplay) timerDisplay.textContent = '00:00';
+            if (expiryDisplay) expiryDisplay.textContent = 'expired';
+            if (qrImageWrap) qrImageWrap.style.display = 'none';
+            if (qrHint) qrHint.style.display = 'none';
+            if (bookingTimer) bookingTimer.style.display = 'none';
+            if (paymentExpiry) paymentExpiry.style.display = 'none';
+            if (qrExpired) qrExpired.style.display = 'block';
+            clearInterval(timerInterval);
+            return;
+        }
+
+        const totalSeconds = Math.floor(diff / 1000);
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+
+        const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        if (timerDisplay) timerDisplay.textContent = timeStr;
+
+        // Human-friendly remaining time for the header
+        if (expiryDisplay) {
+            if (mins >= 60) {
+                const hours = Math.floor(mins / 60);
+                const remMins = mins % 60;
+                expiryDisplay.textContent = hours + 'h ' + remMins + 'm';
+            } else {
+                expiryDisplay.textContent = mins + 'm ' + secs + 's';
+            }
+        }
+    }
+
+    // Run immediately then every second
+    updateCountdown();
+    const timerInterval = setInterval(updateCountdown, 1000);
+
+    // Dropzone upload
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('proof_of_transfer');
+    const filename = document.getElementById('filename');
+
+    if (dropzone && fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                filename.textContent = '✓ ' + this.files[0].name;
+                dropzone.style.borderColor = '#059669';
+                dropzone.style.background = '#ecfdf5';
+            } else {
+                filename.textContent = '';
+                dropzone.style.borderColor = '#d1d5db';
+                dropzone.style.background = '#fafafa';
+            }
+        });
+
+        dropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                filename.textContent = '✓ ' + e.dataTransfer.files[0].name;
+                dropzone.style.borderColor = '#059669';
+                dropzone.style.background = '#ecfdf5';
+            }
+        });
+    }
+
+    // QR Modal: close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeQrModal();
+    });
+});
+
+function openQrModal(el) {
+    var img = el.querySelector('img');
+    if (!img) return;
+    document.getElementById('qrModalImage').src = img.src;
+    document.getElementById('qrModalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeQrModal() {
+    document.getElementById('qrModalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function cancelBookingOnServer() {
+    var http = new XMLHttpRequest();
+    http.open('POST', '{{ route("booking.cancel-expired", $booking->booking_code) }}', true);
+    http.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    http.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+    http.send('_token={{ csrf_token() }}');
+}
+</script>
 @endsection
