@@ -56,7 +56,7 @@ class PaymentSettings extends Page implements HasForms
     {
         $this->payment_qr_image = Setting::getValue('payment_qr_image');
         $this->form->fill([
-            'payment_qr_image' => $this->payment_qr_image,
+            'payment_qr_image' => $this->payment_qr_image ? [$this->payment_qr_image] : [],
         ]);
     }
 
