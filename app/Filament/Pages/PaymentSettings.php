@@ -70,6 +70,7 @@ class PaymentSettings extends Page implements HasForms
                             ->image()
                             ->maxSize(2048)
                             ->directory('settings/qr')
+                            ->disk('public')
                             ->visibility('public')
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
                             ->previewable(true)

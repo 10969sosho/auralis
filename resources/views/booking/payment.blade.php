@@ -121,7 +121,7 @@
                         <span>Booking expires in <strong id="timerDisplay">--:--</strong></span>
                     </div>
                     <div class="payment-qr-image-wrap" id="qrImageWrap" onclick="openQrModal(this)" style="cursor:pointer;">
-                        <img src="{{ Storage::url($qrValue) }}" alt="Payment QR Code" class="payment-qr-image">
+                        <img src="{{ asset('storage/' . $qrValue) }}" alt="Payment QR Code" class="payment-qr-image">
                         <span class="payment-qr-zoom-hint">Click to enlarge</span>
                     </div>
                     <p class="payment-qr-hint" id="qrHint">Scan the QR above using your e-wallet or mobile banking app.</p>
