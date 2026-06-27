@@ -104,7 +104,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg mt-4 btn-block" style="background:#059669;border-color:#059669;">
-                💰 Confirm Payment & Print Ticket
+                Confirm Payment &amp; Print Ticket
             </button>
         </div>
     </form>

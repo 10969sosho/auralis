@@ -8,19 +8,15 @@
 <div class="search-hero">
     <div class="search-hero-content">
         <p class="search-hero-label">Book Ticket</p>
-        <h1 class="search-hero-title">Search Ferry Tickets</h1>
-        <p class="search-hero-desc">Find ferry schedules based on your route and departure date.</p>
+        <h1 class="search-hero-title">Ferry Schedule</h1>
+        <p class="search-hero-desc">Browse all available ferry schedules. Filter by route to find your trip.</p>
 
         <form action="{{ route('schedules') }}" method="GET" id="searchForm" class="search-form">
             <div class="search-form-grid">
-                <div class="search-form-full">
-                    <label class="search-label">Departure Date</label>
-                    <input type="date" name="departure_date" value="{{ request('departure_date') }}" class="search-input" required min="{{ date('Y-m-d') }}">
-                </div>
                 <div>
                     <label class="search-label">Origin Port</label>
-                    <select name="origin_port" id="origin_port" class="search-input" required onchange="updateDestinations()">
-                        <option value="">Select Port</option>
+                    <select name="origin_port" id="origin_port" class="search-input" onchange="updateDestinations()">
+                        <option value="">All Ports</option>
                         @foreach($routes->unique('origin_port') as $route)
                             <option value="{{ $route->origin_port }}" {{ request('origin_port') === $route->origin_port ? 'selected' : '' }}>{{ $route->origin_port }}</option>
                         @endforeach
@@ -28,8 +24,8 @@
                 </div>
                 <div>
                     <label class="search-label">Destination Port</label>
-                    <select name="destination_port" id="destination_port" class="search-input" required>
-                        <option value="">Select Port</option>
+                    <select name="destination_port" id="destination_port" class="search-input">
+                        <option value="">All Ports</option>
                         @php
                             $destPorts = isset($destinationPorts) && $destinationPorts->isNotEmpty() ? $destinationPorts : $routes->unique('destination_port')->pluck('destination_port');
                         @endphp
@@ -49,7 +45,7 @@
                 </div>
                 <button type="submit" class="search-submit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    Search
+                    Filter
                 </button>
             </div>
         </form>
@@ -58,13 +54,7 @@
 
 {{-- Results --}}
 <div class="search-results">
-    @if(isset($hasSearch) && !$hasSearch)
-        <div class="search-empty">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-empty-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <h3 class="search-empty-title">Search Schedules</h3>
-            <p class="search-empty-desc">Fill in the search form above to find available ferry schedules.</p>
-        </div>
-    @elseif(count($schedules) > 0)
+    @if(count($schedules) > 0)
         <div class="search-results-header">
             <p class="search-results-count">{{ count($schedules) }} schedule{{ count($schedules) > 1 ? 's' : '' }} found</p>
         </div>
@@ -84,7 +74,6 @@
                         <div class="ticket-route-point ticket-route-origin">
                             <span class="ticket-route-label">Departure</span>
                             <span class="ticket-route-port">{{ $schedule->route->origin_port }}</span>
-                            <span class="ticket-route-flag">&#127477;&#127472;</span>
                         </div>
                         <div class="ticket-route-line">
                             <div class="ticket-route-dot"></div>
@@ -94,7 +83,6 @@
                         <div class="ticket-route-point ticket-route-dest">
                             <span class="ticket-route-label">Arrival</span>
                             <span class="ticket-route-port">{{ $schedule->route->destination_port }}</span>
-                            <span class="ticket-route-flag">&#127474;&#127473;</span>
                         </div>
                     </div>
 
@@ -195,7 +183,7 @@
         <div class="search-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-empty-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <h3 class="search-empty-title">No Schedules Found</h3>
-            <p class="search-empty-desc">Try adjusting your search criteria or choose a different date.</p>
+            <p class="search-empty-desc">Try adjusting your filter criteria.</p>
         </div>
     @endif
 </div>
