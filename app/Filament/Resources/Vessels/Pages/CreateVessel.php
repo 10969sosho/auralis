@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateVessel extends CreateRecord
 {
     protected static string $resource = VesselResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

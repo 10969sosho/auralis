@@ -11,6 +11,11 @@ class EditAgeCategory extends EditRecord
 {
     protected static string $resource = AgeCategoryResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     public function form(Schema $schema): Schema
     {
         return AgeCategoryForm::configure($schema);

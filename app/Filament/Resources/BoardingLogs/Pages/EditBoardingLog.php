@@ -10,6 +10,11 @@ class EditBoardingLog extends EditRecord
 {
     protected static string $resource = BoardingLogResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDeportationManifest extends CreateRecord
 {
     protected static string $resource = DeportationManifestResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

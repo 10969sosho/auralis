@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBoardingLog extends CreateRecord
 {
     protected static string $resource = BoardingLogResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

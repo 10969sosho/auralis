@@ -15,6 +15,11 @@ class EditSchedule extends EditRecord
     protected ?Carbon $oldDepartureTime = null;
     protected ?Carbon $oldArrivalTime = null;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
