@@ -885,6 +885,7 @@ td { color: #4b5563; }
 /* === TICKET CARD === */
 
 .ticket-card {
+    width: 100%;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.04);
@@ -899,7 +900,7 @@ td { color: #4b5563; }
     border-color: rgba(14,154,239,0.15);
 }
 
-.ticket-card-body { padding: 1.5rem; }
+.ticket-card-body { padding: 1.5rem; width: 100%; }
 
 /* Top / Vessel */
 .ticket-top { margin-bottom: 1rem; }
@@ -1254,8 +1255,6 @@ td { color: #4b5563; }
 /* === RESPONSIVE SEARCH === */
 
 @media (max-width: 768px) {
-    .search-hero { padding: 1.5rem 1.25rem; }
-
     .search-hero-title { font-size: 1.375rem; }
 
     .search-form-row {
@@ -5159,12 +5158,18 @@ select.auth-input {
 /* Hero / Form Section */
 .search-hero {
     background: linear-gradient(135deg, rgba(11,125,218,0.9), rgba(78,162,255,0.75)), url('/images/hero-banner.jpeg') center/cover no-repeat;
-    padding: 60px 24px;
+    padding: 60px 0;
+    border-radius: 0;
+    margin-bottom: 0;
+    box-shadow: none;
+    overflow: visible;
+    position: relative;
 }
 
 .search-hero-content {
     max-width: 1280px;
     margin: 0 auto;
+    padding: 0 24px;
 }
 
 .search-hero-label {
@@ -5197,6 +5202,7 @@ select.auth-input {
     border-radius: 16px;
     padding: 32px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    width: 100%;
 }
 
 .search-form-grid {
@@ -5363,7 +5369,7 @@ select.auth-input {
     }
 
     .search-hero {
-        padding: 40px 20px;
+        padding: 40px 0;
     }
 
     .search-form {
@@ -5386,7 +5392,7 @@ select.auth-input {
     }
 
     .search-hero {
-        padding: 32px 16px;
+        padding: 32px 0;
     }
 
     .search-form {
