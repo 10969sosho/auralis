@@ -31,7 +31,7 @@
                     </div>
                     <div class="auth-field">
                         <label for="nationality" class="auth-label">Nationality</label>
-                        <input type="text" name="nationality" id="nationality" value="{{ old('nationality') }}" class="auth-input" placeholder="Indonesian">
+                        <input type="text" name="nationality" id="nationality" value="{{ old('nationality') }}" class="auth-input" placeholder="e.g. Malaysian / Filipino">
                     </div>
                 </div>
                 <div class="auth-form-row">

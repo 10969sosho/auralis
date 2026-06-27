@@ -23,30 +23,23 @@ class BookingController extends Controller
         $validated = $request->validate([
             'origin_port' => ['nullable', 'string'],
             'destination_port' => ['nullable', 'string'],
-            'departure_date' => ['nullable', 'date'],
             'passenger_count' => ['nullable', 'integer', 'min:1', 'max:8'],
         ]);
 
         $routes = Route::where('active', true)->get();
 
-        // Only search when at least departure_date is provided
-        $hasSearch = $request->filled('departure_date') || $request->filled('origin_port') || $request->filled('destination_port');
+        // Always show all upcoming schedules, with optional filters
+        $schedules = Schedule::with(['vessel', 'route'])
+            ->where('status', 'scheduled')
+            ->where('departure_time', '>', now())
+            ->when($request->origin_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('origin_port', $request->origin_port)))
+            ->when($request->destination_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('destination_port', $request->destination_port)))
+            ->orderBy('departure_time')
+            ->get();
 
-        $schedules = collect();
-        if ($hasSearch) {
-            $schedules = Schedule::with(['vessel', 'route'])
-                ->where('status', 'scheduled')
-                ->where('departure_time', '>', now())
-                ->when($request->origin_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('origin_port', $request->origin_port)))
-                ->when($request->destination_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('destination_port', $request->destination_port)))
-                ->when($request->departure_date, fn ($q) => $q->whereDate('departure_time', $request->departure_date))
-                ->orderBy('departure_time')
-                ->get();
-
-            $schedules->each(function ($schedule) {
-                $schedule->loadMissing(['vessel', 'route']);
-            });
-        }
+        $schedules->each(function ($schedule) {
+            $schedule->loadMissing(['vessel', 'route']);
+        });
 
         $autoPromos = Promo::where('is_active', true)
             ->where('auto_apply', true)
@@ -62,7 +55,7 @@ class BookingController extends Controller
             ->unique()
             ->values();
 
-        return view('booking.search', compact('schedules', 'routes', 'autoPromos', 'destinationPorts', 'hasSearch'));
+        return view('booking.search', compact('schedules', 'routes', 'autoPromos', 'destinationPorts'));
     }
 
     public function show(Schedule $schedule, Request $request)
