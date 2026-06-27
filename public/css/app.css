@@ -5311,11 +5311,12 @@ select.auth-input {
 .search-results {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 32px 24px 60px;
+    padding: 32px 0 60px;
 }
 
 .search-results-header {
     margin-bottom: 20px;
+    padding: 0 24px;
 }
 
 .search-results-count {
@@ -5328,6 +5329,9 @@ select.auth-input {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    padding: 0 24px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Empty state */
@@ -5407,7 +5411,12 @@ select.auth-input {
     }
 
     .search-results {
-        padding: 24px 16px 40px;
+        padding: 24px 0 40px;
+    }
+    .search-results-header,
+    .search-results-list {
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .search-label {
