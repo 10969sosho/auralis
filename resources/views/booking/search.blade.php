@@ -54,6 +54,7 @@
 
 {{-- Results --}}
 <div class="search-results">
+    <div class="search-results-content">
     @if(count($schedules) > 0)
         <div class="search-results-header">
             <p class="search-results-count">{{ count($schedules) }} schedule{{ count($schedules) > 1 ? 's' : '' }} found</p>
@@ -186,6 +187,7 @@
             <p class="search-empty-desc">Try adjusting your filter criteria.</p>
         </div>
     @endif
+    </div>
 </div>
 
 <script>
