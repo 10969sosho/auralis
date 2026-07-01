@@ -10,7 +10,7 @@ class Schedule extends Model
 {
     protected $fillable = [
         'vessel_id', 'route_id', 'departure_time', 'arrival_time',
-        'vip_price', 'regular_price', 'vip_remaining', 'regular_remaining', 'status',
+        'vip_price', 'regular_price', 'status', 'is_active',
     ];
 
     protected $casts = [
@@ -18,8 +18,7 @@ class Schedule extends Model
         'arrival_time' => 'datetime',
         'vip_price' => 'decimal:2',
         'regular_price' => 'decimal:2',
-        'vip_remaining' => 'integer',
-        'regular_remaining' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function vessel(): BelongsTo

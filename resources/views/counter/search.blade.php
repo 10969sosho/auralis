@@ -49,7 +49,7 @@
                 <div class="flex justify-between items-center pt-2 border-t">
                     <div>
                         <span class="text-sm text-gray-500">Total: </span>
-                        <span class="font-semibold">MYR {{ number_format($booking->total_amount, 2) }}</span>
+                        <span class="font-semibold">RM {{ number_format($booking->total_amount, 2) }}</span>
                     </div>
                     <div class="flex gap-2">
                         @if($booking->payment)

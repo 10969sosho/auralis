@@ -46,8 +46,8 @@
                     <span>Regular: <strong>{{ max(0, $regularLeft) }}</strong> left</span>
                 </div>
                 <div class="counter-card-prices">
-                    <span>VIP: MYR {{ number_format($schedule->vip_price, 2) }}</span>
-                    <span>Regular: MYR {{ number_format($schedule->regular_price, 2) }}</span>
+                    <span>VIP: RM {{ number_format($schedule->vip_price, 2) }}</span>
+                    <span>Regular: RM {{ number_format($schedule->regular_price, 2) }}</span>
                 </div>
                 <div class="counter-card-action">
                     @if($canBook)

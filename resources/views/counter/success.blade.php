@@ -11,7 +11,7 @@
         @if($changeAmount > 0)
         <div class="change-box">
             <span class="change-label">Change to return:</span>
-            <span class="change-value">MYR {{ number_format($changeAmount, 2) }}</span>
+            <span class="change-value">RM {{ number_format($changeAmount, 2) }}</span>
         </div>
         @endif
 
@@ -19,7 +19,7 @@
             <p><strong>{{ $booking->schedule->vessel->name }}</strong></p>
             <p>{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</p>
             <p>Departure: {{ $booking->schedule->departure_time->format('d M Y, H:i') }}</p>
-            <p>Total: <strong>MYR {{ number_format($booking->total_amount, 2) }}</strong></p>
+            <p>Total: <strong>RM {{ number_format($booking->total_amount, 2) }}</strong></p>
             <p>Passengers: {{ $booking->total_passengers }}</p>
         </div>
 

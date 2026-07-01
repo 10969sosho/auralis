@@ -24,7 +24,7 @@
                     <tr>
                         <th>Route</th>
                         <th>Class</th>
-                        <th>Price (MYR)</th>
+                        <th>Price (RM)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,12 +32,12 @@
                         <tr>
                             <td>{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}</td>
                             <td>VIP</td>
-                            <td class="price-amount">MYR {{ number_format($schedule->vip_price, 2) }}</td>
+                            <td class="price-amount">RM {{ number_format($schedule->vip_price, 2) }}</td>
                         </tr>
                         <tr>
                             <td>{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}</td>
                             <td>Regular</td>
-                            <td class="price-amount">MYR {{ number_format($schedule->regular_price, 2) }}</td>
+                            <td class="price-amount">RM {{ number_format($schedule->regular_price, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -61,7 +61,7 @@
 
 <style>
 .price-page {
-    max-width: 1280px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 .price-page-header {

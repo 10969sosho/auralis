@@ -130,115 +130,32 @@
         <h2 class="guest-section-title" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Ferry Schedule</h2>
         <p class="guest-section-subtitle" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">Browse our latest ferry schedules for Malaysia - Philippines routes and beyond.</p>
         <div class="schedule-grid">
-            <div class="schedule-card" data-aos="flip-up" data-aos-duration="800" data-aos-delay="100">
-                <div class="schedule-route">Bongao → Lahad Datu</div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Departure: <span class="schedule-time">08:00 WITA</span></span>
+            @forelse($schedules as $schedule)
+                <div class="schedule-card" data-aos="flip-up" data-aos-duration="800" data-aos-delay="{{ $loop->index * 100 + 100 }}">
+                    <div class="schedule-route">{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}</div>
+                    <div class="schedule-detail">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Departure: <span class="schedule-time">{{ $schedule->departure_time->format('H:i') }} WITA</span></span>
+                    </div>
+                    <div class="schedule-detail">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Arrival: <span class="schedule-time">{{ $schedule->arrival_time->format('H:i') }} WITA</span></span>
+                    </div>
+                    <div class="schedule-detail">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>Vessel: <span class="schedule-time">{{ $schedule->vessel->name }}</span></span>
+                    </div>
                 </div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Arrival: <span class="schedule-time">11:30 WITA</span></span>
+            @empty
+                <div class="schedule-card" style="grid-column:1/-1;text-align:center;padding:40px;">
+                    <p style="color:rgba(255,255,255,0.7);">No schedules available at the moment. Please check back later.</p>
                 </div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span>Vessel: <span class="schedule-time">MV Auralis 8</span></span>
-                </div>
-            </div>
-            <div class="schedule-card" data-aos="flip-up" data-aos-duration="800" data-aos-delay="200">
-                <div class="schedule-route">Lahad Datu → Bongao</div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Departure: <span class="schedule-time">13:00 WITA</span></span>
-                </div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Arrival: <span class="schedule-time">16:30 WITA</span></span>
-                </div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span>Vessel: <span class="schedule-time">MV Auralis 8</span></span>
-                </div>
-            </div>
-            <div class="schedule-card" data-aos="flip-up" data-aos-duration="800" data-aos-delay="300">
-                <div class="schedule-route">Bongao → Sandakan</div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Departure: <span class="schedule-time">09:00 WITA</span></span>
-                </div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Arrival: <span class="schedule-time">14:00 WITA</span></span>
-                </div>
-                <div class="schedule-detail">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span>Vessel: <span class="schedule-time">MV Auralis 8</span></span>
-                </div>
-            </div>
+            @endforelse
         </div>
         <div class="text-center" style="margin-top:48px;" data-aos="fade-up" data-aos-duration="800">
             <a href="{{ route('jadwal') }}" style="display:inline-flex;align-items:center;gap:8px;padding:14px 35px;font-size:16px;font-weight:600;color:#fff;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:5px;text-decoration:none;transition:all 0.2s;">
                 View Full Schedule →
             </a>
-        </div>
-    </div>
-</section>
-
-{{-- Booking Section --}}
-<section class="guest-section booking-section" id="booking">
-    <div class="guest-container">
-        <p class="guest-section-label" data-aos="fade-up" data-aos-duration="800">Ticket Booking</p>
-        <h2 class="guest-section-title" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Book Ferry Ticket</h2>
-        <p class="guest-section-subtitle" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">Fill in the details below to start booking your ferry ticket.</p>
-        <div class="booking-box" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
-            <form action="{{ route('schedules') }}" method="GET">
-                <div class="booking-form-grid">
-                    <div class="booking-form-full">
-                        <label class="booking-label">Departure Date</label>
-                        <input type="date" name="date" class="booking-input" required>
-                    </div>
-                    <div>
-                        <label class="booking-label">Origin Port</label>
-                        <select name="from" class="booking-input" required>
-                            <option value="">Select Port</option>
-                            <option value="Bongao">Bongao, Tawi-Tawi</option>
-                            <option value="Lahad Datu">Lahad Datu, Sabah</option>
-                            <option value="Sandakan">Sandakan, Sabah</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="booking-label">Destination Port</label>
-                        <select name="to" class="booking-input" required>
-                            <option value="">Select Port</option>
-                            <option value="Lahad Datu">Lahad Datu, Sabah</option>
-                            <option value="Bongao">Bongao, Tawi-Tawi</option>
-                            <option value="Sandakan">Sandakan, Sabah</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="booking-label">Adults</label>
-                        <div class="booking-counter-group">
-                            <button type="button" class="booking-counter-btn" onclick="adjustCounter('adult', -1)">−</button>
-                            <span class="booking-counter-value" id="adultCount">1</span>
-                            <button type="button" class="booking-counter-btn" onclick="adjustCounter('adult', 1)">+</button>
-                        </div>
-                        <input type="hidden" name="adult" id="adultInput" value="1">
-                    </div>
-                    <div>
-                        <label class="booking-label">Children</label>
-                        <div class="booking-counter-group">
-                            <button type="button" class="booking-counter-btn" onclick="adjustCounter('child', -1)">−</button>
-                            <span class="booking-counter-value" id="childCount">0</span>
-                            <button type="button" class="booking-counter-btn" onclick="adjustCounter('child', 1)">+</button>
-                        </div>
-                        <input type="hidden" name="child" id="childInput" value="0">
-                    </div>
-                    <button type="submit" class="booking-submit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        Search Tickets
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </section>
@@ -261,7 +178,7 @@
                         <tr>
                             <th>Route</th>
                             <th>Class</th>
-                            <th>Price (MYR)</th>
+                            <th>Price (RM)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -269,12 +186,12 @@
                         <tr>
                             <td>{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}</td>
                             <td>VIP</td>
-                            <td class="price-amount">MYR {{ number_format($schedule->vip_price, 2) }}</td>
+                            <td class="price-amount">RM {{ number_format($schedule->vip_price, 2) }}</td>
                         </tr>
                         <tr>
                             <td>{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}</td>
                             <td>Regular</td>
-                            <td class="price-amount">MYR {{ number_format($schedule->regular_price, 2) }}</td>
+                            <td class="price-amount">RM {{ number_format($schedule->regular_price, 2) }}</td>
                         </tr>
                         @empty
                         <tr>

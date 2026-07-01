@@ -1,29 +1,44 @@
 @extends('layouts.app')
-@section('title', 'Booking Detail')
+@section('title', 'Booking Detail - Counter')
 
 @section('content')
 
 <div class="detail-page">
     <div class="detail-top">
-        <a href="{{ route('booking.history') }}" class="detail-back">
+        <a href="{{ route('counter.history') }}" class="detail-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-            My Bookings
+            Counter Bookings
         </a>
         @php
             $statusLabel = \App\Helpers\StatusHelper::effectiveStatusLabel($booking);
             $badgeClass = \App\Helpers\StatusHelper::effectiveBadgeClass($booking);
         @endphp
-        <div class="detail-top-right">
+        <div>
             <span class="detail-status {{ $badgeClass }}">{{ $statusLabel }}</span>
         </div>
     </div>
 
+    @if(session('success'))
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:12px;margin-bottom:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;color:#059669;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span>{{ session('success') }}</span>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:12px;margin-bottom:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;color:#DC2626;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span>{{ session('error') }}</span>
+    </div>
+    @endif
+
     <div class="detail-hero">
         <div class="detail-hero-code">#{{ $booking->booking_code }}</div>
-        <p class="detail-hero-sub">Booking confirmed — {{ $booking->created_at->format('d M Y, H:i') }}</p>
+        <p class="detail-hero-sub">Booked on {{ $booking->created_at->format('d M Y, H:i') }}</p>
     </div>
 
     <div class="detail-grid">
+        {{-- Trip Details --}}
         <div class="detail-card">
             <div class="detail-card-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/><path d="M5 7h14l-2 5H7L5 7Z"/><circle cx="12" cy="7" r="1.5"/></svg>
@@ -59,6 +74,10 @@
                     <span class="detail-row-label">Total Amount</span>
                     <span class="detail-row-value detail-row-amount">RM {{ number_format($booking->total_amount, 2) }}</span>
                 </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Insurance</span>
+                    <span class="detail-row-value">RM {{ number_format($booking->total_passengers * 10, 2) }} ({{ $booking->total_passengers }} × RM 10)</span>
+                </div>
                 @if($booking->discount_amount > 0)
                 <div class="detail-row">
                     <span class="detail-row-label">Discount</span>
@@ -83,6 +102,7 @@
             </div>
         </div>
 
+        {{-- Passengers --}}
         <div class="detail-card">
             <div class="detail-card-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -120,11 +140,11 @@
                             </div>
                             @if($passenger->ticket)
                             <div class="detail-passenger-actions">
-                                <a href="{{ route('tickets.show', $passenger->ticket) }}" class="detail-passenger-btn">
+                                <a href="{{ route('tickets.show', $passenger->ticket) }}" target="_blank" class="detail-passenger-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                                     View E-Ticket
                                 </a>
-                                <a href="{{ route('tickets.download', $passenger->ticket) }}" class="detail-passenger-btn detail-passenger-btn-secondary">
+                                <a href="{{ route('tickets.download', $passenger->ticket) }}" target="_blank" class="detail-passenger-btn detail-passenger-btn-secondary">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     PDF
                                 </a>
@@ -137,6 +157,7 @@
         </div>
     </div>
 
+    {{-- Pending Payment --}}
     @if($booking->booking_status === 'pending_payment' && $booking->payment_status === 'pending')
     <div class="detail-refund-card" style="border-color:#fbbf24;background:#fffbeb;">
         <div class="detail-refund-icon" style="color:#d97706">
@@ -144,50 +165,12 @@
         </div>
         <div class="detail-refund-body">
             <h3 class="detail-refund-title" style="color:#d97706">Payment Pending</h3>
-            <p class="detail-refund-info" style="color:#6b7280;margin-bottom:16px;">Your booking is waiting for payment. Please complete the payment to confirm your tickets.</p>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <a href="{{ route('booking.payment', $booking->booking_code) }}" class="detail-refund-btn" style="background:#d97706;color:#fff;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    Continue to Payment
-                </a>
-                @if($booking->payment && $booking->payment->payment_method === 'toyibpay' && $booking->payment->payment_meta['payment_url'] ?? null)
-                <a href="{{ $booking->payment->payment_meta['payment_url'] }}" class="detail-refund-btn" style="background:#1e40af;color:#fff;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    Open ToyibPay
-                </a>
-                @endif
-            </div>
+            <p class="detail-refund-info" style="color:#6b7280;">This booking is waiting for payment.</p>
         </div>
     </div>
     @endif
 
-    @if($booking->payment_status === 'rejected' && $booking->payment)
-    <div class="detail-refund-card" style="border-color:#fecaca;background:#fef2f2;">
-        <div class="detail-refund-icon" style="color:#dc2626">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-        </div>
-        <div class="detail-refund-body">
-            <h3 class="detail-refund-title" style="color:#dc2626">Payment Rejected</h3>
-            @if($booking->payment->rejection_reason)
-                <div class="detail-refund-meta">
-                    <span><strong>Reason:</strong> {{ $booking->payment->rejection_reason }}</span>
-                </div>
-            @endif
-            <p class="detail-refund-notice" style="color:#6b7280;margin-bottom:16px;">Your proof of transfer was not accepted. Please re-upload a valid proof or contact support.</p>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <a href="{{ route('booking.payment', $booking->booking_code) }}" class="detail-refund-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    Re-upload Proof
-                </a>
-                <a href="https://wa.me/6285212345678?text=Help%3A%20Booking%20%23{{ $booking->booking_code }}%20-%20Payment%20Rejected" target="_blank" class="detail-refund-btn" style="background:#25D366;color:#fff;">
-                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:16px;height:16px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    Contact Support
-                </a>
-            </div>
-        </div>
-    </div>
-    @endif
-
+    {{-- Refund Section --}}
     @if($booking->refund)
         <div class="detail-refund-card">
             <div class="detail-refund-icon">
@@ -216,12 +199,12 @@
             <div class="detail-refund-body">
                 <h3 class="detail-refund-title">Request Refund</h3>
                 <p class="detail-refund-info">Refund policy: <strong>25%</strong> of total amount (RM {{ number_format($booking->total_amount * 0.25, 2) }}). Request must be made before H-6 departure.</p>
-                <form action="{{ route('booking.refund', $booking->booking_code) }}" method="POST" class="detail-refund-form">
+                <form action="{{ route('counter.refund', $booking->booking_code) }}" method="POST" class="detail-refund-form">
                     @csrf
-                    <textarea name="refund_reason" required placeholder="Tell us your reason for refund..." class="detail-refund-textarea" rows="3"></textarea>
+                    <textarea name="refund_reason" required placeholder="Enter refund reason..." class="detail-refund-textarea" rows="3"></textarea>
                     <button type="submit" class="detail-refund-btn">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                        Request Refund
+                        Submit Refund Request
                     </button>
                 </form>
             </div>
@@ -229,11 +212,29 @@
     @endif
 
     <div class="detail-actions">
-        <a href="{{ route('booking.history') }}" class="detail-action-btn detail-action-outline">
+        <a href="{{ route('counter.history') }}" class="detail-action-btn detail-action-outline">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-            Back to My Bookings
+            Back to Counter Bookings
         </a>
+        @if($booking->booking_status === 'paid' && $booking->passengers->whereNotNull('ticket')->isNotEmpty())
+        <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
+            @foreach($booking->passengers as $p)
+                @if($p->ticket)
+                <a href="{{ route('tickets.download', $p->ticket) }}" target="_blank" class="detail-action-btn detail-action-outline" style="border-color:#059669;color:#059669;background:#F0FDF4;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Print {{ $p->ticket->ticket_class === 'vip' ? 'VIP' : 'Reg' }}
+                </a>
+                @endif
+            @endforeach
+        </div>
+        @endif
     </div>
 </div>
 
+<style>
+.ts-active { background: #D1FAE5; color: #065F46; }
+.ts-used { background: #DBEAFE; color: #1E40AF; }
+.ts-inactive { background: #FEE2E2; color: #991B1B; }
+.detail-passenger-ticket-status { padding: 2px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; }
+</style>
 @endsection

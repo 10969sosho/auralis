@@ -137,11 +137,11 @@
                     <div class="ticket-prices">
                         <div class="ticket-price-item">
                             <span class="ticket-price-label">VIP</span>
-                            <span class="ticket-price-value">MYR {{ number_format($schedule->vip_price, 2) }}</span>
+                            <span class="ticket-price-value">RM {{ number_format($schedule->vip_price, 2) }}</span>
                         </div>
                         <div class="ticket-price-item">
                             <span class="ticket-price-label">Regular</span>
-                            <span class="ticket-price-value">MYR {{ number_format($schedule->regular_price, 2) }}</span>
+                            <span class="ticket-price-value">RM {{ number_format($schedule->regular_price, 2) }}</span>
                         </div>
                     </div>
 
@@ -158,7 +158,7 @@
                                     @if($applicablePromo->type === 'percentage')
                                         ({{ $applicablePromo->value }}% OFF)
                                     @else
-                                        (MYR {{ $applicablePromo->value }} OFF)
+                                        (RM {{ $applicablePromo->value }} OFF)
                                     @endif
                                 </span>
                             @endif

@@ -61,7 +61,7 @@
                         <div class="sa-class-header">
                             <span class="sa-class-dot vip-dot"></span>
                             <span>VIP</span>
-                            <span class="sa-class-price">MYR {{ number_format($schedule->vip_price, 2) }}</span>
+                            <span class="sa-class-price">RM {{ number_format($schedule->vip_price, 2) }}</span>
                         </div>
                         <div class="sa-class-bar">
                             @php $vipPct = $vipCap > 0 ? ($vipBooked / $vipCap) * 100 : 0; @endphp
@@ -73,7 +73,7 @@
                         <div class="sa-class-header">
                             <span class="sa-class-dot regular-dot"></span>
                             <span>Regular</span>
-                            <span class="sa-class-price">MYR {{ number_format($schedule->regular_price, 2) }}</span>
+                            <span class="sa-class-price">RM {{ number_format($schedule->regular_price, 2) }}</span>
                         </div>
                         <div class="sa-class-bar">
                             @php $regPct = $regCap > 0 ? ($regularBooked / $regCap) * 100 : 0; @endphp

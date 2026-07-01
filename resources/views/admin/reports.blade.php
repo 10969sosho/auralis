@@ -13,7 +13,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                 Filters
             </button>
-            <form action="{{ route('reports.csv') }}" method="GET" class="reports-export-form" style="display:inline-flex;">
+            <form action="{{ route('admin.reports.csv') }}" method="GET" class="reports-export-form" style="display:inline-flex;">
                 <select name="schedule_id" class="form-input" style="width:auto;display:inline-block;">
                     <option value="">All Schedules</option>
                     @foreach($allSchedules as $s)
@@ -28,7 +28,7 @@
     </div>
 
     <div class="filter-panel" id="filterPanel" style="display:none;margin-bottom:20px;">
-        <form action="{{ route('reports.index') }}" method="GET" class="card" style="padding:16px;">
+        <form action="{{ route('admin.reports.index') }}" method="GET" class="card" style="padding:16px;">
             <div class="grid sm:grid-cols-4 gap-4">
                 <div class="form-group">
                     <label class="form-label">Schedule</label>
@@ -62,7 +62,7 @@
             </div>
             <div class="flex gap-3 mt-4">
                 <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-                <a href="{{ route('reports.index') }}" class="btn btn-outline btn-sm">Reset</a>
+                <a href="{{ route('admin.reports.index') }}" class="btn btn-outline btn-sm">Reset</a>
             </div>
         </form>
     </div>
@@ -74,7 +74,7 @@
             <span class="summary-label">Total Bookings</span>
         </div>
         <div class="summary-card summary-card-revenue">
-            <span class="summary-num">MYR {{ number_format($summaryMetrics['total_revenue'], 2) }}</span>
+            <span class="summary-num">RM {{ number_format($summaryMetrics['total_revenue'], 2) }}</span>
             <span class="summary-label">Total Revenue</span>
         </div>
         <div class="summary-card">
@@ -136,7 +136,7 @@
                         <td>{{ $m['total_boarded'] }}</td>
                         <td>{{ $m['total_refund'] }}</td>
                         <td>{{ $m['total_cancel'] }}</td>
-                        <td>MYR {{ number_format($m['total_revenue'], 0) }}</td>
+                        <td>RM {{ number_format($m['total_revenue'], 0) }}</td>
                         <td>
                             <div class="occ-bar">
                                 <div class="occ-fill" style="width: {{ $m['occupancy_percentage'] }}%"></div>

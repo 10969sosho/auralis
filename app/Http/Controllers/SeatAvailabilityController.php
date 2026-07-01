@@ -11,6 +11,7 @@ class SeatAvailabilityController extends Controller
     {
         $schedules = Schedule::with(['vessel', 'route'])
             ->where('status', 'scheduled')
+            ->where('is_active', true)
             ->where('departure_time', '>', now())
             ->orderBy('departure_time')
             ->get();

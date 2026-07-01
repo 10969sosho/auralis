@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     $prices = Schedule::where('status', 'scheduled')
         ->where('departure_time', '>=', now())
+        ->where('is_active', true)
         ->with('route')
         ->select('route_id', 'vip_price', 'regular_price')
         ->distinct()
@@ -23,11 +24,20 @@ Route::get('/', function () {
         ->map(fn($group) => $group->first())
         ->take(3);
 
-    return view('home', compact('prices'));
+    $schedules = Schedule::where('status', 'scheduled')
+        ->where('departure_time', '>=', now())
+        ->where('is_active', true)
+        ->with(['route', 'vessel'])
+        ->orderBy('departure_time')
+        ->take(3)
+        ->get();
+
+    return view('home', compact('prices', 'schedules'));
 })->name('home');
 Route::get('/harga', function () {
     $prices = Schedule::where('status', 'scheduled')
         ->where('departure_time', '>=', now())
+        ->where('is_active', true)
         ->with('route')
         ->select('route_id', 'vip_price', 'regular_price')
         ->distinct()
@@ -107,9 +117,17 @@ Route::middleware(['auth', 'role:deportation_officer,admin'])->prefix('deportati
     Route::post('/boarding/scan', [DeportationController::class, 'boardingScan'])->name('boarding.scan');
 });
 
-Route::middleware(['auth', 'role:admin'])->prefix('exports')->name('reports.')->group(function () {
-    Route::get('/csv', [App\Http\Controllers\AdminReportController::class, 'exportCsv'])->name('csv');
-    Route::get('/excel', [App\Http\Controllers\AdminReportController::class, 'exportExcel'])->name('excel');
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Reports
+    Route::get('/report-list', [App\Http\Controllers\AdminReportController::class, 'index'])->name('reports.index');
+    Route::prefix('exports')->name('reports.')->group(function () {
+        Route::get('/csv', [App\Http\Controllers\AdminReportController::class, 'exportCsv'])->name('csv');
+        Route::get('/excel', [App\Http\Controllers\AdminReportController::class, 'exportExcel'])->name('excel');
+    });
+
+    // Schedule Passenger List (Show)
+    Route::get('/schedules/{schedule}/passengers', [App\Http\Controllers\AdminScheduleController::class, 'passengers'])->name('schedule.passengers');
+    Route::get('/schedules/{schedule}/passengers/export', [App\Http\Controllers\AdminScheduleController::class, 'exportPassengers'])->name('schedule.passengers.export');
 });
 
 Route::middleware(['auth', 'role:ticket_counter_officer,admin'])->prefix('counter')->name('counter.')->group(function () {

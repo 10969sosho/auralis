@@ -27,7 +27,7 @@
             </div>
             <div class="payment-waiting-row">
                 <span>Total Payment</span>
-                <strong>MYR {{ number_format($booking->total_amount, 2) }}</strong>
+                <strong>RM {{ number_format($booking->total_amount, 2) }}</strong>
             </div>
             <div class="payment-waiting-row">
                 <span>Status</span>
@@ -131,13 +131,13 @@
                 @if($booking->discount_amount > 0)
                 <div class="payment-info-row">
                     <span class="payment-info-label">Discount</span>
-                    <span class="payment-info-value" style="color:#059669">-MYR {{ number_format($booking->discount_amount, 2) }}</span>
+                    <span class="payment-info-value" style="color:#059669">-RM {{ number_format($booking->discount_amount, 2) }}</span>
                 </div>
                 @endif
                 <div class="payment-divider"></div>
                 <div class="payment-info-row">
                     <span class="payment-info-label">Total</span>
-                    <span class="payment-info-value payment-total">MYR {{ number_format($booking->total_amount, 2) }}</span>
+                    <span class="payment-info-value payment-total">RM {{ number_format($booking->total_amount, 2) }}</span>
                 </div>
             </div>
         </div>

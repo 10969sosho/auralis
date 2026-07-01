@@ -1,0 +1,966 @@
+<div role="main" class="main">
+            <section class="page-header">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1><strong>toyyibPay API Reference</strong></h1>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <aside class="sidebar" id="sidebar">
+
+                            <h2 class="mb-lg"><strong>API Reference</strong></h2>
+                            <p>Welcome to toyyibPay API Reference. With toyyibPay API Reference, you may now start develop codes to communicate with toyyibPay.</p>
+                            <div class="alert alert-danger">
+                                <strong>Notification!</strong> We will not accept responsibility for loss of money due to improper use of the toyyibPay API.
+                            </div>
+                            <ul class="nav nav-list narrow">
+                                <li><b><a href="#sb">SandBox Mode</a></b></li>
+                                <li><b><a href="#apl">API Process Flow</a></b></li>
+                                <li><b><a href="#reqinfo">Request Information</a></b></li>
+                                <br>
+                                <ul class="nav nav-list narrow">
+                                    <li><b>• All User</b></li>
+                                    <li><a href="#cc">Create Category</a></li>
+                                    <li><a href="#cb">Create Bill <span style="background-color:#e67e22; color:#fff; font-size:9px; padding:1px 4px; border-radius:3px; vertical-align:middle;">UPDATED</span></a></li>
+                                    <li><a href="#cp">Callback Parameter <span style="background-color:#e67e22; color:#fff; font-size:9px; padding:1px 4px; border-radius:3px; vertical-align:middle;">UPDATED</span></a></li>
+                                    <li><a href="#rup">Return URL Parameter</a></li>
+                                    <li><a href="#gbt">Get Bill Transactions</a></li>
+                                    <li><a href="#gc">Get Category</a></li>
+                                    <li><a href="#ib">Inactive Bill</a></li>
+                                                                                                                                            </ul>
+                                <br>
+                                <ul class="nav nav-list narrow">
+                                    <li><b>• Enterprise Partner</b></li>
+                                    <li><a href="#cu">Create User</a></li>
+                                    <li><a href="#gb">Get Bank</a></li>
+                                    <li><a href="#gus">Get User Status</a></li>
+                                                                        <li><a href="#gss">Get Settlement Summary</a></li>
+                                                                                                                                            </ul>
+                                <br>
+                                <ul class="nav nav-list narrow">
+                                    <li><b>• DuitNow QR</b></li>
+                                    <li><a href="#cdnqr">Check DuitNow QR Status <span style="background-color:#27ae60; color:#fff; font-size:9px; padding:1px 4px; border-radius:3px; vertical-align:middle;">NEW</span></a></li>
+                                </ul>
+                            </ul>
+                        </aside>
+                    </div>
+
+                    <div class="col-md-9">
+                        <h2 class="mb-lg"><strong>SandBox Mode</strong></h2>
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="sb">
+                                            SandBox Mode
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>To use sandbox mode, please register an account at <a href="https://dev.toyyibpay.com">https://dev.toyyibpay.com.</a> Here you can create dummy bills and make test payments via Bank Simulators.<br><br>For API testing purpose, replace the URL <strong>'toyyibpay.com'</strong> with <strong>'dev.toyyibpay.com'</strong> together with your sandbox account credentials.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <h2 class="mb-lg"><strong>Basic Information</strong></h2>
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="apl">
+                                            API Process Flow
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>You will interact a lot with <strong>Category</strong> and <strong>Bill</strong>.</p>
+                                    <p>Category is a group of bills. You can create a category based on bills type. e.g. House rental, Subscription fees.</p>
+                                    <p>A bill is an invoice for your customer. A bill must belong to a Category</p>
+                                    <p>
+                                        To start using the API, you would have to create a Category. Then the payment flow will kicks in as per below:
+                                    </p>
+                                    <ul>
+                                        <li>Customer visits your site.</li>
+                                        <li>Customer chooses to make payment.</li>
+                                        <li>Your site creates a Bill via API call.</li>
+                                        <li>toyyibPay API returns Bill's code.</li>
+                                        <li>Your site redirects the customer to Bill's URL.</li>
+                                        <li>The customer makes payment via payment option of choice.</li>
+                                        <li>toyyibPay sends a server-side update (Payment Completion) to your site on Bill's status on payment failure or success.</li>
+                                        <li>Your site can check payment status via API call</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="reqinfo">
+                                            Request Information
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <ul>
+                                        <li>Method : <strong> POST </strong> </li>
+                                        <li>Header :
+                                            <ul style="list-style-type: '-';">
+                                                <li> Content-Type: <strong> multipart/form-data </strong> or <strong> x-www-form-urlencoded </strong> </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2 class="mb-lg"><strong>APIs (All Users)</strong></h2>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="cc">
+                                            Create Category
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>Category is a collection of bills. As an example, you may create a 'Rental' Category for bill related to rental. User Secret Key is required in order to create a Category. Please login to toyyibPay to get User Secret Key.</p>
+                                    <p>In the example below, we will show you how to create a Category. You need to pass the following parameters to generate category code.</p>
+                                    <ul>
+                                        <li><strong>catname</strong> - Category Name</li>
+                                        <li><strong>catdescription</strong> - Category Description</li>
+                                        <li><strong>userSecretKey</strong> - User Secret Key</li>
+                                    </ul>
+                                    <p>Our API system will return Category Code in JSON format.</p>
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'catname' =&gt; 'toyyibPay General 2', //CATEGORY NAME
+    'catdescription' =&gt; 'toyyibPay General Category, For toyyibPay Transactions 2', //PROVIDE YOUR CATEGORY DESCRIPTION
+    'userSecretKey' =&gt; 'w5x7srq7-rx5r-3t89-2ou2-k7361x2jewhn' //PROVIDE USER SECRET KEY HERE
+  );  
+
+  $curl = curl_init();
+
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/createCategory');  //PROVIDE API LINK HERE
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+
+  $info = curl_getinfo($curl);  
+  curl_close($curl);
+
+  $obj = json_decode($result);
+  echo $result;
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+[{"CategoryCode":"j0tzqhka"}]
+                                            </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="cb">
+                                            Create Bill
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>Bill serves as an invoice to your customer.</p>
+                                    <p>In the example below, we will show you how to create a Bill. You need to pass the following parameters to generate bill code. </p>
+                                    <ul>
+                                        <li><strong>userSecretKey</strong> - User Secret Key</li>
+                                        <li><strong>categoryCode</strong> - Category Code. Get your Category Code from Create Category API</li>
+                                        <li><strong>billName</strong> - Your bill name. Bill Name will be displayed as bill title<br><small class="text-danger">* Max 30 alphanumeric characters, space and '_' only </small></li>
+                                        <li><strong>billDescription</strong>- Your bill description.<br><small class="text-danger">* Max 100 alphanumeric characters, space and '_' only </small></li>
+                                        <li><strong>billPriceSetting</strong> - For fixed amount bill, set it to 1 and insert bill amount. For dynamic bill (user can insert the amount to pay), set it to 0.</li>
+                                        <li><strong>billPayorInfo</strong> - If you want to create open bill without require payer information, set it to 0. If you need payer information, set it to 1</li>
+                                        <li><strong>billAmount</strong> - Key in the bill amount. The amount is in cent. e.g. 100 = RM1. If you set billPriceSetting to 0 (dynamic bill), please put 0</li>
+                                        <li><strong>billReturnUrl</strong> - Key in return Url if you need the bill to be redirected to your own page upon payment completion.</li>
+                                        <li><strong>billCallbackUrl</strong> - Key in callback url if you need the bill to be redirected to your callback page upon sucessful of payment transaction.</li>
+                                        <li><strong>billExternalReferenceNo</strong> - Provide your own system reference no if you think it is required. You may use this reference no to check the payment status for the bill.</li>
+                                        <li><strong>billTo</strong> - If you intend to provide the bill to specific person, you may fill the person nam in this field. If not, please leave it blank.</li>
+                                        <li><strong>billEmail</strong> - Provide your customer email here</li>
+                                        <li><strong>billPhone</strong> - Provide your customer phone number here.</li>
+                                        <li><strong>billSplitPayment</strong> - [OPTIONAL] Set 1 if the you need the payment to be splitted to other toyyibPay users. This function is not available for billPriceSetting = 0 (dynamic bill).</li>
+                                        <li><strong>billSplitPaymentArgs</strong> - [OPTIONAL] Provide JSON for split payment. e.g. [{"id":"johndoe","amount":"200"}]</li>
+                                        <br>
+                                        <p>*Please note that Split Payment is available for Online Banking (FPX) only.</p>
+                                        <li><strong>billPaymentChannel</strong> - Set 0 for FPX, 1 Credit Card and 2 for both FPX &amp; Credit Card.</li>
+                                        <li><strong>billContentEmail</strong> - [OPTIONAL] Provide additional messages by sending an extra email to your customer. Limited to 1000 characters only.</li>
+                                        <li><strong>billChargeToCustomer</strong> - [OPTIONAL] Below are the values available :
+                                            <p>1. Leave blank to set charges for both FPX and Credit Card on bill owner.<br>
+                                                2. Set "0" to charge FPX to customer.<br>
+                                                * charge to customer is not available for card payment channel</p>
+                                        </li>
+                                        <li><strong>billChargeToPrepaid</strong> - [OPTIONAL] Deducts the transaction charge from the prepaid account. Applicable only for FPX when charges are set to the bill owner.</li>
+                                        <li><strong>billExpiryDate</strong> - [OPTIONAL] Date and time to set the bill as inactive (expired). Payer will not be able to make payment after the expiry date. Here is the datetime sample value: "17-12-2020 17:00:00".</li>
+                                        <li><strong>billExpiryDays</strong> - [OPTIONAL] Number of day(s) to allow payment attempt to be made. The bill will be set to inactive after the number of day(s). The default expiry time will be at 23:59:59 on the final day. This parameter is ranged between minimum 1 day to maximum 100 days. The billExpiryDate parameter will be prioritised if both billExpiryDays and billExpiryDate parameters are set.</li>
+                                        <li><strong>enableFPXB2B</strong> - [OPTIONAL] Set "1" to enable FPX (Corporate Banking) payment channel.</li>
+                                        <li><strong>chargeFPXB2B</strong> - [OPTIONAL] Charge for FPX (Corporate Banking) payment channel :
+                                            <p> 1. Set "0" for charge to customer.<br>
+                                                2. Set "1" for charge on bill owner.<br>
+                                                * Default value is "1" which is charge on bill owner, if parameter "enableFPXB2B" is set to "1".</p>
+                                        </li>
+                                        <li><strong>enableDuitNowQR</strong> - [OPTIONAL] Set "1" to enable DuitNow QR payment channel. Your account must have DuitNow QR activated.</li>
+                                        <li><strong>chargeDuitNowQR</strong> - [OPTIONAL] Required when <strong>enableDuitNowQR</strong> is set to "1". Below are the values available :
+                                            <p> 1. Set "0" for charge on bill owner.<br>
+                                                2. Set "1" for charge to customer.</p>
+                                        </li>
+                                    </ul>
+                                    <p>Our API system will return Bill Code in JSON format. In this example, the API return <strong>gcbhict9</strong> as bill code. Hence, your payment url will be:- https://toyyibpay.com/<strong>gcbhict9</strong></p>
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'userSecretKey'=&gt;'w5x7srq7-rx5r-3t89-2ou2-k7361x2jewhn',
+    'categoryCode'=&gt;'gcbhict9',
+    'billName'=&gt;'Car Rental WXX123',
+    'billDescription'=&gt;'Car Rental WXX123 On Sunday',
+    'billPriceSetting'=&gt;0,
+    'billPayorInfo'=&gt;1,
+    'billAmount'=&gt;100,
+    'billReturnUrl'=&gt;'http://bizapp.my',
+    'billCallbackUrl'=&gt;'http://bizapp.my/paystatus',
+    'billExternalReferenceNo' =&gt; 'AFR341DFI',
+    'billTo'=&gt;'John Doe',
+    'billEmail'=&gt;'jd@gmail.com',
+    'billPhone'=&gt;'0194342411',
+    'billSplitPayment'=&gt;0,
+    'billSplitPaymentArgs'=&gt;'',
+    'billPaymentChannel'=&gt;'0',
+    'billContentEmail'=&gt;'Thank you for purchasing our product!',
+    'billChargeToCustomer'=&gt;1,
+    'billExpiryDate'=&gt;'17-12-2020 17:00:00',
+    'billExpiryDays'=&gt;3,
+    'enableDuitNowQR'=&gt;1,
+    'chargeDuitNowQR'=&gt;0
+  );
+
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/createBill');  
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+  $info = curl_getinfo($curl);  
+  curl_close($curl);
+  $obj = json_decode($result);
+  echo $result;
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+[{"BillCode":"gcbhict9"}]
+                                            </code></pre>
+                                    </div>
+                                    <br>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="cp">
+                                            Callback Parameter
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>Please note that Callback URL <b>cannot</b> be received in localhost. Callback URL will be supplied with the following datas in POST format:-</p>
+                                    <p><strong>refno</strong> : Payment reference no</p>
+                                    <p><strong>status</strong> : Payment status. 1= success, 2=pending, 3=fail</p>
+                                    <p><strong>reason</strong> : Reason for the status received</p>
+                                    <p><strong>billcode</strong> : Your billcode / permanent link</p>
+                                    <p><strong>order_id</strong> : Your external payment reference no, if specified</p>
+                                    <p><strong>amount</strong> : Payment amount received</p>
+                                    <p><strong>transaction_time</strong> : Datetime of the transaction status received.</p>
+                                    <p><strong>hash</strong> : MD5 hash for callback verification. You <strong>must</strong> validate this before processing the payment.</p>
+                                    <br>
+                                    <p><strong>Hash Validation</strong></p>
+                                    <p>Generate the expected hash using the formula below and compare it against the received <strong>hash</strong> value:</p>
+                                    <pre><code>MD5( userSecretKey + status + order_id + refno + "ok" )</code></pre>
+                                    <p>Example (PHP):</p>
+                                    <pre><code>&lt;?php
+$expected_hash = md5( $userSecretKey . $status . $order_id . $refno . "ok" );
+
+if ( $received_hash === $expected_hash ) {
+    // Valid - safe to process payment
+} else {
+    // Invalid - reject request
+}
+?&gt;</code></pre>
+                                    <br>
+                                    <div class="alert alert-info">
+                                        <i class="fa fa-info-circle"></i> <strong>DuitNow QR:</strong> DuitNow QR payments send a similar callback with the following parameters: <strong>refno</strong>, <strong>status</strong>, <strong>reason</strong>, <strong>billcode</strong>, <strong>order_id</strong>, <strong>amount</strong>, <strong>status_id</strong>, <strong>msg</strong>, <strong>transaction_id</strong> (toyyibPay invoice number), <strong>dnqr_transaction_id</strong> (DuitNow QR transaction ID), and <strong>hash</strong>. Note: DuitNow QR callbacks do not include <strong>transaction_time</strong> or <strong>fpx_transaction_id</strong>. You can identify DuitNow QR payments via <strong>billpaymentChannel = "DuitNow QR"</strong> in the <a href="#gbt">Get Bill Transactions</a> API.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="rup">
+                                            Return URL Parameter
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>Return URL will be supplied with the following datas in GET format:-</p>
+                                    <p><strong>status_id</strong> : Payment status. 1= success, 2=pending, 3=fail</p>
+                                    <p><strong>billcode</strong>: Your billcode / permanent link</p>
+                                    <p><strong>order_id</strong> : Your external payment reference no, if specified</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="gbt">
+                                            Get Bill Transactions
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>You may check bill payment status by submitting Bill Code and Bill Payment Status(Optional). Bill payment status code description as follows:-</p>
+                                    <ul>
+                                        <li><strong>1</strong> - Successful transaction</li>
+                                        <li><strong>2</strong> - Pending transaction</li>
+                                        <li><strong>3</strong> - Unsuccessful transaction</li>
+                                        <li><strong>4</strong> - Pending</li>
+                                    </ul>
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'billCode' =&gt; 'td8bfqv7',
+    'billpaymentStatus' =&gt; '1'
+  );  
+
+  $curl = curl_init();
+
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/getBillTransactions');  
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+  $info = curl_getinfo($curl);  
+  curl_close($curl);
+
+  echo $result;
+?&gt;
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+[
+    {
+        "billName": "Payment_for_order_51",
+        "billDescription": "Payment_for_order_51",
+        "billTo": "Ali Bin Abu",
+        "billEmail": "alibinabu@gmail.com",
+        "billPhone": "0123456789",
+        "billStatus": "1",
+        "billpaymentStatus": "1",
+        "billpaymentChannel": "FPX",
+        "billpaymentAmount": "10.00",
+        "billpaymentInvoiceNo": "TP5793119399122400030321",
+        "billSplitPayment": "1",
+        "billSplitPaymentArgs": "[{\"id\":\"toyyibPaySupport\",\"amount\":\"100\"}]",
+        "billpaymentSettlement": "Settlement Done",
+        "billpaymentSettlementDate": "2021-03-03 17:15:33",
+        "SettlementReferenceNo": "TP030321956",
+        "billPaymentDate": "02-03-2021 16:24:25",
+        "billExternalReferenceNo": "WP0001"
+    }
+]
+                                            </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="gc">
+                                            Get Category
+                                        </a>
+                                    </h4>
+                                </div>
+
+                                <div class="panel-body">
+                                    <p>In the example below, we will show you how to get category information. You need to pass the following parameters : </p>
+                                    <ul>
+                                        <li><strong>userSecretKey</strong> - User Secret Key</li>
+                                        <li><strong>categoryCode</strong> - Category Code</li>
+                                    </ul>
+                                    <p>Our API system will return information in JSON format.</p>
+
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'userSecretKey' =&gt; 'w5x7srq7-rx5r-3t89-2ou2-k7361x2jewhn' //PROVIDE USER SECRET KEY HERE
+    'categoryCode' =&gt; 'Ajdiufd345f' //PROVIDE CATEGORY CODE HERE
+  );  
+
+  $curl = curl_init();
+
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/getCategoryDetails'); 
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+
+  $info = curl_getinfo($curl);  
+  curl_close($curl);
+
+  $obj = json_decode($result);
+  echo $result;
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+[
+    {
+        "categoryName": "Makanan",
+        "categoryDescription": "Kuih Cara",
+        "categoryStatus": "1"
+    }
+]
+                                            </code></pre>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="ib">
+                                            Inactive Bill
+                                        </a>
+                                    </h4>
+                                </div>
+
+                                <div class="panel-body">
+                                    <p>Use this API if you want to set your bill to inactive.</p>
+                                    <ul>
+                                        <li><strong>secretKey</strong> - Your toyyibPay account Secret Key</li>
+                                        <li><strong>billCode</strong> - Bill Code of the bill.</li>
+                                    </ul>
+                                    <p>There 3 responses for this function :</p>
+                                    <ol>
+                                        <li>If bill is active and no pending transaction occuring.</li>
+                                        <li>If bill is active and has pending transaction process.</li>
+                                        <li>If bill is inactive</li>
+                                    </ol>
+
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'secretKey' =&gt; 'w5x7srq7-rx5r-3t89-2ou2-k7361x2jewhn', //PROVIDE USER SECRET KEY HERE
+    'billCode' =&gt; 'a7usb2' //PROVIDE BILL CODE HERE
+  );  
+
+  $curl = curl_init();
+
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/inactiveBill'); 
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+
+  $info = curl_getinfo($curl);  
+  curl_close($curl);
+
+  $obj = json_decode($result);
+  echo $result;
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+
+ {"status":"success","result":"Bill status changed to inactive"}
+
+ or
+
+ {"status":"failed","result":"Bill has pending transaction process"}
+
+ or
+
+ {"status":"failed","result":"Bill is inactive"}
+
+                                            </code></pre>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2 class="mb-lg"><strong>APIs (Enterprise Partner)</strong></h2>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="cu">
+                                            Create User (<strong>For Enterprise Account Only</strong>)
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>This API will show how to create toyyibPay user from API. This API will return User Secret Key which later will be used for creating Category and Bill. </p>
+                                    <p>You need to pass the following parameters to create user. </p>
+                                    <ul>
+                                        <li><strong>enterpriseUserSecretKey</strong> - Enterprise user secret key</li>
+                                        <li><strong>Fullname</strong> - User full name</li>
+                                        <li><strong>User name</strong> - User name to access or login<br><small class="text-danger">* Max 30 alphanumeric characters, without space or special characters </small></li>
+                                        <li><strong>Email</strong> - User Email <strong>OR</strong> User Id (not necessary in email format)</li>
+                                        <li><strong>Password</strong> - User Password</li>
+                                        <li><strong>Phone</strong> - User Phone</li>
+                                        <li><strong>Bank Account Type</strong> - Set 1 for Personal Saving Account. Set 2 for Business / Company Current Account. Set 3 for Society / Organisation Current Account [default is 2]</li>
+                                        <li><strong>Bank</strong> - User Bank Selection</li>
+                                        <li><strong>Account No</strong> - User Bank Account No</li>
+                                        <li><strong>Account Holder Name</strong> - User Account Holder Name</li>
+                                        <li><strong>Registration No [OPTIONAL]</strong> - User Company / Business / Organization Registration No</li>
+                                        <li><strong>Package</strong> - User Package</li>
+                                        <li><strong>userStatus [OPTIONAL]</strong> - Set to 2 if you want the account status to be active without click the link in confirmation email.</li>
+                                    </ul>
+                                    <p>Our API system will return User Secret Key in JSON format. It will return error if the email already exist.</p>
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'enterpriseUserSecretKey' =&gt; 'abcdef-ghijk-lmnop-qrstu',
+    'fullname' =&gt; 'John Doe Sdn Bhd',
+    'username' =&gt; 'johndoe',
+    'email' =&gt; 'hi@johndoe.com',
+    'password' =&gt; '123456',
+    'phone' =&gt; '0134342400',
+    'bankAccountType' =&gt; '1',
+    'bank'=&gt;1,
+    'accountNo'=&gt;'162263282063',
+    'accountHolderName'=&gt;'John Doe,
+    'registrationNo'=&gt;'BBYUUI',
+    'package' =&gt; 1
+  );
+
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/createAccount');  
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+  $info = curl_getinfo($curl);  
+  curl_close($curl);
+  $obj = json_decode($result);
+  echo $result;
+                                    </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+[
+  {
+      "UserSecretKey" : "vrbl86xf-wj1h-q0l3-95kk-4q4erulvsc0h"
+  }
+]
+                                    </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="gb">
+                                            Get Bank
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>Get Bank API is useful for you to get bank information which are accepted to be used with toyyibPay. Bank information is required when you create a user from API</p>
+                                    <p>Our API system will return bank information in JSON format.</p>
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $curl = curl_init();
+
+  curl_setopt($curl, CURLOPT_POST, 0);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/getBank');  
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+  $result = curl_exec($curl);
+  $info = curl_getinfo($curl);  
+  curl_close($curl);
+
+  echo $result;
+?&gt;
+                                        </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+[{"id":"2","bank":"CIMB Bank","status":"1"},{"id":"3","bank":"Bank Islam","status":"1"},{"id":"4","bank":"Public Bank","status":"1"},{"id":"5","bank":"Hong Leong Bank","status":"1"},{"id":"6","bank":"RHB Bank","status":"1"},{"id":"7","bank":"Ambank","status":"1"},{"id":"8","bank":"Bank Rakyat","status":"1"},{"id":"9","bank":"Alliance Bank","status":"1"},{"id":"10","bank":"Affin Bank","status":"1"},{"id":"11","bank":"Bank Muamalat","status":"1"},{"id":"12","bank":"Bank Simpanan Nasional","status":"1"},{"id":"13","bank":"Standard Chartered","status":"1"},{"id":"14","bank":"OCBC Bank","status":"1"},{"id":"15","bank":"Agro Bank","status":"1"},{"id":"16","bank":"UOB Bank","status":"1"},{"id":"17","bank":"HSBC","status":"1"},{"id":"18","bank":"Kuwait Finance House","status":"1"},{"id":"21","bank":"Al Rajhi Bank","status":"1"},{"id":"22","bank":"Citibank Berhad","status":"1"},{"id":"23","bank":"Maybank","status":"1"},{"id":"24","bank":"MBSB Bank","status":"1"}]
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+
+                        
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="gus">
+                                            Get User Status (<strong>For Enterprise Account Only</strong>)
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>You may check user account status by submitting user email and enterprise user secret key. Status code description as follows:-</p>
+                                    <ul>
+                                        <li><strong>0</strong> - Inactive</li>
+                                        <li><strong>1</strong> - New-Pending Approval</li>
+                                        <li><strong>2</strong> - Active</li>
+                                    </ul>
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'username' =&gt; 'johndoe',
+    'enterpriseUserSecretKey' =&gt; 'h9ijfq4y-hrha-jsmj-s4br-r5hll1g29ty'
+  );  
+
+  $curl = curl_init();
+
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/getUserStatus');  
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+
+  $info = curl_getinfo($curl);  
+
+  curl_close($curl);
+  echo $result;
+?&gt;
+                                        </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result</h4>
+                                        <pre><code>
+[{"status":"1"}]
+                                        </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                                                                                                
+                        
+                        <!-- get settlement summary -->
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="gss">
+                                            Get Settlement Summary
+                                        </a>
+                                    </h4>
+                                </div>
+
+                                <div class="panel-body">
+                                    <p>You may get all settlement summary information by submitting as follows:-</p>
+                                    <ul>
+                                        <li><strong>userSecretKey</strong> - Secret key for Enterprise User Only</li>
+                                        <li><strong>userName</strong> - Sample Username</li>
+                                    </ul>
+
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+$some_data = array(
+'userSecretKey' =&gt; 'td8bfqv7',
+'userName' =&gt; "Sample Username"
+);  
+
+$curl = curl_init();
+
+curl_setopt($curl, CURLOPT_POST, 1);
+curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/api/getSettlementSummary');  
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+$result = curl_exec($curl);
+$info = curl_getinfo($curl);  
+curl_close($curl);
+
+echo $result;
+?&gt;
+                </code></pre>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <h4>Sample Result</h4>
+                                        <pre><code>
+[
+    {
+        "userID": "44",
+        "userName": "fitweb",
+        "today": "19-10-31",
+        "Amount_Pending": "1.00",
+        "Amount_settle": "5.00",
+        "AmountNett_Pending": "1.00",
+        "AmountNett_Settle": "0.00",
+        "Different_Pending": "0.00",
+        "Different_Settle": "5.00",
+        "Standard_Pending": "0.00",
+        "Standard_Settle": "0.00",
+        "Santai_Pending": "1.00",
+        "Santai_Settle": "5.00",
+        "Creditcard_Pending": "0.00",
+        "Creditcard_settle": "0.00",
+        "Transaction_Pending": "6",
+        "Trnsaction_Settle": "6"
+    }
+]
+                    </code></pre>
+                                    </div>
+                                    <!--
+            <div class="col-md-12">
+            <h4>Sample code (ENTERPRISE)</h4>
+            <pre><code>
+&lt;?php
+$some_data = array(
+'userSecretKey' => 'td8bfqv7',
+'userPartnerType' => 'ENTERPRISE',
+'userName' => "Sample Username"
+);  
+
+$curl = curl_init();
+
+curl_setopt($curl, CURLOPT_POST, 1);
+curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/admin/api/getSettlementSummary');  
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+$result = curl_exec($curl);
+$info = curl_getinfo($curl);  
+curl_close($curl);
+
+echo $result;
+?&gt;
+            </code></pre>
+            </div>
+            <div class="col-md-12">
+            <h4>Sample Result</h4>
+            <pre><code>
+[
+    {
+        "userId": "243",
+        "userName": "go2aum",
+        "Today": "19-11-01",
+        "Amount_Pending": "100.00",
+        "Amount_Settle": "10157.00",
+        "AmountNett_Pending": "98.00",
+        "AmountNett_Settle": "10026.46",
+        "Different_pending": "2.00",
+        "Different_settle": "130.54",
+        "Standard_pending": "0.00",
+        "Standard_settle": "4330.00",
+        "Santai_pending": "0.00",
+        "Santai_settle": "0.00",
+        "Creditcard_Pending": "100.00",
+        "Creditcard_settle": "5827.00",
+        "Transaction_Pending": "21",
+        "Transaction_Settle": "21"
+    }
+]
+            </code></pre>
+    </div>
+    -->
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                        <h2 class="mb-lg"><strong>APIs (DuitNow QR)</strong></h2>
+
+                        <div class="panel-group panel-group-primary">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a id="cdnqr">
+                                            Check DuitNow QR Status
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>Use this API to check if DuitNow QR payment is activated for your account. This is useful to determine whether to display DuitNow QR as a payment option on your site.</p>
+                                    <p>You need to pass the following parameters:</p>
+                                    <ul>
+                                        <li><strong>userSecretKey</strong> - User Secret Key</li>
+                                    </ul>
+                                    <p>Our API system will return the DuitNow QR activation status in JSON format.</p>
+                                    <div class="col-md-12">
+                                        <h4>Sample code</h4>
+                                        <pre><code>
+&lt;?php
+  $some_data = array(
+    'userSecretKey' =&gt; 'w5x7srq7-rx5r-3t89-2ou2-k7361x2jewhn' //PROVIDE USER SECRET KEY HERE
+  );
+
+  $curl = curl_init();
+
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_URL, 'https://toyyibpay.com/index.php/api/checkDuitNowQRStatus');
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $some_data);
+
+  $result = curl_exec($curl);
+  $info = curl_getinfo($curl);
+  curl_close($curl);
+
+  echo $result;
+?&gt;
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result (Activated)</h4>
+                                        <pre><code>
+{"status":"success","duitnowqr_activated":true}
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result (Not Activated)</h4>
+                                        <pre><code>
+{"status":"success","duitnowqr_activated":false}
+                                            </code></pre>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h4>Sample result (Error)</h4>
+                                        <pre><code>
+{"status":"error","message":"Invalid userSecretKey"}
+                                            </code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vendor -->
+            <script src="vendor/jquery/jquery.min.js"></script>
+            <script src="vendor/jquery.appear/jquery.appear.min.js"></script>
+            <script src="vendor/jquery.easing/jquery.easing.min.js"></script>
+            <script src="vendor/jquery-cookie/jquery-cookie.min.js"></script>
+            <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+            <script src="vendor/common/common.min.js"></script>
+            <script src="vendor/jquery.validation/jquery.validation.min.js"></script>
+            <script src="vendor/jquery.easy-pie-chart/jquery.easy-pie-chart.min.js"></script>
+            <script src="vendor/jquery.gmap/jquery.gmap.min.js"></script>
+            <script src="vendor/jquery.lazyload/jquery.lazyload.min.js"></script>
+            <script src="vendor/isotope/jquery.isotope.min.js"></script>
+            <script src="vendor/owl.carousel/owl.carousel.min.js"></script>
+            <script src="vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+            <script src="vendor/vide/vide.min.js"></script>
+
+            <!-- Theme Base, Components and Settings -->
+            <script src="js/theme.js"></script>
+
+            <!-- Theme Custom -->
+            <script src="js/custom.js"></script>
+
+            <!-- Theme Initialization Files -->
+            <script src="js/theme.init.js"></script>
+
+            <!-- Google Analytics: Change UA-XXXXX-X to be your site's ID. Go to http://www.google.com/analytics/ for more information.
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+            ga('create', 'UA-12345678-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+         -->
+
+<script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;e0dbc953fc034c4c94646285847bb161&quot;,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
+
+
+</div>
+
+
+
+
+
+
+
+-----------------------------------------
+Your Secret Key
+6bml69ib-lam3-v4mx-eurv-aw0edkso829f

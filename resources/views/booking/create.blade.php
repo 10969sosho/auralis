@@ -115,8 +115,8 @@
                     <label class="form-label">Ticket Class *</label>
                     <select name="passengers[{{ $i }}][ticket_class]" required class="form-select passenger-class"
                         id="class-{{ $i }}" onchange="recalculateTotal()">
-                        <option value="regular">Regular — MYR {{ number_format($schedule->regular_price, 2) }}</option>
-                        <option value="vip">VIP — MYR {{ number_format($schedule->vip_price, 2) }}</option>
+                        <option value="regular">Regular — RM {{ number_format($schedule->regular_price, 2) }}</option>
+                        <option value="vip">VIP — RM {{ number_format($schedule->vip_price, 2) }}</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -138,7 +138,7 @@
         <div class="mt-3 space-y-2 text-sm" id="summaryDetails">
         </div>
         <div class="mt-3 pt-3 border-t">
-            <p class="text-lg font-bold text-blue-600" id="totalAmount">Total: MYR 0.00</p>
+            <p class="text-lg font-bold text-blue-600" id="totalAmount">Total: RM 0.00</p>
         </div>
         <p class="mt-2 text-sm text-gray-600">Free baggage: {{ $schedule->vessel->free_baggage }}kg per passenger</p>
         <p class="mt-2 text-sm text-gray-500">Booking will be held for 30 minutes after submission.</p>
@@ -247,17 +247,17 @@ function recalculateTotal() {
             const price = getPassengerPrice(age, ticketClass);
             const category = findAgeCategory(age);
             total += price;
-            priceLabel.textContent = 'MYR ' + price.toFixed(2);
+            priceLabel.textContent = 'RM ' + price.toFixed(2);
 
             const className = ticketClass === 'vip' ? 'VIP' : 'Regular';
             const catName = category ? category.name : (age <= 2 ? 'Infant' : age <= 12 ? 'Child' : 'Adult');
             const pName = nameInput.value || 'Passenger ' + (parseInt(idx) + 1);
-            summaryHtml += '<div class="flex justify-between"><span>' + pName + ' (' + catName + ' · ' + className + ')</span><span>MYR ' + price.toFixed(2) + '</span></div>';
+            summaryHtml += '<div class="flex justify-between"><span>' + pName + ' (' + catName + ' · ' + className + ')</span><span>RM ' + price.toFixed(2) + '</span></div>';
         }
     });
 
     summaryDetails.innerHTML = summaryHtml || '<p class="text-gray-400">Complete passenger details to see pricing</p>';
-    totalEl.textContent = 'Total: MYR ' + total.toFixed(2);
+    totalEl.textContent = 'Total: RM ' + total.toFixed(2);
 }
 
 function addFromProfile(profile) {

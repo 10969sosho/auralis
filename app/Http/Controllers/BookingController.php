@@ -35,6 +35,7 @@ class BookingController extends Controller
         // Always show all upcoming schedules, with optional filters
         $schedules = Schedule::with(['vessel', 'route'])
             ->where('status', 'scheduled')
+            ->where('is_active', true)
             ->where('departure_time', '>', now())
             ->when($request->origin_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('origin_port', $request->origin_port)))
             ->when($request->destination_port, fn ($q) => $q->whereHas('route', fn ($r) => $r->where('destination_port', $request->destination_port)))
@@ -66,7 +67,7 @@ class BookingController extends Controller
     {
         $schedule->load('vessel', 'route', 'agePrices.ageCategory');
 
-        if ($schedule->isH6Passed || $schedule->status !== 'scheduled') {
+        if ($schedule->isH6Passed || $schedule->status !== 'scheduled' || !$schedule->is_active) {
             return back()->with('error', 'This schedule is no longer available for booking.');
         }
 

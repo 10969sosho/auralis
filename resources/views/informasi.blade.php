@@ -86,7 +86,7 @@
 </div>
 
 <style>
-.info-page { max-width: 1280px; margin: 0 auto; padding: 20px 0; }
+.info-page { max-width: 1100px; margin: 0 auto; padding: 20px 0; }
 .info-hero {
     background: linear-gradient(135deg, rgba(11,125,218,0.85), rgba(78,162,255,0.75)), url('{{ asset("images/hero-banner.jpeg") }}') center/cover no-repeat;
     border-radius: 16px;
@@ -118,7 +118,7 @@
     line-height: 1.8;
     max-width: 600px;
 }
-.info-section { max-width: 800px; margin: 0 auto 60px; }
+.info-section { margin: 0 auto 60px; }
 .info-section h2 { font-size: 28px; font-weight: 700; color: #252B42; margin-bottom: 20px; }
 .info-section > p { font-size: 16px; color: #6C757D; line-height: 1.8; }
 .info-mission-grid {

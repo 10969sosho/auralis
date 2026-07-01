@@ -17,6 +17,7 @@ class CounterController extends Controller
     public function dashboard()
     {
         $schedules = Schedule::with(['vessel', 'route'])
+            ->where('is_active', true)
             ->where('departure_time', '>', now())
             ->orderBy('departure_time')
             ->get();
@@ -28,7 +29,7 @@ class CounterController extends Controller
     {
         $schedule->load('vessel', 'route', 'agePrices.ageCategory');
 
-        if ($schedule->isH6Passed) {
+        if ($schedule->isH6Passed || !$schedule->is_active) {
             return back()->with('error', 'This schedule is no longer available.');
         }
 
@@ -55,7 +56,7 @@ class CounterController extends Controller
 
         $schedule = Schedule::with('vessel')->findOrFail($validated['schedule_id']);
 
-        if ($schedule->isH6Passed) {
+        if ($schedule->isH6Passed || !$schedule->is_active) {
             return back()->with('error', 'This schedule is no longer available.');
         }
 

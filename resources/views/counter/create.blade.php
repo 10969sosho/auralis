@@ -13,7 +13,7 @@
             </div>
             <div class="text-right">
                 <p class="text-sm text-gray-500">Departure: <strong>{{ $schedule->departure_time->format('d M Y, H:i') }}</strong></p>
-                <p class="text-sm text-gray-500">VIP: MYR {{ number_format($schedule->vip_price, 2) }} | Regular: MYR {{ number_format($schedule->regular_price, 2) }}</p>
+                <p class="text-sm text-gray-500">VIP: RM {{ number_format($schedule->vip_price, 2) }} | Regular: RM {{ number_format($schedule->regular_price, 2) }}</p>
             </div>
         </div>
     </div>
@@ -73,8 +73,8 @@
                     <div class="form-group">
                         <label class="form-label">Ticket Class *</label>
                         <select name="passengers[0][ticket_class]" required class="form-select passenger-class" id="class-0" onchange="recalculateTotal()">
-                            <option value="regular">Regular — MYR {{ number_format($schedule->regular_price, 2) }}</option>
-                            <option value="vip">VIP — MYR {{ number_format($schedule->vip_price, 2) }}</option>
+                            <option value="regular">Regular — RM {{ number_format($schedule->regular_price, 2) }}</option>
+                            <option value="vip">VIP — RM {{ number_format($schedule->vip_price, 2) }}</option>
                         </select>
                     </div>
                 </div>
@@ -84,7 +84,7 @@
         <div class="card" id="paymentSummary">
             <h3 class="text-lg font-semibold mb-4">Payment</h3>
             <div id="summaryDetails" class="text-sm space-y-2 mb-4"></div>
-            <div class="text-xl font-bold text-blue-600 mb-4" id="totalAmount">Total: MYR 0.00</div>
+            <div class="text-xl font-bold text-blue-600 mb-4" id="totalAmount">Total: RM 0.00</div>
 
             <div class="grid sm:grid-cols-2 gap-4">
                 <div class="form-group">
@@ -187,14 +187,14 @@ function recalculateTotal() {
             const price = getPassengerPrice(age, classSelect.value);
             const category = findAgeCategory(age);
             total += price;
-            if (priceLabel) priceLabel.textContent = 'MYR ' + price.toFixed(2);
+            if (priceLabel) priceLabel.textContent = 'RM ' + price.toFixed(2);
             const catName = category ? category.name : (age <= 2 ? 'Infant' : age <= 12 ? 'Child' : 'Adult');
             const pName = nameInput && nameInput.value ? nameInput.value : 'Passenger ' + (parseInt(idx) + 1);
-            summaryHtml += '<div class="flex justify-between"><span>' + pName + ' (' + catName + ' · ' + (classSelect.value === 'vip' ? 'VIP' : 'Regular') + ')</span><span>MYR ' + price.toFixed(2) + '</span></div>';
+            summaryHtml += '<div class="flex justify-between"><span>' + pName + ' (' + catName + ' · ' + (classSelect.value === 'vip' ? 'VIP' : 'Regular') + ')</span><span>RM ' + price.toFixed(2) + '</span></div>';
         }
     });
     document.getElementById('summaryDetails').innerHTML = summaryHtml || '<p class="text-gray-400">Complete passenger details to see pricing</p>';
-    document.getElementById('totalAmount').textContent = 'Total: MYR ' + total.toFixed(2);
+    document.getElementById('totalAmount').textContent = 'Total: RM ' + total.toFixed(2);
     document.getElementById('totalAmount').dataset.total = total;
     calculateChange();
 }
@@ -207,7 +207,7 @@ function calculateChange() {
     if (received > 0) {
         changeDiv.style.display = 'block';
         const change = Math.max(0, received - total);
-        changeValue.textContent = 'MYR ' + change.toFixed(2);
+        changeValue.textContent = 'RM ' + change.toFixed(2);
         if (received < total) {
             changeValue.style.color = '#DC2626';
         } else {
@@ -241,7 +241,7 @@ function addPassenger() {
             <div class="form-group"><label class="form-label">Nationality *</label><input type="text" name="passengers[${idx}][nationality]" required placeholder="e.g. Malaysian" class="form-input" id="nationality-${idx}"></div>
             <div class="form-group"><label class="form-label">Passport/ID Number *</label><input type="text" name="passengers[${idx}][passport_number]" required class="form-input" id="passport-${idx}"></div>
             <div class="form-group"><label class="form-label">Phone Number</label><input type="text" name="passengers[${idx}][phone_number]" class="form-input" id="phone-${idx}"></div>
-            <div class="form-group"><label class="form-label">Ticket Class *</label><select name="passengers[${idx}][ticket_class]" required class="form-select passenger-class" id="class-${idx}" onchange="recalculateTotal()"><option value="regular">Regular — MYR ${schedulePrices.regular.toFixed(2)}</option><option value="vip">VIP — MYR ${schedulePrices.vip.toFixed(2)}</option></select></div>
+            <div class="form-group"><label class="form-label">Ticket Class *</label><select name="passengers[${idx}][ticket_class]" required class="form-select passenger-class" id="class-${idx}" onchange="recalculateTotal()"><option value="regular">Regular — RM ${schedulePrices.regular.toFixed(2)}</option><option value="vip">VIP — RM ${schedulePrices.vip.toFixed(2)}</option></select></div>
         </div>`;
     container.appendChild(div);
     passengerCount++;

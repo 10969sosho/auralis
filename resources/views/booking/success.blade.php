@@ -28,7 +28,7 @@
             </div>
             <div class="success-row">
                 <span class="success-label">Amount</span>
-                <span class="success-value success-amount">MYR {{ number_format($booking->total_amount, 2) }}</span>
+                <span class="success-value success-amount">RM {{ number_format($booking->total_amount, 2) }}</span>
             </div>
             <div class="success-row">
                 <span class="success-label">Payment</span>

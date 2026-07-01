@@ -6,7 +6,9 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
 
 class ScheduleForm
 {
@@ -14,6 +16,11 @@ class ScheduleForm
     {
         return $schema
             ->components([
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true)
+                    ->inline(false)
+                    ->live(),
                 Select::make('vessel_id')
                     ->relationship('vessel', 'name')
                     ->required(),
@@ -32,10 +39,6 @@ class ScheduleForm
                     ->required()
                     ->numeric()
                     ->prefix('MYR'),
-                TextInput::make('vip_remaining')
-                    ->numeric(),
-                TextInput::make('regular_remaining')
-                    ->numeric(),
                 TextInput::make('status')
                     ->required()
                     ->default('scheduled'),

@@ -51,7 +51,7 @@
 
 <style>
 .announce-page {
-    max-width: 1280px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 .announce-page-header {
