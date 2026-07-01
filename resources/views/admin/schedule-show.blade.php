@@ -8,22 +8,61 @@
         <div>
             <a href="{{ route('admin.schedule.passengers', $schedule) }}" class="schedule-show-back">&larr; Refresh</a>
             <h1 class="schedule-show-title">{{ $schedule->vessel->name }}</h1>
-            <p class="schedule-show-sub">
-                {{ $schedule->route->origin_port }} &rarr; {{ $schedule->route->destination_port }}
-                &middot; {{ $schedule->departure_time->format('d M Y, H:i') }}
-                @if($schedule->arrival_time)
-                    &middot; Arr: {{ $schedule->arrival_time->format('d M Y, H:i') }}
-                @endif
-            </p>
         </div>
         <div class="schedule-show-header-actions">
             <span class="status-badge status-{{ $schedule->status }}">{{ ucfirst($schedule->status) }}</span>
-            <a href="{{ route('admin.schedule.passengers.export', $schedule) }}?{{ http_build_query(request()->query()) }}" class="btn btn-primary btn-sm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Export CSV
-            </a>
+            <div class="ss-export-dropdown" style="position:relative;display:inline-block;">
+                <button class="btn btn-primary btn-sm" onclick="toggleExportMenu()" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div id="exportMenu" class="ss-export-menu" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:50;min-width:140px;overflow:hidden;">
+                    <a href="{{ route('admin.schedule.passengers.export.pdf', $schedule) }}?{{ http_build_query(request()->query()) }}" class="ss-export-item" style="display:flex;align-items:center;gap:8px;padding:10px 14px;text-decoration:none;color:#374151;font-size:0.85rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:#DC2626;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        To PDF
+                    </a>
+                    <a href="{{ route('admin.schedule.passengers.export.excel', $schedule) }}?{{ http_build_query(request()->query()) }}" class="ss-export-item" style="display:flex;align-items:center;gap:8px;padding:10px 14px;text-decoration:none;color:#374151;font-size:0.85rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:#059669;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                        To Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Route & Schedule Highlight Card --}}
+    <div class="ss-route-card">
+        <div class="ss-route-row">
+            <div class="ss-route-points">
+                <div class="ss-route-origin">
+                    <span class="ss-route-port">{{ $schedule->route->origin_port }}</span>
+                    <span class="ss-route-detail">Departure</span>
+                </div>
+                <div class="ss-route-arrow">
+                    <div class="ss-route-line"></div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </div>
+                <div class="ss-route-destination">
+                    <span class="ss-route-port">{{ $schedule->route->destination_port }}</span>
+                    <span class="ss-route-detail">Arrival</span>
+                </div>
+            </div>
+            <div class="ss-route-times">
+                <div class="ss-route-time-item">
+                    <span class="ss-route-time-label">Depart</span>
+                    <span class="ss-route-time-value">{{ $schedule->departure_time->format('d M Y, H:i') }}</span>
+                </div>
+                @if($schedule->arrival_time)
+                <div class="ss-route-time-sep">→</div>
+                <div class="ss-route-time-item">
+                    <span class="ss-route-time-label">Arrive</span>
+                    <span class="ss-route-time-value">{{ $schedule->arrival_time->format('d M Y, H:i') }}</span>
+                </div>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -295,6 +334,22 @@
 .schedule-show-title { font-size: 24px; font-weight: 700; color: #111827; }
 .schedule-show-sub { color: #6b7280; margin-top: 4px; font-size: 0.9rem; }
 
+/* Route Highlight Card */
+.ss-route-card { background: linear-gradient(135deg, #1E3A5F 0%, #1D4ED8 100%); border-radius: 14px; padding: 20px 28px; margin-bottom: 24px; color: #fff; }
+.ss-route-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.ss-route-points { display: flex; align-items: center; gap: 16px; }
+.ss-route-origin, .ss-route-destination { display: flex; flex-direction: column; }
+.ss-route-port { font-size: 1.15rem; font-weight: 700; }
+.ss-route-detail { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.75; margin-top: 2px; }
+.ss-route-arrow { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #93C5FD; }
+.ss-route-arrow svg { width: 20px; height: 20px; }
+.ss-route-line { width: 40px; height: 2px; background: #60A5FA; border-radius: 1px; }
+.ss-route-times { display: flex; align-items: center; gap: 12px; }
+.ss-route-time-item { display: flex; flex-direction: column; }
+.ss-route-time-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; }
+.ss-route-time-value { font-size: 0.9rem; font-weight: 600; margin-top: 2px; white-space: nowrap; }
+.ss-route-time-sep { color: #93C5FD; font-weight: 700; font-size: 0.9rem; }
+
 /* Stats */
 .ss-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
 .ss-stat-card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); text-align: center; }
@@ -318,6 +373,9 @@
 .ss-filter-tag-remove { color: #6b7280; text-decoration: none; font-weight: 700; font-size: 1rem; line-height: 1; }
 .ss-filter-tag-remove:hover { color: #dc2626; }
 .ss-filter-count { color: #6b7280; margin-left: 8px; font-size: 0.8rem; }
+
+/* Export dropdown */
+.ss-export-item:hover { background: #f3f4f6; }
 
 /* Table */
 .ss-table-wrap { overflow-x: auto; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
@@ -358,3 +416,19 @@
 .capitalize { text-transform: capitalize; }
 </style>
 @endsection
+
+@push('scripts')
+<script>
+function toggleExportMenu() {
+    const menu = document.getElementById('exportMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+    const dd = document.querySelector('.ss-export-dropdown');
+    if (dd && !dd.contains(e.target)) {
+        const menu = document.getElementById('exportMenu');
+        if (menu) menu.style.display = 'none';
+    }
+});
+</script>
+@endpush

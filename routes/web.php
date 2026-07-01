@@ -127,7 +127,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Schedule Passenger List (Show)
     Route::get('/schedules/{schedule}/passengers', [App\Http\Controllers\AdminScheduleController::class, 'passengers'])->name('schedule.passengers');
-    Route::get('/schedules/{schedule}/passengers/export', [App\Http\Controllers\AdminScheduleController::class, 'exportPassengers'])->name('schedule.passengers.export');
+    Route::get('/schedules/{schedule}/passengers/export/pdf', [App\Http\Controllers\AdminScheduleController::class, 'exportToPdf'])->name('schedule.passengers.export.pdf');
+    Route::get('/schedules/{schedule}/passengers/export/excel', [App\Http\Controllers\AdminScheduleController::class, 'exportToExcel'])->name('schedule.passengers.export.excel');
 });
 
 Route::middleware(['auth', 'role:ticket_counter_officer,admin'])->prefix('counter')->name('counter.')->group(function () {

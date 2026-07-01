@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 
 class AdminScheduleController extends Controller
 {
@@ -90,10 +90,8 @@ class AdminScheduleController extends Controller
         return view('admin.schedule-show', compact('schedule', 'passengers', 'stats'));
     }
 
-    public function exportPassengers(Schedule $schedule, Request $request)
+    protected function buildExportQuery(Schedule $schedule, Request $request)
     {
-        $schedule->loadMissing('vessel', 'route');
-
         $query = $schedule->bookings()
             ->with(['passengers.ticket', 'user', 'payment'])
             ->join('booking_passengers', 'bookings.id', '=', 'booking_passengers.booking_id')
@@ -109,7 +107,6 @@ class AdminScheduleController extends Controller
                 'tickets.boarded_at',
             );
 
-        // Apply same filters
         if ($request->filled('boarding_status')) {
             switch ($request->boarding_status) {
                 case 'boarded':
@@ -157,57 +154,74 @@ class AdminScheduleController extends Controller
             });
         }
 
-        $passengers = $query->orderBy('bookings.created_at', 'desc')->get();
+        return $query->orderBy('bookings.created_at', 'desc');
+    }
 
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="schedule-' . $schedule->id . '-passengers-' . date('Ymd') . '.csv"',
-        ];
+    public function exportToPdf(Schedule $schedule, Request $request)
+    {
+        $schedule->loadMissing('vessel', 'route');
+        $passengers = $this->buildExportQuery($schedule, $request)->get();
 
-        $callback = function () use ($passengers, $schedule) {
-            $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        $pdf = Pdf::loadView('admin.exports.passengers-pdf', compact('schedule', 'passengers'));
+        $pdf->setPaper('a4', 'landscape');
 
-            fputcsv($file, [
-                'No', 'Full Name', 'Gender', 'Birth Date', 'Nationality',
-                'Passport Number', 'Phone Number', 'Passenger Type',
-                'Ticket Class', 'Booking Code', 'Booking Status',
-                'Payment Status', 'Ticket Number', 'Boarding Status', 'Boarded At'
-            ]);
+        return $pdf->download('schedule-' . $schedule->id . '-passengers-' . date('Ymd') . '.pdf');
+    }
 
-            foreach ($passengers as $i => $p) {
-                $boardingStatus = match ($p->ticket_status) {
-                    'used' => 'Boarded',
-                    'active' => 'Not Boarded',
-                    'expired' => 'Expired',
-                    'cancelled' => 'Cancelled',
-                    'refunded' => 'Refunded',
-                    default => 'N/A',
-                };
+    public function exportToExcel(Schedule $schedule, Request $request)
+    {
+        $schedule->loadMissing('vessel', 'route');
+        $passengers = $this->buildExportQuery($schedule, $request)->get();
 
-                fputcsv($file, [
-                    $i + 1,
-                    $p->full_name,
-                    $p->gender ?? '-',
-                    $p->birth_date ? $p->birth_date->format('d M Y') : '-',
-                    $p->nationality ?? '-',
-                    $p->passport_number ?? '-',
-                    $p->phone_number ?? '-',
-                    ucfirst($p->passenger_type ?? '-'),
-                    ucfirst($p->ticket_class ?? '-'),
-                    $p->booking_code,
-                    ucfirst(str_replace('_', ' ', $p->booking_status)),
-                    ucfirst(str_replace('_', ' ', $p->payment_status ?? '-')),
-                    $p->ticket_number ?? '-',
-                    $boardingStatus,
-                    $p->boarded_at ? $p->boarded_at->format('d M Y H:i') : '-',
-                ]);
-            }
-
-            fclose($file);
+        $fmt = function ($val, $fmtStr = 'd M Y') {
+            if (!$val) return '-';
+            if ($val instanceof \Illuminate\Support\Carbon) return $val->format($fmtStr);
+            if (is_string($val) && strtotime($val)) return date($fmtStr, strtotime($val));
+            return (string) $val;
         };
 
-        return Response::stream($callback, 200, $headers);
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Passengers</x:Name></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+<style>td,th{border:1px solid #ccc;padding:4px 6px;font-size:11px;font-family:sans-serif}th{background:#1D4ED8;color:#fff;font-weight:600}tr:nth-child(even){background:#f9fafb}</style></head><body>
+<h2>' . htmlspecialchars($schedule->vessel->name) . ' — ' . htmlspecialchars($schedule->route->origin_port . ' → ' . $schedule->route->destination_port) . ' · ' . $fmt($schedule->departure_time, 'd M Y, H:i') . '</h2>
+<table><thead><tr>
+<th>No</th><th>Full Name</th><th>Gender</th><th>Birth Date</th><th>Nationality</th>
+<th>Passport Number</th><th>Phone Number</th><th>Passenger Type</th>
+<th>Ticket Class</th><th>Booking Code</th><th>Booking Status</th>
+<th>Payment Status</th><th>Ticket Number</th><th>Boarding Status</th><th>Boarded At</th>
+</tr></thead><tbody>';
+
+        foreach ($passengers as $i => $p) {
+            $boardingStatus = match ($p->ticket_status) {
+                'used' => 'Boarded', 'active' => 'Not Boarded', 'expired' => 'Expired',
+                'cancelled' => 'Cancelled', 'refunded' => 'Refunded', default => 'N/A',
+            };
+
+            $html .= '<tr>
+<td>' . ($i + 1) . '</td>
+<td>' . htmlspecialchars($p->full_name) . '</td>
+<td>' . htmlspecialchars($p->gender ?? '-') . '</td>
+<td>' . $fmt($p->birth_date ?? null) . '</td>
+<td>' . htmlspecialchars($p->nationality ?? '-') . '</td>
+<td>' . htmlspecialchars($p->passport_number ?? '-') . '</td>
+<td>' . htmlspecialchars($p->phone_number ?? '-') . '</td>
+<td>' . htmlspecialchars(ucfirst($p->passenger_type ?? '-')) . '</td>
+<td>' . htmlspecialchars(ucfirst($p->ticket_class ?? '-')) . '</td>
+<td>' . htmlspecialchars($p->booking_code) . '</td>
+<td>' . htmlspecialchars(ucfirst(str_replace('_', ' ', $p->booking_status))) . '</td>
+<td>' . htmlspecialchars(ucfirst(str_replace('_', ' ', $p->payment_status ?? '-'))) . '</td>
+<td>' . htmlspecialchars($p->ticket_number ?? '-') . '</td>
+<td>' . $boardingStatus . '</td>
+<td>' . $fmt($p->boarded_at ?? null, 'd M Y H:i') . '</td>
+</tr>';
+        }
+
+        $html .= '</tbody></table></body></html>';
+
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="schedule-' . $schedule->id . '-passengers-' . date('Ymd') . '.xls"',
+        ]);
     }
 
     private function getScheduleStats(Schedule $schedule)
