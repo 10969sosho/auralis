@@ -26,9 +26,15 @@ class PaymentsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('booking.user.name')
+                TextColumn::make('pembeli')
                     ->label('Pembeli')
-                    ->searchable(),
+                    ->searchable(false)
+                    ->getStateUsing(function ($record) {
+                        if ($record->booking && is_null($record->booking->user_id)) {
+                            return 'COUNTER';
+                        }
+                        return $record->booking?->user?->name ?? '—';
+                    }),
 
                 TextColumn::make('booking.schedule.route.origin_port')
                     ->label('Rute')

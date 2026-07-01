@@ -13,9 +13,17 @@ class TicketController extends Controller
 {
     protected function authorizeTicketAccess(Ticket $ticket): void
     {
-        if ($ticket->booking->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized access to this ticket.');
+        // Allow if the ticket belongs to the authenticated user
+        if ($ticket->booking->user_id === auth()->id()) {
+            return;
         }
+
+        // Allow if the authenticated user is a counter officer or admin
+        if (auth()->user()->hasRole(['ticket_counter_officer', 'admin'])) {
+            return;
+        }
+
+        abort(403, 'Unauthorized access to this ticket.');
     }
 
     protected function generateQrCode(Ticket $ticket): string

@@ -136,4 +136,7 @@ Route::middleware(['auth', 'role:ticket_counter_officer,admin'])->prefix('counte
     Route::post('/store', [App\Http\Controllers\CounterController::class, 'store'])->name('store');
     Route::get('/success', [App\Http\Controllers\CounterController::class, 'success'])->name('success');
     Route::get('/search', [App\Http\Controllers\CounterController::class, 'search'])->name('search');
+    Route::get('/history', [App\Http\Controllers\CounterController::class, 'history'])->name('history');
+    Route::get('/booking/{code}', [App\Http\Controllers\CounterController::class, 'detail'])->name('detail');
+    Route::post('/booking/{code}/refund', [App\Http\Controllers\CounterController::class, 'refundRequest'])->name('refund');
 });

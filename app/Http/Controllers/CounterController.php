@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Schedule;
 use App\Models\Ticket;
+use App\Models\Refund;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +36,12 @@ class CounterController extends Controller
 
         $ageCategories = AgeCategory::where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('counter.create', compact('schedule', 'ageCategories'));
+        $vipBooked = (int) $schedule->vipBooked;
+        $regularBooked = (int) $schedule->regularBooked;
+        $vipAvailable = $schedule->vessel->vip_capacity - $vipBooked;
+        $regularAvailable = $schedule->vessel->regular_capacity - $regularBooked;
+
+        return view('counter.create', compact('schedule', 'ageCategories', 'vipAvailable', 'regularAvailable'));
     }
 
     public function store(Request $request)
@@ -180,5 +186,61 @@ class CounterController extends Controller
             ->get();
 
         return view('counter.search', compact('bookings'));
+    }
+
+    public function history(Request $request)
+    {
+        $bookings = Booking::whereNull('user_id')
+            ->with(['schedule.vessel', 'schedule.route', 'passengers', 'payment'])
+            ->when($request->status, fn ($q, $status) => $q->where('booking_status', $status))
+            ->latest()
+            ->paginate(10);
+
+        return view('counter.history', compact('bookings'));
+    }
+
+    public function detail($code)
+    {
+        $booking = Booking::where('booking_code', $code)
+            ->with(['passengers.ticket', 'passengers.documents', 'schedule.vessel', 'schedule.route', 'payment', 'refund'])
+            ->firstOrFail();
+
+        return view('counter.detail', compact('booking'));
+    }
+
+    public function refundRequest(Request $request, $code)
+    {
+        $booking = Booking::where('booking_code', $code)
+            ->firstOrFail();
+
+        $request->validate([
+            'refund_reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        if ($booking->booking_status !== 'paid') {
+            return back()->with('error', 'Only paid bookings can be refunded.');
+        }
+
+        if ($booking->schedule->isH6Passed) {
+            return back()->with('error', 'Refund period has passed (H-6 before departure).');
+        }
+
+        if ($booking->refund) {
+            return back()->with('error', 'A refund request already exists for this booking.');
+        }
+
+        $refundAmount = $booking->total_amount * 0.25;
+
+        Refund::create([
+            'booking_id' => $booking->id,
+            'requested_by' => auth()->id(),
+            'refund_amount' => $refundAmount,
+            'refund_reason' => $request->refund_reason,
+            'refund_status' => 'pending',
+        ]);
+
+        $booking->update(['booking_status' => 'refund_requested']);
+
+        return back()->with('success', 'Refund request submitted successfully.');
     }
 }
