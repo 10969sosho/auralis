@@ -120,7 +120,7 @@
                                 {{-- Staff-specific links --}}
                                 @if($isCounterOnly)
                                     <a href="{{ route('counter.dashboard') }}" class="guest-nav-dropdown-item">Ticket Counter</a>
-                                    <a href="{{ route('counter.search', ['query' => '']) }}" class="guest-nav-dropdown-item">Find Booking</a>
+                                    <a href="{{ route('counter.history') }}" class="guest-nav-dropdown-item">Counter History</a>
                                     <div class="guest-nav-dropdown-divider"></div>
                                 @endif
                                 @if($user->hasRole('boarding_officer') || $user->hasRole('admin'))

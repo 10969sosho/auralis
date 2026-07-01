@@ -88,6 +88,10 @@ class CounterController extends Controller
             $totalAmount += $price;
         }
 
+        // Add RM 10 insurance per passenger
+        $insuranceTotal = count($validated['passengers']) * 10;
+        $totalAmount += $insuranceTotal;
+
         $amountReceived = (float) $validated['amount_received'];
         $changeAmount = max(0, $amountReceived - $totalAmount);
 
@@ -175,10 +179,15 @@ class CounterController extends Controller
     {
         $request->validate(['query' => ['required', 'string', 'min:3']]);
 
-        $bookings = Booking::where('booking_code', 'like', '%'.$request->query.'%')
-            ->orWhereHas('passengers', function ($q) use ($request) {
-                $q->where('full_name', 'like', '%'.$request->query.'%')
-                    ->orWhere('passport_number', 'like', '%'.$request->query.'%');
+        $query = $request->input('query');
+
+        $bookings = Booking::whereNull('user_id')
+            ->where(function ($q) use ($query) {
+                $q->where('booking_code', 'like', '%'.$query.'%')
+                    ->orWhereHas('passengers', function ($pq) use ($query) {
+                        $pq->where('full_name', 'like', '%'.$query.'%')
+                            ->orWhere('passport_number', 'like', '%'.$query.'%');
+                    });
             })
             ->with(['passengers.ticket', 'schedule.vessel', 'schedule.route', 'payment'])
             ->latest()

@@ -9,9 +9,11 @@
             <h1 class="bookings-title">Counter Bookings</h1>
             <p class="bookings-sub">All tickets checked out by counter</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="{{ route('counter.dashboard') }}" class="btn btn-outline btn-sm">← Back to Counter</a>
-            <a href="{{ route('counter.search') }}" class="btn btn-outline btn-sm">Search</a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+            <form action="{{ route('counter.search') }}" method="GET" style="display:flex;gap:8px;">
+                <input type="text" name="query" placeholder="Search booking code, passenger..." class="form-input" style="width:200px;" required>
+                <button type="submit" class="btn btn-primary btn-sm">Search</button>
+            </form>
         </div>
     </div>
 

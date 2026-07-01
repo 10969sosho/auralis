@@ -2,86 +2,112 @@
 @section('title', 'Search Bookings - Counter')
 
 @section('content')
-<div class="counter-search-page">
-    <div class="mb-6">
-        <a href="{{ route('counter.dashboard') }}" class="link">← Back to Counter</a>
+
+<div class="bookings-page">
+    <div class="bookings-header">
+        <div>
+            <h1 class="bookings-title">Search Bookings</h1>
+            <p class="bookings-sub">Find counter or online bookings</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="{{ route('counter.history') }}" class="btn btn-outline btn-sm">Counter History</a>
+        </div>
     </div>
 
-    <form action="{{ route('counter.search') }}" method="GET" class="mb-6">
-        <div class="flex gap-3">
-            <input type="text" name="query" value="{{ request('query') }}" placeholder="Search booking code, passenger name, passport..." class="form-input flex-1" required>
-            <button type="submit" class="btn btn-primary">Search</button>
+    <div class="bookings-list">
+        <div class="card" style="margin-bottom:20px;">
+            <form action="{{ route('counter.search') }}" method="GET" style="display:flex;gap:12px;">
+                <input type="text" name="query" value="{{ request('query') }}" placeholder="Search booking code, passenger name or passport..." class="form-input" style="flex:1;" required minlength="3">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
         </div>
-    </form>
 
-    <h2 class="text-lg font-semibold mb-4">
         @if(request('query'))
-            Results for: <span class="text-blue-600">"{{ request('query') }}"</span>
+        <p class="text-sm text-gray-500 mb-4">
+            Result for: <strong class="text-blue-600">"{{ request('query') }}"</strong>
+            @if($bookings->count() > 0)
+            · {{ $bookings->count() }} booking{{ $bookings->count() > 1 ? 's' : '' }} found
+            @endif
+        </p>
         @endif
-    </h2>
 
-    @forelse($bookings as $booking)
-        <div class="search-result-card">
-            <div class="flex justify-between items-start flex-wrap gap-2">
-                <div>
-                    <span class="search-result-code">{{ $booking->booking_code }}</span>
-                    <span class="status-badge status-{{ $booking->booking_status }}">{{ ucfirst($booking->booking_status) }}</span>
-                </div>
-                <span class="text-sm text-gray-500">{{ $booking->created_at->format('d M Y H:i') }}</span>
-            </div>
+        @forelse($bookings as $booking)
+            @php
+                $statusLabel = \App\Helpers\StatusHelper::effectiveStatusLabel($booking);
+                $badgeClass = \App\Helpers\StatusHelper::effectiveBadgeClass($booking);
+            @endphp
 
-            <div class="search-result-body">
-                <div class="search-result-route">
-                    <strong>{{ $booking->schedule->vessel->name }}</strong>
-                    <span>{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</span>
-                    <span class="text-sm text-gray-500">{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</span>
-                </div>
-
-                <div class="search-result-passengers">
-                    @foreach($booking->passengers as $p)
-                        <div class="flex justify-between items-center text-sm py-1">
-                            <span>{{ $p->full_name }} <span class="text-gray-400">({{ $p->passenger_type }} · {{ ucfirst($p->ticket_class) }})</span></span>
-                            <span>{{ $p->passport_number }}</span>
-                        </div>
-                    @endforeach
-                </div>
-
-                <div class="flex justify-between items-center pt-2 border-t">
-                    <div>
-                        <span class="text-sm text-gray-500">Total: </span>
-                        <span class="font-semibold">RM {{ number_format($booking->total_amount, 2) }}</span>
+            <div class="booking-card">
+                <div class="booking-card-top">
+                    <div class="booking-card-code">
+                        <span class="booking-code-label">Booking Code</span>
+                        <span class="booking-code-value">#{{ $booking->booking_code }}</span>
                     </div>
-                    <div class="flex gap-2">
+                    <span class="booking-card-status {{ $badgeClass }}">{{ $statusLabel }}</span>
+                </div>
+
+                <div class="booking-card-route">
+                    <div class="booking-card-route-point">
+                        <span class="booking-card-port">{{ $booking->schedule->route->origin_port }}</span>
+                    </div>
+                    <div class="booking-card-route-line">
+                        <div class="booking-card-line-dot"></div>
+                        <div class="booking-card-line-bar"></div>
+                        <div class="booking-card-line-dot"></div>
+                    </div>
+                    <div class="booking-card-route-point booking-card-route-point-right">
+                        <span class="booking-card-port">{{ $booking->schedule->route->destination_port }}</span>
+                    </div>
+                </div>
+
+                <div class="booking-card-info">
+                    <div class="booking-card-info-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/><path d="M5 7h14l-2 5H7L5 7Z"/><circle cx="12" cy="7" r="1.5"/></svg>
+                        <span>{{ $booking->schedule->vessel->name }}</span>
+                    </div>
+                    <div class="booking-card-info-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span>{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</span>
+                    </div>
+                    <div class="booking-card-info-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>{{ $booking->total_passengers }} passenger{{ $booking->total_passengers > 1 ? 's' : '' }}</span>
+                    </div>
+                    <div class="booking-card-info-item booking-card-info-amount">
+                        <span>RM {{ number_format($booking->total_amount, 2) }}</span>
+                    </div>
+                </div>
+
+                <div class="booking-card-bottom">
+                    <a href="{{ route('counter.detail', $booking->booking_code) }}" class="booking-card-btn">
+                        View Details
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </a>
+                    <div style="display:flex;gap:4px;margin-left:auto;align-items:center;">
                         @if($booking->payment)
-                            <span class="text-xs px-2 py-1 rounded" style="background:#ECFDF5;color:#065F46;">{{ ucfirst($booking->payment->payment_method) }}</span>
+                            <span class="booking-card-status bs-green" style="font-size:0.65rem;">{{ $booking->payment->payment_method }}</span>
                         @endif
                         @if($booking->booking_status === 'paid')
-                            <a href="{{ route('counter.dashboard') }}" class="btn btn-outline btn-xs">Already Paid</a>
+                            @foreach($booking->passengers as $p)
+                                @if($p->ticket)
+                                    <a href="{{ route('tickets.download', $p->ticket) }}" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border:1px solid #059669;color:#059669;border-radius:6px;font-size:0.7rem;font-weight:700;text-decoration:none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        Print
+                                    </a>
+                                @endif
+                            @endforeach
                         @endif
                     </div>
                 </div>
             </div>
-        </div>
-    @empty
-        <div class="empty-state">
-            <h3>No results found</h3>
-            <p>Try a different search term.</p>
-        </div>
-    @endforelse
+        @empty
+            <div class="bookings-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <h3 class="bookings-empty-title">No results found</h3>
+                <p class="bookings-empty-desc">Try a different search term.</p>
+            </div>
+        @endforelse
+    </div>
 </div>
 
-<style>
-.counter-search-page { padding: 24px 0; max-width: 700px; }
-.search-result-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 14px; }
-.search-result-code { font-weight: 700; font-size: 1.05rem; margin-right: 8px; }
-.search-result-body { margin-top: 12px; }
-.search-result-route { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
-.search-result-passengers { margin-bottom: 10px; padding: 8px 0; }
-.status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
-.status-paid { background: #D1FAE5; color: #065F46; }
-.status-pending_payment { background: #FEF3C7; color: #92400E; }
-.status-cancelled, .status-expired { background: #FEE2E2; color: #991B1B; }
-.status-refunded, .status-refund_requested { background: #F3E8FF; color: #5B21B6; }
-.status-used { background: #DBEAFE; color: #1E40AF; }
-</style>
 @endsection
