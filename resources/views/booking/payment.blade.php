@@ -61,10 +61,49 @@
         </div>
     </div>
     @endif
+
+    {{-- ToyibPay Payment Link --}}
+    @if($booking->payment && $booking->payment->payment_method === 'toyibpay' && $booking->payment_status === 'pending')
+        @php $toyibPayUrl = $booking->payment->payment_meta['payment_url'] ?? null; @endphp
+        @if($toyibPayUrl)
+        <div class="payment-toyibpay-cta" id="toyibPayCta" style="background:linear-gradient(135deg,#1a56db,#1e40af);color:#fff;border-radius:16px;padding:24px;display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;">
+            <div class="payment-toyibpay-cta-icon" style="width:48px;height:48px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            </div>
+            <div style="flex:1;">
+                <h3 style="margin:0 0 4px;font-size:1.1rem;">Pay via ToyibPay</h3>
+                <p style="margin:0 0 8px;opacity:0.9;font-size:0.9rem;">You will be redirected to ToyibPay secure payment page.</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <a href="{{ $toyibPayUrl }}" class="payment-btn" id="toyibPayBtn" style="display:inline-flex;background:#fff;color:#1e40af;font-weight:700;" onclick="showLoading()">Proceed to Payment</a>
+                    <button type="button" class="payment-btn" id="checkStatusBtn" style="display:inline-flex;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="checkStatus()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        Check Payment Status
+                    </button>
+                </div>
+                <div id="checkStatusResult" style="margin-top:8px;font-size:0.85rem;"></div>
+            </div>
+        </div>
+        @endif
+    @endif
+
+    {{-- Loading Overlay --}}
+    <div id="loadingOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);justify-content:center;align-items:center;flex-direction:column;gap:16px;">
+        <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <p style="color:#fff;font-size:1rem;font-weight:600;">Redirecting to ToyibPay...</p>
+    </div>
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #toyibPayBtn:disabled, #checkStatusBtn:disabled { opacity:0.6; pointer-events:none; }
+    </style>
+
     <div class="payment-expiry" id="paymentExpiry">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span>Booking expires in <strong id="expiryDisplay">{{ $booking->expires_at->diffForHumans(null, true) }}</strong>.</span>
     </div>
+
+    {{-- Server-time countdown data --}}
+    <input type="hidden" id="expiresAt" value="{{ $booking->expires_at->timestamp }}">
+    <input type="hidden" id="serverNow" value="{{ now()->timestamp }}">
 
     <div class="payment-grid">
         <div class="payment-card">
@@ -316,8 +355,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Single countdown timer based on server expires_at timestamp (timezone-safe)
+    // Server-time based countdown (timezone-safe)
     const expiresAt = {{ $booking->expires_at->timestamp }} * 1000;
+    const serverNow = {{ now()->timestamp }} * 1000;
+    const clientOffset = new Date().getTime() - serverNow;
+
     const timerDisplay = document.getElementById('timerDisplay');
     const expiryDisplay = document.getElementById('expiryDisplay');
     const qrImageWrap = document.getElementById('qrImageWrap');
@@ -327,11 +369,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const paymentExpiry = document.getElementById('paymentExpiry');
 
     function updateCountdown() {
-        const now = new Date().getTime();
-        const diff = expiresAt - now;
+        // Use server-adjusted time
+        const clientNow = new Date().getTime();
+        const adjustedNow = clientNow - clientOffset;
+        const diff = expiresAt - adjustedNow;
 
         if (diff <= 0) {
-            // Expired — cancel on server via AJAX and show expired UI
             if (!window.bookingCancelled) {
                 window.bookingCancelled = true;
                 cancelBookingOnServer();
@@ -343,6 +386,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (bookingTimer) bookingTimer.style.display = 'none';
             if (paymentExpiry) paymentExpiry.style.display = 'none';
             if (qrExpired) qrExpired.style.display = 'block';
+
+            // Hide ToyibPay CTA if present
+            const toyibPayCta = document.getElementById('toyibPayCta');
+            if (toyibPayCta) toyibPayCta.style.display = 'none';
+
             clearInterval(timerInterval);
             return;
         }
@@ -354,7 +402,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
         if (timerDisplay) timerDisplay.textContent = timeStr;
 
-        // Human-friendly remaining time for the header
         if (expiryDisplay) {
             if (mins >= 60) {
                 const hours = Math.floor(mins / 60);
@@ -366,7 +413,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Run immediately then every second
     updateCountdown();
     const timerInterval = setInterval(updateCountdown, 1000);
 
@@ -378,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (dropzone && fileInput) {
         fileInput.addEventListener('change', function() {
             if (this.files && this.files[0]) {
-                filename.textContent = '✓ ' + this.files[0].name;
+                filename.textContent = '\u2713 ' + this.files[0].name;
                 dropzone.style.borderColor = '#059669';
                 dropzone.style.background = '#ecfdf5';
             } else {
@@ -402,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.remove('dragover');
             if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 fileInput.files = e.dataTransfer.files;
-                filename.textContent = '✓ ' + e.dataTransfer.files[0].name;
+                filename.textContent = '\u2713 ' + e.dataTransfer.files[0].name;
                 dropzone.style.borderColor = '#059669';
                 dropzone.style.background = '#ecfdf5';
             }
@@ -414,6 +460,66 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape') closeQrModal();
     });
 });
+
+function showLoading() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('toyibPayBtn').style.pointerEvents = 'none';
+    document.getElementById('toyibPayBtn').style.opacity = '0.6';
+    // If the redirect doesn't happen within 10s, show a fallback
+    setTimeout(function() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay.style.display === 'flex') {
+            overlay.querySelector('p').textContent = 'Taking longer than expected. Click the button again if not redirected.';
+            document.getElementById('toyibPayBtn').style.pointerEvents = 'auto';
+            document.getElementById('toyibPayBtn').style.opacity = '1';
+        }
+    }, 10000);
+}
+
+function checkStatus() {
+    const btn = document.getElementById('checkStatusBtn');
+    const result = document.getElementById('checkStatusResult');
+    if (!btn || !result) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+    result.innerHTML = '';
+    result.style.color = '#fff';
+
+    fetch('{{ route("booking.check-status", $booking->booking_code) }}')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.done && data.redirect) {
+                result.innerHTML = '<strong>Payment confirmed!</strong> Redirecting...';
+                window.location.href = data.redirect;
+                return;
+            }
+
+            if (data.done && data.payment_status === 'expired') {
+                result.innerHTML = '<strong>Booking expired.</strong> Please make a new booking.';
+                location.reload();
+                return;
+            }
+
+            if (data.payment_status === 'paid') {
+                result.innerHTML = '<strong>Payment confirmed!</strong> Redirecting...';
+                window.location.href = '{{ route("booking.success", $booking->booking_code) }}';
+                return;
+            }
+
+            result.innerHTML = 'Status: <strong>Waiting for payment</strong> - ' +
+                'Please complete the payment on ToyibPay page.';
+            btn.disabled = false;
+            btn.innerHTML =
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> ' +
+                'Check Payment Status';
+        })
+        .catch(function(err) {
+            result.innerHTML = 'Error checking status. Please try again.';
+            btn.disabled = false;
+            btn.textContent = 'Check Payment Status';
+        });
+}
 
 function openQrModal(el) {
     var img = el.querySelector('img');

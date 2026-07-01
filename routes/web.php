@@ -59,12 +59,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::get('/schedules', [BookingController::class, 'search'])->name('schedules');
 Route::get('/seat-availability', [SeatAvailabilityController::class, 'index'])->name('seat-availability');
 Route::get('/booking/{schedule}', [BookingController::class, 'show'])->name('booking.create');
-Route::post('/booking', [BookingController::class, 'store'])->middleware('auth')->name('booking.store');
+Route::post('/booking', [BookingController::class, 'store'])->middleware('auth', 'throttle:10,1')->name('booking.store');
 Route::get('/booking/{code}/payment', [BookingController::class, 'showPayment'])->name('booking.payment');
 Route::post('/booking/{code}/payment', [BookingController::class, 'processPayment'])->name('booking.process-payment');
 Route::get('/booking/{code}/success', [BookingController::class, 'success'])->name('booking.success');
 Route::get('/booking/{code}/detail', [BookingController::class, 'showBooking'])->name('booking.detail');
 Route::post('/booking/{code}/refund', [BookingController::class, 'refundRequest'])->name('booking.refund');
+
+// ToyibPay payment gateway routes
+Route::get('/booking/{code}/toyibpay-return', [BookingController::class, 'toyibpayReturn'])->name('booking.toyibpay-return');
+Route::post('/booking/toyibpay-callback', [BookingController::class, 'toyibpayCallback'])
+    ->name('booking.toyibpay-callback')
+    ->middleware('throttle:60,1');
+Route::get('/booking/{code}/check-status', [BookingController::class, 'checkPaymentStatus'])
+    ->name('booking.check-status')
+    ->middleware('throttle:30,1');
 
 Route::middleware('auth')->group(function () {
     Route::get('/my-bookings', [BookingController::class, 'history'])->name('booking.history');

@@ -14,7 +14,6 @@
     <div class="bookings-tabs">
         <a href="{{ route('booking.history') }}?status=" class="bookings-tab {{ !request('status') ? 'bookings-tab-active' : '' }}">All</a>
         <a href="{{ route('booking.history') }}?status=pending_payment" class="bookings-tab {{ request('status') === 'pending_payment' ? 'bookings-tab-active' : '' }}">Pending Payment</a>
-        <a href="{{ route('booking.history') }}?status=awaiting_approval" class="bookings-tab {{ request('status') === 'awaiting_approval' ? 'bookings-tab-active' : '' }}">Awaiting Approval</a>
         <a href="{{ route('booking.history') }}?status=paid" class="bookings-tab {{ request('status') === 'paid' ? 'bookings-tab-active' : '' }}">Paid</a>
         <a href="{{ route('booking.history') }}?status=used" class="bookings-tab {{ request('status') === 'used' ? 'bookings-tab-active' : '' }}">Completed</a>
         <a href="{{ route('booking.history') }}?status=cancelled" class="bookings-tab {{ request('status') === 'cancelled' ? 'bookings-tab-active' : '' }}">Cancelled</a>

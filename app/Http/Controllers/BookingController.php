@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Events\SeatAvailabilityUpdated;
 use App\Models\AgeCategory;
+use App\Models\AuditLog;
 use App\Models\Booking;
+use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\PassengerProfile;
 use App\Models\Promo;
@@ -12,9 +14,11 @@ use App\Models\Refund;
 use App\Models\Route;
 use App\Models\Schedule;
 use App\Models\Ticket;
+use App\Services\ToyibPayService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -169,7 +173,7 @@ class BookingController extends Controller
                 'booking_status' => 'pending_payment',
                 'payment_status' => 'pending',
                 'locked_at' => now(),
-                'expires_at' => now()->addMinutes(30),
+                'expires_at' => now()->addMinutes(10),
             ]);
 
             foreach ($validated['passengers'] as $index => $passengerData) {
@@ -223,13 +227,39 @@ class BookingController extends Controller
             return $booking;
         });
 
-        Payment::create([
-            'booking_id' => $booking->id,
-            'amount' => $totalAfterDiscount,
-            'payment_status' => 'pending',
-        ]);
+        try {
+            $toyibPay = app(ToyibPayService::class);
+            $result = $toyibPay->createBill($booking);
 
-        return redirect()->route('booking.payment', $booking->booking_code);
+            Payment::create([
+                'booking_id' => $booking->id,
+                'amount' => $totalAfterDiscount,
+                'payment_method' => 'toyibpay',
+                'payment_status' => 'pending',
+                'transaction_id' => $result['bill_code'],
+                'payment_meta' => [
+                    'bill_code' => $result['bill_code'],
+                    'payment_url' => $result['payment_url'],
+                ],
+            ]);
+
+            return redirect()->away($result['payment_url']);
+        } catch (\Exception $e) {
+            Log::error('ToyibPay createBill failed', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Fallback: create payment record as pending and show payment page
+            Payment::create([
+                'booking_id' => $booking->id,
+                'amount' => $totalAfterDiscount,
+                'payment_status' => 'pending',
+            ]);
+
+            return redirect()->route('booking.payment', $booking->booking_code)
+                ->with('error', 'Payment gateway is temporarily unavailable. Please try again or use manual transfer.');
+        }
     }
 
     public function showPayment($code)
@@ -255,6 +285,13 @@ class BookingController extends Controller
         // If payment is already approved/paid, redirect to success
         if (in_array($booking->payment_status, ['paid', 'approved'])) {
             return redirect()->route('booking.success', $booking->booking_code);
+        }
+
+        // If bill_code exists, redirect to existing ToyibPay payment URL (reuse, don't create new)
+        $billCode = $booking->payment?->payment_meta['bill_code'] ?? null;
+        if ($billCode && $booking->payment_status === 'pending') {
+            $toyibPay = app(ToyibPayService::class);
+            return redirect()->away($toyibPay->getPaymentUrl($billCode));
         }
 
         return view('booking.payment', compact('booking'));
@@ -337,6 +374,15 @@ class BookingController extends Controller
             ->with(['passengers.ticket', 'passengers.documents', 'schedule.vessel', 'schedule.route', 'payment', 'refund'])
             ->firstOrFail();
 
+        // Auto-cancel expired payments
+        if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
+            DB::transaction(function () use ($booking) {
+                $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
+                event(new SeatAvailabilityUpdated($booking->schedule));
+            });
+            $booking->refresh();
+        }
+
         return view('booking.detail', compact('booking'));
     }
 
@@ -397,5 +443,281 @@ class BookingController extends Controller
         });
 
         return back()->with('success', 'Refund request submitted successfully. Admin will process via WhatsApp.');
+    }
+
+    /**
+     * AJAX endpoint: check ToyibPay payment status.
+     */
+    public function checkPaymentStatus($code)
+    {
+        $booking = Booking::where('booking_code', $code)
+            ->with(['payment', 'passengers', 'schedule'])
+            ->firstOrFail();
+
+        // Owner check
+        if ($booking->user_id && $booking->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $response = [
+            'booking_status' => $booking->booking_status,
+            'payment_status' => $booking->payment_status,
+        ];
+
+        // If already terminal state, return immediately
+        if (in_array($booking->payment_status, ['paid', 'approved', 'failed', 'expired'])) {
+            $response['done'] = true;
+
+            if (in_array($booking->payment_status, ['paid', 'approved'])) {
+                $response['redirect'] = route('booking.success', $booking->booking_code);
+            }
+
+            return response()->json($response);
+        }
+
+        // Check ToyibPay API for pending ToyibPay payments
+        $billCode = $booking->payment->payment_meta['bill_code'] ?? null;
+        if ($billCode && $booking->payment->payment_method === 'toyibpay') {
+            try {
+                $toyibPay = app(ToyibPayService::class);
+                $tx = $toyibPay->getBillTransactions($billCode);
+
+                if ($tx && ($tx['billpaymentStatus'] ?? '') === '1') {
+                    $this->markPaymentPaid($booking, $tx);
+                    $response['booking_status'] = 'paid';
+                    $response['payment_status'] = 'paid';
+                    $response['done'] = true;
+                    $response['redirect'] = route('booking.success', $booking->booking_code);
+                }
+            } catch (\Exception $e) {
+                Log::warning('checkPaymentStatus API error', [
+                    'booking' => $code,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Check expiry
+        if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
+            DB::transaction(function () use ($booking) {
+                $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
+                event(new SeatAvailabilityUpdated($booking->schedule));
+            });
+            $response['booking_status'] = 'cancelled';
+            $response['payment_status'] = 'expired';
+            $response['done'] = true;
+        }
+
+        $response['done'] = $response['done'] ?? false;
+
+        return response()->json($response);
+    }
+
+    /**
+     * Handle ToyibPay return URL (user redirected back after payment).
+     */
+    public function toyibpayReturn($code)
+    {
+        $booking = Booking::where('booking_code', $code)
+            ->with(['payment', 'passengers', 'schedule'])
+            ->firstOrFail();
+
+        // If already paid, redirect to success
+        if (in_array($booking->payment_status, ['paid', 'approved'])) {
+            return redirect()->route('booking.success', $booking->booking_code);
+        }
+
+        // Auto-cancel if expired
+        if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
+            DB::transaction(function () use ($booking) {
+                $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
+                event(new SeatAvailabilityUpdated($booking->schedule));
+            });
+
+            return view('booking.expired', compact('booking'));
+        }
+
+        // Check payment status via ToyibPay API
+        $billCode = $booking->payment->payment_meta['bill_code'] ?? null;
+        if ($billCode) {
+            $toyibPay = app(ToyibPayService::class);
+            $tx = $toyibPay->getBillTransactions($billCode);
+
+            if ($tx && ($tx['billpaymentStatus'] ?? '') === '1') {
+                $this->markPaymentPaid($booking, $tx);
+                return redirect()->route('booking.success', $booking->booking_code);
+            }
+        }
+
+        // Payment not yet confirmed, show waiting page
+        return view('booking.payment', compact('booking'));
+    }
+
+    /**
+     * Handle ToyibPay server callback (POST from ToyibPay).
+     * This endpoint must be public (no auth, no CSRF).
+     */
+    public function toyibpayCallback(Request $request)
+    {
+        $data = $request->all();
+
+        Log::info('ToyibPay callback received', $data);
+
+        $toyibPay = app(ToyibPayService::class);
+
+        // Verify hash
+        if (!$toyibPay->verifyCallback($data)) {
+            Log::warning('ToyibPay callback hash verification failed', $data);
+            return response('Invalid hash', 400);
+        }
+
+        $orderId = $data['order_id'] ?? null;
+        $status = (int) ($data['status'] ?? 0);
+
+        if (!$orderId) {
+            Log::warning('ToyibPay callback missing order_id', $data);
+            return response('Missing order_id', 400);
+        }
+
+        $booking = Booking::where('booking_code', $orderId)
+            ->with(['payment', 'passengers', 'schedule'])
+            ->first();
+
+        if (!$booking) {
+            Log::warning('ToyibPay callback booking not found', ['order_id' => $orderId]);
+            return response('Booking not found', 404);
+        }
+
+        // Idempotent check: skip if already processed
+        $refno = $data['refno'] ?? null;
+        if ($refno) {
+            $processedRefnos = $booking->payment->payment_meta['processed_refnos'] ?? [];
+            if (in_array($refno, $processedRefnos)) {
+                Log::info('ToyibPay callback already processed, skipping', ['refno' => $refno, 'booking' => $orderId]);
+                return response('OK (already processed)');
+            }
+        }
+
+        // Status: 1 = success, 2 = pending, 3 = fail
+        if ($status === 1) {
+            if (!in_array($booking->payment_status, ['paid', 'approved'])) {
+                $this->markPaymentPaid($booking, $data);
+            }
+        } elseif ($status === 3) {
+            if ($booking->payment_status === 'pending') {
+                DB::transaction(function () use ($booking, $refno) {
+                    $booking->payment->update([
+                        'payment_status' => 'failed',
+                        'payment_meta' => array_merge($booking->payment->payment_meta ?? [], [
+                            'processed_refnos' => array_unique(array_merge(
+                                $booking->payment->payment_meta['processed_refnos'] ?? [],
+                                $refno ? [$refno] : []
+                            )),
+                        ]),
+                    ]);
+                    $booking->update(['payment_status' => 'failed']);
+                });
+            }
+
+            // Notify user if exists
+            if ($booking->user_id) {
+                Notification::create([
+                    'user_id' => $booking->user_id,
+                    'type' => 'payment_failed',
+                    'channel' => 'database',
+                    'title' => 'Payment Failed',
+                    'body' => 'Your payment for booking #' . $booking->booking_code . ' has failed. Please try again.',
+                    'sent_at' => now(),
+                ]);
+            }
+        }
+
+        // Audit log the webhook
+        AuditLog::log(
+            action: 'toyibpay_callback',
+            entityType: 'payment',
+            entityId: $booking->payment?->id,
+            payload: [
+                'booking_code' => $booking->booking_code,
+                'status' => $status,
+                'refno' => $refno,
+                'data' => $data,
+            ],
+            ipAddress: request()->ip(),
+        );
+
+        return response('OK');
+    }
+
+    /**
+     * Mark a booking as paid and generate tickets.
+     */
+    private function markPaymentPaid(Booking $booking, array $txData): void
+    {
+        DB::transaction(function () use ($booking, $txData) {
+            $booking->payment->update([
+                'payment_status' => 'paid',
+                'transaction_id' => $txData['billpaymentInvoiceNo'] ?? $booking->payment->transaction_id,
+                'paid_at' => now(),
+                'payment_meta' => array_merge($booking->payment->payment_meta ?? [], [
+                    'toyibpay_refno' => $txData['refno'] ?? null,
+                    'toyibpay_channel' => $txData['billpaymentChannel'] ?? null,
+                    'toyibpay_amount' => $txData['billpaymentAmount'] ?? null,
+                    'toyibpay_date' => $txData['billPaymentDate'] ?? null,
+                    'processed_refnos' => array_unique(array_merge(
+                        $booking->payment->payment_meta['processed_refnos'] ?? [],
+                        ($txData['refno'] ?? null) ? [$txData['refno']] : []
+                    )),
+                ]),
+            ]);
+
+            $booking->update([
+                'booking_status' => 'paid',
+                'payment_status' => 'paid',
+                'paid_at' => now(),
+            ]);
+
+            // Generate tickets
+            foreach ($booking->passengers as $passenger) {
+                if (!$passenger->ticket) {
+                    $passenger->ticket()->create([
+                        'booking_id' => $booking->id,
+                        'ticket_class' => $passenger->ticket_class,
+                        'qr_token' => Ticket::generateQrToken(),
+                        'ticket_number' => Ticket::generateTicketNumber(),
+                        'ticket_status' => 'active',
+                        'expiry_date' => $booking->schedule->departure_time->startOfDay(),
+                    ]);
+                }
+            }
+
+            event(new SeatAvailabilityUpdated($booking->schedule));
+        });
+
+        // Notify user
+        if ($booking->user_id) {
+            Notification::create([
+                'user_id' => $booking->user_id,
+                'type' => 'payment_success',
+                'channel' => 'database',
+                'title' => 'Payment Successful',
+                'body' => 'Your payment for booking #' . $booking->booking_code . ' has been received. Tickets are ready!',
+                'sent_at' => now(),
+            ]);
+        }
+
+        // Audit log
+        AuditLog::log(
+            action: 'toyibpay_payment_paid',
+            entityType: 'booking',
+            entityId: $booking->id,
+            payload: [
+                'booking_code' => $booking->booking_code,
+                'amount' => $booking->total_amount,
+                'toyibpay_refno' => $txData['refno'] ?? null,
+                'toyibpay_invoice' => $txData['billpaymentInvoiceNo'] ?? null,
+            ],
+            ipAddress: request()->ip(),
+        );
     }
 }
