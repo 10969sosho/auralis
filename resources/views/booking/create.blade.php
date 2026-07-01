@@ -228,11 +228,13 @@ function updateAgeInfo(index) {
 }
 
 function recalculateTotal() {
+    const INSURANCE = 10;
     const cards = document.querySelectorAll('.passenger-card');
     const summaryDetails = document.getElementById('summaryDetails');
     const totalEl = document.getElementById('totalAmount');
     let summaryHtml = '';
     let total = 0;
+    let pax = 0;
 
     cards.forEach(card => {
         const idx = card.dataset.index;
@@ -247,6 +249,7 @@ function recalculateTotal() {
             const price = getPassengerPrice(age, ticketClass);
             const category = findAgeCategory(age);
             total += price;
+            pax++;
             priceLabel.textContent = 'RM ' + price.toFixed(2);
 
             const className = ticketClass === 'vip' ? 'VIP' : 'Regular';
@@ -255,6 +258,13 @@ function recalculateTotal() {
             summaryHtml += '<div class="flex justify-between"><span>' + pName + ' (' + catName + ' · ' + className + ')</span><span>RM ' + price.toFixed(2) + '</span></div>';
         }
     });
+
+    const insurance = pax * INSURANCE;
+    total += insurance;
+
+    if (pax > 0) {
+        summaryHtml += '<div class="flex justify-between pt-2 border-t mt-2 text-gray-500"><span>Insurance (' + pax + ' × RM ' + INSURANCE.toFixed(2) + ')</span><span>RM ' + insurance.toFixed(2) + '</span></div>';
+    }
 
     summaryDetails.innerHTML = summaryHtml || '<p class="text-gray-400">Complete passenger details to see pricing</p>';
     totalEl.textContent = 'Total: RM ' + total.toFixed(2);

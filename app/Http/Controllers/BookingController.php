@@ -148,6 +148,10 @@ class BookingController extends Controller
             $passengerPrices[] = $price;
         }
 
+        // Add RM 10 insurance per passenger
+        $insuranceTotal = count($validated['passengers']) * 10;
+        $totalAmount += $insuranceTotal;
+
         $promo = null;
         $discountAmount = 0;
         if ($request->promo_code) {

@@ -21,10 +21,6 @@
                     <a href="https://wa.me/60178632188" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">+60 17-863 2188</a>
                 </div>
                 <div class="top-bar-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    <span>info@shipticketing.com</span>
-                </div>
-                <div class="top-bar-item top-bar-item-hours">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     <span>Mon - Sat: 08:00 - 17:00</span>
                 </div>
