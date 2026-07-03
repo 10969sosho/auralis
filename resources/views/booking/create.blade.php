@@ -116,7 +116,9 @@
                     <select name="passengers[{{ $i }}][ticket_class]" required class="form-select passenger-class"
                         id="class-{{ $i }}" onchange="recalculateTotal()">
                         <option value="regular">Regular — RM {{ number_format($schedule->regular_price, 2) }}</option>
+                        @if($schedule->vessel->vip_capacity > 0)
                         <option value="vip">VIP — RM {{ number_format($schedule->vip_price, 2) }}</option>
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">

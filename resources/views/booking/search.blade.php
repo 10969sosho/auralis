@@ -112,6 +112,7 @@
                     @endphp
 
                     <div class="ticket-seats">
+                        @if($schedule->vessel->vip_capacity > 0)
                         <div class="ticket-seat-item">
                             <span class="ticket-seat-label">
                                 <span class="ticket-seat-dot vip-dot"></span>
@@ -122,6 +123,7 @@
                                 <div class="ticket-seat-fill {{ $vipSeatClass }}" style="width: {{ $vipPct }}%"></div>
                             </div>
                         </div>
+                        @endif
                         <div class="ticket-seat-item">
                             <span class="ticket-seat-label">
                                 <span class="ticket-seat-dot regular-dot"></span>
@@ -135,10 +137,12 @@
                     </div>
 
                     <div class="ticket-prices">
+                        @if($schedule->vessel->vip_capacity > 0)
                         <div class="ticket-price-item">
                             <span class="ticket-price-label">VIP</span>
                             <span class="ticket-price-value">RM {{ number_format($schedule->vip_price, 2) }}</span>
                         </div>
+                        @endif
                         <div class="ticket-price-item">
                             <span class="ticket-price-label">Regular</span>
                             <span class="ticket-price-value">RM {{ number_format($schedule->regular_price, 2) }}</span>
