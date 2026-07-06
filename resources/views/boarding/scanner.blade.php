@@ -4,8 +4,8 @@
 @section('content')
 <div class="scanner-page">
     <div class="scanner-header">
-        <h1 class="scanner-title">Boarding QR Scanner</h1>
-        <p class="scanner-sub">Scan passenger ticket QR code for boarding validation</p>
+        <h1 class="scanner-title" data-translate-en="Boarding QR Scanner" data-translate-id="Pemindai Boarding">Boarding QR Scanner</h1>
+        <p class="scanner-sub" data-translate-en="Scan passenger ticket QR code for boarding validation" data-translate-id="Pindai kode QR tiket penumpang untuk validasi boarding">Scan passenger ticket QR code for boarding validation</p>
     </div>
 
     <div class="scanner-layout">
@@ -17,15 +17,15 @@
                 </div>
                 <div class="scanner-placeholder" id="cameraPlaceholder">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="scanner-placeholder-icon"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    <p class="scanner-placeholder-text">Press <strong>Start Camera</strong> to begin scanning</p>
+                    <p class="scanner-placeholder-text" data-translate-en="Press Start Camera to begin scanning" data-translate-id="Tekan Mulai Kamera untuk memulai pemindaian">Press <strong>Start Camera</strong> to begin scanning</p>
                 </div>
             </div>
             <div class="scanner-controls">
-                <button id="startScanBtn" class="scanner-btn scanner-btn-primary" onclick="startScanner()">
+                <button id="startScanBtn" class="scanner-btn scanner-btn-primary" onclick="startScanner()" data-translate-en="Start Camera" data-translate-id="Mulai Kamera">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     Start Camera
                 </button>
-                <button id="stopScanBtn" class="scanner-btn scanner-btn-danger" onclick="stopScanner()" style="display:none;">
+                <button id="stopScanBtn" class="scanner-btn scanner-btn-danger" onclick="stopScanner()" style="display:none;" data-translate-en="Stop Camera" data-translate-id="Hentikan Kamera">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="6" y="6" width="12" height="12"/></svg>
                     Stop Camera
                 </button>
@@ -40,18 +40,18 @@
                 </div>
                 <h3 id="scanResultTitle" class="scanner-result-title"></h3>
                 <div id="scanResultBody" class="scanner-result-body"></div>
-                <button id="scanAgainBtn" class="scanner-btn scanner-btn-outline" style="display:none;margin-top:14px;width:100%;" onclick="resetAndScan()">
+                <button id="scanAgainBtn" class="scanner-btn scanner-btn-outline" style="display:none;margin-top:14px;width:100%;" onclick="resetAndScan()" data-translate-en="Scan Another Ticket" data-translate-id="Pindai lagi">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                     Scan Another Ticket
                 </button>
             </div>
 
             <div class="scanner-manual-section">
-                <h3 class="scanner-manual-title">Manual Validation</h3>
+                <h3 class="scanner-manual-title" data-translate-en="Manual Validation" data-translate-id="Entri Manual">Manual Validation</h3>
                 <form id="manualForm" onsubmit="manualValidate(event)" class="scanner-manual-form">
                     @csrf
-                    <input type="text" id="manualCode" placeholder="Enter ticket number or booking code..." class="scanner-manual-input">
-                    <button type="submit" class="scanner-btn scanner-btn-primary" style="width:100%;justify-content:center;">Validate</button>
+                    <input type="text" id="manualCode" placeholder="Enter ticket number or booking code..." class="scanner-manual-input" data-translate-en="Enter ticket number or booking code..." data-translate-id="Masukkan kode tiket">
+                    <button type="submit" class="scanner-btn scanner-btn-primary" style="width:100%;justify-content:center;" data-translate-en="Validate" data-translate-id="Verifikasi">Validate</button>
                 </form>
                 <div id="manualResult" class="mt-3" style="display:none;"></div>
             </div>
@@ -59,7 +59,7 @@
             @if(request('schedule_id'))
                 @php $schedule = \App\Models\Schedule::find(request('schedule_id')); @endphp
                 @if($schedule)
-                    <a href="{{ route('boarding.manifest', $schedule) }}" class="scanner-manifest-link">
+                    <a href="{{ route('boarding.manifest', $schedule) }}" class="scanner-manifest-link" data-translate-en="View Manifest:" data-translate-id="Lihat Manifest:">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         View Manifest: {{ $schedule->vessel->name }} — {{ $schedule->departure_time->format('d M Y') }}
                     </a>

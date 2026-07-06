@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="payment-page">
-    <h1 class="payment-title">Complete Payment</h1>
+    <h1 class="payment-title" data-translate-en="Complete Payment" data-translate-id="Selesaikan Pembayaran">Complete Payment</h1>
 
     @if(session('success'))
     <div class="payment-success-alert">
@@ -18,26 +18,26 @@
         <div class="payment-waiting-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <h2 class="payment-waiting-title">Awaiting Admin Confirmation</h2>
-        <p class="payment-waiting-desc">Your proof of transfer has been uploaded. Admin will verify your payment shortly.</p>
+        <h2 class="payment-waiting-title" data-translate-en="Awaiting Admin Confirmation" data-translate-id="Menunggu Konfirmasi Admin">Awaiting Admin Confirmation</h2>
+        <p class="payment-waiting-desc" data-translate-en="Your proof of transfer has been uploaded. Admin will verify your payment shortly." data-translate-id="Bukti transfer Anda telah diunggah. Admin akan memverifikasi pembayaran Anda sebentar lagi.">Your proof of transfer has been uploaded. Admin will verify your payment shortly.</p>
         <div class="payment-waiting-details">
             <div class="payment-waiting-row">
-                <span>Booking Code</span>
+                <span data-translate-en="Booking Code" data-translate-id="Kode Pemesanan">Booking Code</span>
                 <strong>#{{ $booking->booking_code }}</strong>
             </div>
             <div class="payment-waiting-row">
-                <span>Total Payment</span>
+                <span data-translate-en="Total Payment" data-translate-id="Total Pembayaran">Total Payment</span>
                 <strong>RM {{ number_format($booking->total_amount, 2) }}</strong>
             </div>
             <div class="payment-waiting-row">
-                <span>Status</span>
-                <span class="payment-status-badge bs-yellow">Awaiting Verification</span>
+                <span data-translate-en="Status" data-translate-id="Status">Status</span>
+                <span class="payment-status-badge bs-yellow" data-translate-en="Awaiting Verification" data-translate-id="Menunggu Verifikasi">Awaiting Verification</span>
             </div>
         </div>
-        <p class="payment-waiting-hint">Once admin approves, tickets will be issued automatically. Please check your booking page regularly.</p>
+        <p class="payment-waiting-hint" data-translate-en="Once admin approves, tickets will be issued automatically. Please check your booking page regularly." data-translate-id="Setelah admin menyetujui, tiket akan diterbitkan secara otomatis. Silakan periksa halaman pemesanan Anda secara berkala.">Once admin approves, tickets will be issued automatically. Please check your booking page regularly.</p>
         <div class="payment-actions">
-            <a href="{{ route('booking.detail', $booking->booking_code) }}" class="payment-btn payment-btn-primary">View Booking Details</a>
-            <a href="{{ route('booking.history') }}" class="payment-btn payment-btn-outline">My Bookings</a>
+            <a href="{{ route('booking.detail', $booking->booking_code) }}" class="payment-btn payment-btn-primary" data-translate-en="View Booking Details" data-translate-id="Lihat Detail Pemesanan">View Booking Details</a>
+            <a href="{{ route('booking.history') }}" class="payment-btn payment-btn-outline" data-translate-en="My Bookings" data-translate-id="Pemesanan Saya">My Bookings</a>
         </div>
     </div>
     @else
@@ -47,13 +47,13 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
         <div class="payment-rejected-banner-body">
-            <h3>Payment Rejected</h3>
+            <h3 data-translate-en="Payment Rejected" data-translate-id="Pembayaran Ditolak">Payment Rejected</h3>
             @if($booking->payment->rejection_reason)
-            <p><strong>Reason:</strong> {{ $booking->payment->rejection_reason }}</p>
+            <p><strong data-translate-en="Reason:" data-translate-id="Alasan:">Reason:</strong> {{ $booking->payment->rejection_reason }}</p>
             @endif
-            <p class="payment-rejected-banner-hint">Please re-upload a valid proof of transfer or contact support if you need assistance.</p>
+            <p class="payment-rejected-banner-hint" data-translate-en="Please re-upload a valid proof of transfer or contact support if you need assistance." data-translate-id="Silakan unggah ulang bukti transfer yang valid atau hubungi dukungan jika Anda memerlukan bantuan.">Please re-upload a valid proof of transfer or contact support if you need assistance.</p>
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-                <a href="https://wa.me/6285212345678?text=Help%3A%20Booking%20%23{{ $booking->booking_code }}%20-%20Payment%20Rejected" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;font-size:0.85rem;font-weight:600;text-decoration:none;">
+                <a href="https://wa.me/6285212345678?text=Help%3A%20Booking%20%23{{ $booking->booking_code }}%20-%20Payment%20Rejected" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;font-size:0.85rem;font-weight:600;text-decoration:none;" data-translate-en="Contact Support" data-translate-id="Hubungi Dukungan">
                     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:16px;height:16px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     Contact Support
                 </a>
@@ -71,11 +71,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             </div>
             <div style="flex:1;">
-                <h3 style="margin:0 0 4px;font-size:1.1rem;">Pay via ToyibPay</h3>
-                <p style="margin:0 0 8px;opacity:0.9;font-size:0.9rem;">You will be redirected to ToyibPay secure payment page.</p>
+                <h3 style="margin:0 0 4px;font-size:1.1rem;" data-translate-en="Pay via ToyibPay" data-translate-id="Bayar via ToyibPay">Pay via ToyibPay</h3>
+                <p style="margin:0 0 8px;opacity:0.9;font-size:0.9rem;" data-translate-en="You will be redirected to ToyibPay secure payment page." data-translate-id="Anda akan diarahkan ke halaman pembayaran aman ToyibPay.">You will be redirected to ToyibPay secure payment page.</p>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                    <a href="{{ $toyibPayUrl }}" class="payment-btn" id="toyibPayBtn" style="display:inline-flex;background:#fff;color:#1e40af;font-weight:700;" onclick="showLoading()">Proceed to Payment</a>
-                    <button type="button" class="payment-btn" id="checkStatusBtn" style="display:inline-flex;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="checkStatus()">
+                    <a href="{{ $toyibPayUrl }}" class="payment-btn" id="toyibPayBtn" style="display:inline-flex;background:#fff;color:#1e40af;font-weight:700;" onclick="showLoading()" data-translate-en="Proceed to Payment" data-translate-id="Lanjutkan ke Pembayaran">Proceed to Payment</a>
+                    <button type="button" class="payment-btn" id="checkStatusBtn" style="display:inline-flex;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="checkStatus()" data-translate-en="Check Payment Status" data-translate-id="Cek Status Pembayaran">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                         Check Payment Status
                     </button>
@@ -89,7 +89,7 @@
     {{-- Loading Overlay --}}
     <div id="loadingOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);justify-content:center;align-items:center;flex-direction:column;gap:16px;">
         <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-        <p style="color:#fff;font-size:1rem;font-weight:600;">Redirecting to ToyibPay...</p>
+        <p style="color:#fff;font-size:1rem;font-weight:600;" data-translate-en="Redirecting to ToyibPay..." data-translate-id="Mengarahkan ke ToyibPay...">Redirecting to ToyibPay...</p>
     </div>
     <style>
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -98,7 +98,7 @@
 
     <div class="payment-expiry" id="paymentExpiry">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>Booking expires in <strong id="expiryDisplay">{{ $booking->expires_at->diffForHumans(null, true) }}</strong>.</span>
+        <span data-translate-en="Booking expires in" data-translate-id="Pemesanan kedaluwarsa dalam">Booking expires in <strong id="expiryDisplay">{{ $booking->expires_at->diffForHumans(null, true) }}</strong>.</span>
     </div>
 
     {{-- Server-time countdown data --}}
@@ -113,30 +113,30 @@
             </div>
             <div class="payment-card-body">
                 <div class="payment-info-row">
-                    <span class="payment-info-label">Vessel</span>
+                    <span class="payment-info-label" data-translate-en="Vessel" data-translate-id="Kapal">Vessel</span>
                     <span class="payment-info-value">{{ $booking->schedule->vessel->name }}</span>
                 </div>
                 <div class="payment-info-row">
-                    <span class="payment-info-label">Route</span>
+                    <span class="payment-info-label" data-translate-en="Route" data-translate-id="Rute">Route</span>
                     <span class="payment-info-value">{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</span>
                 </div>
                 <div class="payment-info-row">
-                    <span class="payment-info-label">Departure</span>
+                    <span class="payment-info-label" data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</span>
                     <span class="payment-info-value">{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</span>
                 </div>
                 <div class="payment-info-row">
-                    <span class="payment-info-label">Passengers</span>
+                    <span class="payment-info-label" data-translate-en="Passengers" data-translate-id="Penumpang">Passengers</span>
                     <span class="payment-info-value">{{ $booking->total_passengers }}</span>
                 </div>
                 @if($booking->discount_amount > 0)
                 <div class="payment-info-row">
-                    <span class="payment-info-label">Discount</span>
+                    <span class="payment-info-label" data-translate-en="Discount" data-translate-id="Diskon">Discount</span>
                     <span class="payment-info-value" style="color:#059669">-RM {{ number_format($booking->discount_amount, 2) }}</span>
                 </div>
                 @endif
                 <div class="payment-divider"></div>
                 <div class="payment-info-row">
-                    <span class="payment-info-label">Total</span>
+                    <span class="payment-info-label" data-translate-en="Total" data-translate-id="Total">Total</span>
                     <span class="payment-info-value payment-total">RM {{ number_format($booking->total_amount, 2) }}</span>
                 </div>
             </div>
@@ -145,7 +145,7 @@
         <div class="payment-card">
             <div class="payment-card-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Transfer Manual
+                <span data-translate-en="Transfer Manual" data-translate-id="Transfer Manual">Transfer Manual</span>
             </div>
             <div class="payment-card-body">
                 {{-- QR Code Display with Timer --}}
@@ -154,28 +154,28 @@
                 @endphp
                 @if($qrValue)
                 <div class="payment-qr-section" id="qrSection">
-                    <h3 class="payment-qr-title">Scan QR Code to Pay</h3>
+                    <h3 class="payment-qr-title" data-translate-en="Scan QR Code to Pay" data-translate-id="Scan Kode QR untuk Membayar">Scan QR Code to Pay</h3>
                     <div class="payment-qr-timer" id="bookingTimer">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        <span>Booking expires in <strong id="timerDisplay">--:--</strong></span>
+                        <span data-translate-en="Booking expires in" data-translate-id="Pemesanan kedaluwarsa dalam">Booking expires in <strong id="timerDisplay">--:--</strong></span>
                     </div>
                     <div class="payment-qr-image-wrap" id="qrImageWrap" onclick="openQrModal(this)" style="cursor:pointer;">
                         <img src="{{ asset('storage/' . $qrValue) }}" alt="Payment QR Code" class="payment-qr-image">
-                        <span class="payment-qr-zoom-hint">Click to enlarge</span>
+                        <span class="payment-qr-zoom-hint" data-translate-en="Click to enlarge" data-translate-id="Klik untuk memperbesar">Click to enlarge</span>
                     </div>
-                    <p class="payment-qr-hint" id="qrHint">Scan the QR above using your e-wallet or mobile banking app.</p>
+                    <p class="payment-qr-hint" id="qrHint" data-translate-en="Scan the QR above using your e-wallet or mobile banking app." data-translate-id="Scan QR di atas menggunakan e-wallet atau aplikasi mobile banking Anda.">Scan the QR above using your e-wallet or mobile banking app.</p>
                     <div class="payment-qr-expired" id="qrExpired" style="display:none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;color:#ef4444;margin:0 auto 10px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                        <h4 style="color:#ef4444;margin:0 0 4px;">Booking Cancelled</h4>
-                        <p style="color:#6b7280;font-size:0.85rem;">Payment time has expired. Please make a new booking.</p>
-                        <a href="{{ route('schedules') }}" class="payment-btn payment-btn-primary" style="display:inline-flex;margin-top:16px;">Book Again</a>
+                        <h4 style="color:#ef4444;margin:0 0 4px;" data-translate-en="Booking Cancelled" data-translate-id="Pemesanan Dibatalkan">Booking Cancelled</h4>
+                        <p style="color:#6b7280;font-size:0.85rem;" data-translate-en="Payment time has expired. Please make a new booking." data-translate-id="Waktu pembayaran telah habis. Silakan buat pemesanan baru.">Payment time has expired. Please make a new booking.</p>
+                        <a href="{{ route('schedules') }}" class="payment-btn payment-btn-primary" style="display:inline-flex;margin-top:16px;" data-translate-en="Book Again" data-translate-id="Pesan Lagi">Book Again</a>
                     </div>
                 </div>
                 @else
                 <div class="payment-qr-section">
-                    <h3 class="payment-qr-title">Transfer to Account</h3>
+                    <h3 class="payment-qr-title" data-translate-en="Transfer to Account" data-translate-id="Transfer ke Rekening">Transfer to Account</h3>
                     <div class="payment-bank-info">
-                        <p class="payment-bank-name">Bank Muamalat</p>
+                        <p class="payment-bank-name" data-translate-en="Bank Muamalat" data-translate-id="Bank Muamalat">Bank Muamalat</p>
                         <p class="payment-bank-account">5706016718</p>
                         <p class="payment-bank-holder">a.n Fajar Pratama</p>
                     </div>
@@ -189,11 +189,11 @@
                     <input type="hidden" name="payment_method" value="manual_transfer">
 
                     <div class="payment-upload-section">
-                        <h3 class="payment-upload-title">Upload Proof of Transfer</h3>
-                        <p class="payment-upload-desc">Upload a screenshot or photo of your transfer (max 5MB, format: JPG/PNG/WebP)</p>
+                        <h3 class="payment-upload-title" data-translate-en="Upload Proof of Transfer" data-translate-id="Unggah Bukti Transfer">Upload Proof of Transfer</h3>
+                        <p class="payment-upload-desc" data-translate-en="Upload a screenshot or photo of your transfer (max 5MB, format: JPG/PNG/WebP)" data-translate-id="Unggah tangkapan layar atau foto transfer Anda (maks 5MB, format: JPG/PNG/WebP)">Upload a screenshot or photo of your transfer (max 5MB, format: JPG/PNG/WebP)</p>
                         <div class="payment-upload-dropzone" id="dropzone">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="payment-upload-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            <p class="payment-upload-text">Click or drag & drop your proof of transfer here</p>
+                            <p class="payment-upload-text" data-translate-en="Click or drag &amp; drop your proof of transfer here" data-translate-id="Klik atau seret &amp; jatuhkan bukti transfer Anda di sini">Click or drag &amp; drop your proof of transfer here</p>
                             <span class="payment-upload-filename" id="filename"></span>
                             <input type="file" name="proof_of_transfer" id="proof_of_transfer" accept="image/*" required class="payment-upload-input">
                         </div>
@@ -202,8 +202,8 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="payment-submit" id="submitBtn">
-                        Upload Proof of Transfer & Confirm
+                    <button type="submit" class="payment-submit" id="submitBtn" data-translate-en="Upload Proof of Transfer &amp; Confirm" data-translate-id="Unggah Bukti Transfer &amp; Konfirmasi">
+                        Upload Proof of Transfer &amp; Confirm
                     </button>
                 </form>
             </div>
@@ -213,17 +213,17 @@
     <div class="payment-card" style="margin-top:20px;">
         <div class="payment-card-header">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-            Passenger List ({{ $booking->passengers->count() }})
+            <span data-translate-en="Passenger List" data-translate-id="Daftar Penumpang">Passenger List ({{ $booking->passengers->count() }})</span>
         </div>
         <div class="payment-card-body p-0">
             <div class="payment-table-wrap">
                 <table class="payment-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Class</th>
-                            <th>Type</th>
-                            <th>Passport</th>
+                            <th data-translate-en="Name" data-translate-id="Nama">Name</th>
+                            <th data-translate-en="Class" data-translate-id="Kelas">Class</th>
+                            <th data-translate-en="Type" data-translate-id="Tipe">Type</th>
+                            <th data-translate-en="Passport" data-translate-id="Paspor">Passport</th>
                         </tr>
                     </thead>
                     <tbody>

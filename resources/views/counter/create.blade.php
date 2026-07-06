@@ -2,13 +2,13 @@
 @section('title', 'Sell Ticket - Counter')
 
 @section('content')
-<h1 class="text-2xl font-bold text-gray-900">Sell Ticket — Counter</h1>
+<h1 class="text-2xl font-bold text-gray-900" data-translate-en="Sell Ticket &mdash; Counter" data-translate-id="Jual Tiket &mdash; Loket">Sell Ticket — Counter</h1>
 
 <div class="mt-4 alert alert-info">
     <p class="font-semibold">{{ $schedule->vessel->name }}</p>
     <p class="text-gray-600">{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}</p>
-    <p class="text-sm text-gray-500">Departure: {{ $schedule->departure_time->format('d M Y, H:i') }}</p>
-    <p class="text-sm text-gray-500 mt-1">VIP: RM {{ number_format($schedule->vip_price, 2) }} · Regular: RM {{ number_format($schedule->regular_price, 2) }}</p>
+    <p class="text-sm text-gray-500" data-translate-en="Departure: {date}" data-translate-id="Keberangkatan: {date}">Departure: {{ $schedule->departure_time->format('d M Y, H:i') }}</p>
+    <p class="text-sm text-gray-500 mt-1" data-translate-en="VIP: {vip_price} &middot; Regular: {reg_price}" data-translate-id="VIP: {vip_price} &middot; Regular: {reg_price}">VIP: RM {{ number_format($schedule->vip_price, 2) }} · Regular: RM {{ number_format($schedule->regular_price, 2) }}</p>
 </div>
 
 <form action="{{ route('counter.store') }}" method="POST" class="mt-6 space-y-6" id="counterForm">
@@ -16,15 +16,15 @@
     <input type="hidden" name="schedule_id" value="{{ $schedule->id }}">
 
     <div class="flex items-center gap-2 mb-4">
-        <button type="button" class="btn btn-primary btn-sm" onclick="addPassenger()">+ Add Passenger</button>
-        <button type="button" class="btn btn-outline btn-sm" onclick="removePassenger()" id="removeBtn" disabled>− Remove Last</button>
-        <span class="text-sm text-gray-500 ml-auto" id="passengerCount">1 passenger</span>
+        <button type="button" class="btn btn-primary btn-sm" onclick="addPassenger()" data-translate-en="+ Add Passenger" data-translate-id="+ Tambah Penumpang">+ Add Passenger</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="removePassenger()" id="removeBtn" disabled data-translate-en="&minus; Remove Last" data-translate-id="&minus; Hapus Terakhir">− Remove Last</button>
+        <span class="text-sm text-gray-500 ml-auto" id="passengerCount" data-translate-en="{count} passenger" data-translate-id="{count} penumpang">1 passenger</span>
     </div>
 
     <div id="passengers-container">
         <div class="card mb-6 passenger-card" data-index="0">
             <div class="flex justify-between items-center border-b pb-2 mb-4">
-                <h3 class="text-lg font-semibold">Passenger 1</h3>
+                <h3 class="text-lg font-semibold" data-translate-en="Passenger {num}" data-translate-id="Penumpang {num}">Passenger 1</h3>
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium age-category-badge" id="age-badge-0" style="display:none;"></span>
                     <span class="text-sm text-gray-500 passenger-price-label" id="price-label-0"></span>
@@ -32,43 +32,43 @@
             </div>
             <div class="grid sm:grid-cols-2 gap-4">
                 <div class="form-group">
-                    <label class="form-label">Full Name *</label>
-                    <input type="text" name="passengers[0][full_name]" required class="form-input" id="name-0" placeholder="Passenger name">
+                    <label class="form-label" data-translate-en="Full Name *" data-translate-id="Nama Lengkap *">Full Name *</label>
+                    <input type="text" name="passengers[0][full_name]" required class="form-input" id="name-0" placeholder="Passenger name" data-translate-en="Passenger name" data-translate-id="Nama penumpang">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Gender *</label>
+                    <label class="form-label" data-translate-en="Gender *" data-translate-id="Jenis Kelamin *">Gender *</label>
                     <select name="passengers[0][gender]" required class="form-select" id="gender-0">
-                        <option value="">Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
+                        <option value="" data-translate-en="Select" data-translate-id="Pilih">Select</option>
+                        <option value="male" data-translate-en="Male" data-translate-id="Laki-laki">Male</option>
+                        <option value="female" data-translate-en="Female" data-translate-id="Perempuan">Female</option>
+                        <option value="other" data-translate-en="Other" data-translate-id="Lainnya">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date of Birth *</label>
+                    <label class="form-label" data-translate-en="Date of Birth *" data-translate-id="Tanggal Lahir *">Date of Birth *</label>
                     <input type="date" name="passengers[0][birth_date]" required max="{{ date('Y-m-d') }}" class="form-input" id="birth-0" onchange="updateAgeInfo(0)">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Age <span class="text-xs text-gray-400">(auto)</span></label>
-                    <input type="text" class="form-input bg-gray-100" id="age-display-0" readonly placeholder="Select birth date">
+                    <label class="form-label" data-translate-en="Age" data-translate-id="Usia">Age <span class="text-xs text-gray-400" data-translate-en="(auto)" data-translate-id="(otomatis)">(auto)</span></label>
+                    <input type="text" class="form-input bg-gray-100" id="age-display-0" readonly placeholder="Select birth date" data-translate-en="Select birth date" data-translate-id="Pilih tanggal lahir">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nationality *</label>
-                    <input type="text" name="passengers[0][nationality]" required placeholder="e.g. Malaysian" class="form-input" id="nationality-0">
+                    <label class="form-label" data-translate-en="Nationality *" data-translate-id="Kewarganegaraan *">Nationality *</label>
+                    <input type="text" name="passengers[0][nationality]" required placeholder="e.g. Malaysian" class="form-input" id="nationality-0" data-translate-en="e.g. Malaysian" data-translate-id="Mis. Malaysia">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Passport/ID *</label>
-                    <input type="text" name="passengers[0][passport_number]" required class="form-input" id="passport-0" placeholder="Passport number">
+                    <label class="form-label" data-translate-en="Passport/ID *" data-translate-id="Paspor/KTP *">Passport/ID *</label>
+                    <input type="text" name="passengers[0][passport_number]" required class="form-input" id="passport-0" placeholder="Passport number" data-translate-en="Passport number" data-translate-id="Nomor paspor">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Phone</label>
-                    <input type="text" name="passengers[0][phone_number]" class="form-input" id="phone-0" placeholder="Optional">
+                    <label class="form-label" data-translate-en="Phone" data-translate-id="Telepon">Phone</label>
+                    <input type="text" name="passengers[0][phone_number]" class="form-input" id="phone-0" placeholder="Optional" data-translate-en="Optional" data-translate-id="Opsional">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Class *</label>
+                    <label class="form-label" data-translate-en="Class *" data-translate-id="Kelas *">Class *</label>
                     <select name="passengers[0][ticket_class]" required class="form-select" id="class-0" onchange="recalculateTotal()">
-                        <option value="regular">Regular — RM {{ number_format($schedule->regular_price, 2) }} ({{ $regularAvailable }} left)</option>
-                        <option value="vip">VIP — RM {{ number_format($schedule->vip_price, 2) }} ({{ $vipAvailable }} left)</option>
+                        <option value="regular" data-translate-en="Regular &mdash; RM {price} ({available} left)" data-translate-id="Regular &mdash; RM {price} ({available} tersisa)">Regular — RM {{ number_format($schedule->regular_price, 2) }} ({{ $regularAvailable }} left)</option>
+                        <option value="vip" data-translate-en="VIP &mdash; RM {price} ({available} left)" data-translate-id="VIP &mdash; RM {price} ({available} tersisa)">VIP — RM {{ number_format($schedule->vip_price, 2) }} ({{ $vipAvailable }} left)</option>
                     </select>
                 </div>
             </div>
@@ -76,27 +76,27 @@
     </div>
 
     <div class="card">
-        <h3 class="text-lg font-semibold border-b pb-2 mb-4">Payment Summary</h3>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4" data-translate-en="Payment Summary" data-translate-id="Ringkasan Pembayaran">Payment Summary</h3>
         <div class="space-y-2 text-sm" id="summaryDetails">
-            <p class="text-gray-400">Complete passenger details to see pricing</p>
+            <p class="text-gray-400" data-translate-en="Complete passenger details to see pricing" data-translate-id="Lengkapi data penumpang untuk melihat harga">Complete passenger details to see pricing</p>
         </div>
         <div class="mt-3 pt-3 border-t">
-            <p class="text-xl font-bold text-blue-600" id="totalAmount">Total: RM 0.00</p>
+            <p class="text-xl font-bold text-blue-600" id="totalAmount" data-translate-en="Total: RM {amount}" data-translate-id="Total: RM {amount}">Total: RM 0.00</p>
         </div>
 
         <div class="mt-4 grid sm:grid-cols-2 gap-4">
             <div class="form-group">
-                <label class="form-label">Payment Method *</label>
+                <label class="form-label" data-translate-en="Payment Method *" data-translate-id="Metode Pembayaran *">Payment Method *</label>
                 <select name="payment_method" required class="form-select">
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
+                    <option value="cash" data-translate-en="Cash" data-translate-id="Tunai">Cash</option>
+                    <option value="card" data-translate-en="Card" data-translate-id="Kartu">Card</option>
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Amount Received *</label>
+                <label class="form-label" data-translate-en="Amount Received *" data-translate-id="Jumlah Diterima *">Amount Received *</label>
                 <div class="flex gap-2">
                     <input type="number" name="amount_received" required step="0.01" min="0" class="form-input" id="amountReceived" oninput="calculateChange()" placeholder="0.00" style="flex:1;">
-                    <button type="button" class="btn btn-outline btn-sm" onclick="fillExactAmount()" style="white-space:nowrap;">Exact</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="fillExactAmount()" style="white-space:nowrap;" data-translate-en="Exact" data-translate-id="Tepat">Exact</button>
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
             <div id="changeDisplay"></div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg mt-4 btn-block" style="background:#059669;border-color:#059669;">
+        <button type="submit" class="btn btn-primary btn-lg mt-4 btn-block" style="background:#059669;border-color:#059669;" data-translate-en="Confirm Payment" data-translate-id="Konfirmasi Pembayaran">
             Confirm Payment
         </button>
     </div>

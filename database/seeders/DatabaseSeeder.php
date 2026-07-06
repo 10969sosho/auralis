@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         // ─── Users ────────────────────────────────────────────
         $admin = User::create([
             'name' => 'Admin System',
-            'email' => 'admin@shipticketing.com',
+            'email' => 'admin@auralis8.com',
             'password' => Hash::make('password'),
             'phone' => '0190000000',
             'nationality' => 'Malaysian',
@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
 
         $boardingOfficer = User::create([
             'name' => 'Boarding Officer 1',
-            'email' => 'boarding@shipticketing.com',
+            'email' => 'boarding@auralis8.com',
             'password' => Hash::make('password'),
             'phone' => '0191111111',
             'nationality' => 'Malaysian',
@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
 
         $ticketCounter = User::create([
             'name' => 'Ticket Counter 1',
-            'email' => 'counter@shipticketing.com',
+            'email' => 'counter@auralis8.com',
             'password' => Hash::make('password'),
             'phone' => '0192222222',
             'nationality' => 'Malaysian',
@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
 
         $deportationOfficer = User::create([
             'name' => 'Deportation Officer 1',
-            'email' => 'deportation@shipticketing.com',
+            'email' => 'deportation@auralis8.com',
             'password' => Hash::make('password'),
             'phone' => '0193333333',
         ]);

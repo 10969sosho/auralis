@@ -10,6 +10,7 @@ use App\Http\Controllers\PassengerProfileController;
 use App\Http\Controllers\SeatAvailabilityController;
 use App\Models\Route as RouteModel;
 use App\Models\Schedule;
+use App\Models\Vessel;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -55,7 +56,20 @@ Route::get('/harga', function () {
 Route::get('/pengumuman', fn () => view('pengumuman'))->name('pengumuman');
 Route::get('/pengumuman/{id}', fn ($id) => view('pengumuman-detail', ['id' => $id]))->name('pengumuman.detail');
 Route::get('/informasi', fn () => view('informasi'))->name('informasi');
-Route::get('/jadwal', fn () => view('jadwal'))->name('jadwal');
+Route::get('/jadwal', function (\Illuminate\Http\Request $request) {
+    $date = $request->input('date', now()->format('Y-m-d'));
+
+    $schedules = Schedule::where('status', 'scheduled')
+        ->where('is_active', true)
+        ->whereDate('departure_time', $date)
+        ->with(['route', 'vessel'])
+        ->orderBy('departure_time')
+        ->get();
+
+    $vessels = Vessel::where('status', 'active')->get();
+
+    return view('jadwal', compact('schedules', 'date', 'vessels'));
+})->name('jadwal');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

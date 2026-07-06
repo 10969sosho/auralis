@@ -6,27 +6,27 @@
 <div class="bookings-page">
     <div class="bookings-header">
         <div>
-            <h1 class="bookings-title">Search Bookings</h1>
-            <p class="bookings-sub">Find counter or online bookings</p>
+            <h1 class="bookings-title" data-translate-en="Search Bookings" data-translate-id="Cari Pemesanan">Search Bookings</h1>
+            <p class="bookings-sub" data-translate-en="Find counter or online bookings" data-translate-id="Cari pemesanan loket atau online">Find counter or online bookings</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="{{ route('counter.history') }}" class="btn btn-outline btn-sm">Counter History</a>
+            <a href="{{ route('counter.history') }}" class="btn btn-outline btn-sm" data-translate-en="Counter History" data-translate-id="Riwayat Loket">Counter History</a>
         </div>
     </div>
 
     <div class="bookings-list">
         <div class="card" style="margin-bottom:20px;">
             <form action="{{ route('counter.search') }}" method="GET" style="display:flex;gap:12px;">
-                <input type="text" name="query" value="{{ request('query') }}" placeholder="Search booking code, passenger name or passport..." class="form-input" style="flex:1;" required minlength="3">
-                <button type="submit" class="btn btn-primary">Search</button>
+                <input type="text" name="query" value="{{ request('query') }}" placeholder="Search booking code, passenger name or passport..." class="form-input" style="flex:1;" required minlength="3" data-translate-en="Search booking code, passenger name or passport..." data-translate-id="Cari kode pemesanan, nama penumpang atau paspor...">
+                <button type="submit" class="btn btn-primary" data-translate-en="Search" data-translate-id="Cari">Search</button>
             </form>
         </div>
 
         @if(request('query'))
         <p class="text-sm text-gray-500 mb-4">
-            Result for: <strong class="text-blue-600">"{{ request('query') }}"</strong>
+            <span data-translate-en="Result for:" data-translate-id="Hasil untuk:">Result for:</span> <strong class="text-blue-600">"{{ request('query') }}"</strong>
             @if($bookings->count() > 0)
-            · {{ $bookings->count() }} booking{{ $bookings->count() > 1 ? 's' : '' }} found
+            <span data-translate-en="&middot; {count} booking found" data-translate-id="&middot; {count} pemesanan ditemukan">· {{ $bookings->count() }} booking{{ $bookings->count() > 1 ? 's' : '' }} found</span>
             @endif
         </p>
         @endif
@@ -40,7 +40,7 @@
             <div class="booking-card">
                 <div class="booking-card-top">
                     <div class="booking-card-code">
-                        <span class="booking-code-label">Booking Code</span>
+                        <span class="booking-code-label" data-translate-en="Booking Code" data-translate-id="Kode Pemesanan">Booking Code</span>
                         <span class="booking-code-value">#{{ $booking->booking_code }}</span>
                     </div>
                     <span class="booking-card-status {{ $badgeClass }}">{{ $statusLabel }}</span>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="booking-card-info-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>{{ $booking->total_passengers }} passenger{{ $booking->total_passengers > 1 ? 's' : '' }}</span>
+                        <span>{{ $booking->total_passengers }} <span data-translate-en="passenger(s)" data-translate-id="penumpang">passenger{{ $booking->total_passengers > 1 ? 's' : '' }}</span></span>
                     </div>
                     <div class="booking-card-info-item booking-card-info-amount">
                         <span>RM {{ number_format($booking->total_amount, 2) }}</span>
@@ -79,7 +79,7 @@
                 </div>
 
                 <div class="booking-card-bottom">
-                    <a href="{{ route('counter.detail', $booking->booking_code) }}" class="booking-card-btn">
+                    <a href="{{ route('counter.detail', $booking->booking_code) }}" class="booking-card-btn" data-translate-en="View Details" data-translate-id="Lihat Detail">
                         View Details
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </a>
@@ -90,7 +90,7 @@
                         @if($booking->booking_status === 'paid')
                             @foreach($booking->passengers as $p)
                                 @if($p->ticket)
-                                    <a href="{{ route('tickets.download', $p->ticket) }}" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border:1px solid #059669;color:#059669;border-radius:6px;font-size:0.7rem;font-weight:700;text-decoration:none;">
+                                    <a href="{{ route('tickets.download', $p->ticket) }}" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border:1px solid #059669;color:#059669;border-radius:6px;font-size:0.7rem;font-weight:700;text-decoration:none;" data-translate-en="Print" data-translate-id="Cetak">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                         Print
                                     </a>
@@ -103,8 +103,8 @@
         @empty
             <div class="bookings-empty">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <h3 class="bookings-empty-title">No results found</h3>
-                <p class="bookings-empty-desc">Try a different search term.</p>
+                <h3 class="bookings-empty-title" data-translate-en="No results found" data-translate-id="Tidak ada hasil ditemukan">No results found</h3>
+                <p class="bookings-empty-desc" data-translate-en="Try a different search term." data-translate-id="Coba kata pencarian lain.">Try a different search term.</p>
             </div>
         @endforelse
     </div>

@@ -3,29 +3,29 @@
 
 @section('content')
 <div class="article-page">
-    <a href="{{ route('pengumuman') }}" class="article-back">
+    <a href="{{ route('pengumuman') }}" class="article-back" data-translate-en="Back to Announcements" data-translate-id="Kembali ke Pengumuman">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Announcements
     </a>
 
     <article class="article-card">
-        <span class="article-category">Information</span>
-        <h1 class="article-title">New Schedule Route Bongao - Lahad Datu</h1>
+        <span class="article-category" data-translate-en="Information" data-translate-id="Informasi">Information</span>
+        <h1 class="article-title" data-translate-en="New Schedule Route Bongao - Lahad Datu" data-translate-id="Jadwal Baru Rute Bongao - Lahad Datu">New Schedule Route Bongao - Lahad Datu</h1>
         <div class="article-meta">
             <span class="article-date">June 15, 2026</span>
             <span class="article-divider">|</span>
-            <span class="article-author">Admin ShipTicketing</span>
+            <span class="article-author" data-translate-en="Admin Auralis8" data-translate-id="Admin Auralis8">Admin Auralis8</span>
         </div>
         <div class="article-content">
-            <p>We are pleased to announce the addition of new sailing schedules for the Bongao - Lahad Datu route starting July 1, 2026.</p>
-            <p>With this addition, sailing schedules will be 3 times daily, providing more departure time options for passengers.</p>
-            <h2>New Schedule:</h2>
+            <p data-translate-en="We are pleased to announce the addition of new sailing schedules for the Bongao - Lahad Datu route starting July 1, 2026." data-translate-id="Kami dengan senang hati mengumumkan penambahan jadwal pelayaran baru untuk rute Bongao - Lahad Datu mulai 1 Juli 2026.">We are pleased to announce the addition of new sailing schedules for the Bongao - Lahad Datu route starting July 1, 2026.</p>
+            <p data-translate-en="With this addition, sailing schedules will be 3 times daily, providing more departure time options for passengers." data-translate-id="Dengan penambahan ini, jadwal pelayaran akan menjadi 3 kali sehari, memberikan lebih banyak pilihan waktu keberangkatan bagi penumpang.">With this addition, sailing schedules will be 3 times daily, providing more departure time options for passengers.</p>
+            <h2 data-translate-en="New Schedule:" data-translate-id="Jadwal Baru:">New Schedule:</h2>
             <ul>
                 <li>Departure 1: 08:00 WITA - 11:30 WITA</li>
                 <li>Departure 2: 13:00 WITA - 16:30 WITA</li>
                 <li>Departure 3: 18:00 WITA - 21:30 WITA</li>
             </ul>
-            <p>For more information, please contact our customer service.</p>
+            <p data-translate-en="For more information, please contact our customer service." data-translate-id="Untuk informasi lebih lanjut, silakan hubungi layanan pelanggan kami.">For more information, please contact our customer service.</p>
         </div>
     </article>
 </div>

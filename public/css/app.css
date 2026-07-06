@@ -1,4 +1,4 @@
-/* ===== Ship Ticketing - Plain CSS ===== */
+/* ===== Auralis8 - Plain CSS ===== */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -2928,6 +2928,39 @@ body.guest-page,
 .top-bar-cta:hover {
     background: #0B7DDA;
     color: #fff;
+}
+
+/* ── Language Switcher ── */
+.top-bar-lang {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 12px;
+    padding-right: 12px;
+    border-right: 1px solid #E9ECEF;
+}
+.top-bar-lang-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ADB5BD;
+    cursor: pointer;
+    transition: color 0.2s;
+    user-select: none;
+    background: none;
+    border: none;
+    padding: 2px 4px;
+    font-family: inherit;
+    line-height: 1;
+}
+.top-bar-lang-btn:hover {
+    color: #6C757D;
+}
+.top-bar-lang-btn.active {
+    color: #0E9AEF;
+}
+.top-bar-lang-sep {
+    font-size: 12px;
+    color: #DEE2E6;
 }
 
 /* ── Main Navbar (Guest) ── */

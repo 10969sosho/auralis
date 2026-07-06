@@ -7,25 +7,25 @@
 {{-- Search Form --}}
 <div class="search-hero">
     <div class="search-hero-content">
-        <p class="search-hero-label">Book Ticket</p>
-        <h1 class="search-hero-title">Ferry Schedule</h1>
-        <p class="search-hero-desc">Browse all available ferry schedules. Filter by route to find your trip.</p>
+        <p class="search-hero-label" data-translate-en="Book Ticket" data-translate-id="Pesan Tiket">Book Ticket</p>
+        <h1 class="search-hero-title" data-translate-en="Ferry Schedule" data-translate-id="Jadwal Feri">Ferry Schedule</h1>
+        <p class="search-hero-desc" data-translate-en="Browse all available ferry schedules. Filter by route to find your trip." data-translate-id="Jelajahi semua jadwal feri yang tersedia. Filter berdasarkan rute untuk menemukan perjalanan Anda.">Browse all available ferry schedules. Filter by route to find your trip.</p>
 
         <form action="{{ route('schedules') }}" method="GET" id="searchForm" class="search-form">
             <div class="search-form-grid">
                 <div>
-                    <label class="search-label">Origin Port</label>
+                    <label class="search-label" data-translate-en="Origin Port" data-translate-id="Pelabuhan Asal">Origin Port</label>
                     <select name="origin_port" id="origin_port" class="search-input" onchange="updateDestinations()">
-                        <option value="">All Ports</option>
+                        <option value="" data-translate-en="All Ports" data-translate-id="Semua Pelabuhan">All Ports</option>
                         @foreach($routes->unique('origin_port') as $route)
                             <option value="{{ $route->origin_port }}" {{ request('origin_port') === $route->origin_port ? 'selected' : '' }}>{{ $route->origin_port }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="search-label">Destination Port</label>
+                    <label class="search-label" data-translate-en="Destination Port" data-translate-id="Pelabuhan Tujuan">Destination Port</label>
                     <select name="destination_port" id="destination_port" class="search-input">
-                        <option value="">All Ports</option>
+                        <option value="" data-translate-en="All Ports" data-translate-id="Semua Pelabuhan">All Ports</option>
                         @php
                             $destPorts = isset($destinationPorts) && $destinationPorts->isNotEmpty() ? $destinationPorts : $routes->unique('destination_port')->pluck('destination_port');
                         @endphp
@@ -35,7 +35,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="search-label">Passengers</label>
+                    <label class="search-label" data-translate-en="Passengers" data-translate-id="Penumpang">Passengers</label>
                     <div class="search-counter-group">
                         <button type="button" class="search-counter-btn" onclick="adjustPax(-1)">−</button>
                         <span class="search-counter-value" id="paxCount">{{ request('passenger_count', 1) }}</span>
@@ -43,7 +43,7 @@
                     </div>
                     <input type="hidden" name="passenger_count" id="paxInput" value="{{ request('passenger_count', 1) }}">
                 </div>
-                <button type="submit" class="search-submit">
+                <button type="submit" class="search-submit" data-translate-en="Filter" data-translate-id="Filter">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     Filter
                 </button>
@@ -67,13 +67,13 @@
                         <div class="ticket-vessel">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ticket-vessel-icon"><path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/><path d="M5 7h14l-2 5H7L5 7Z"/><circle cx="12" cy="7" r="1.5"/></svg>
                             <span class="ticket-vessel-name">{{ $schedule->vessel->name }}</span>
-                            <span class="ticket-vessel-badge">International Ferry</span>
+                            <span class="ticket-vessel-badge" data-translate-en="International Ferry" data-translate-id="Feri Internasional">International Ferry</span>
                         </div>
                     </div>
 
                     <div class="ticket-route">
                         <div class="ticket-route-point ticket-route-origin">
-                            <span class="ticket-route-label">Departure</span>
+                            <span class="ticket-route-label" data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</span>
                             <span class="ticket-route-port">{{ $schedule->route->origin_port }}</span>
                         </div>
                         <div class="ticket-route-line">
@@ -82,7 +82,7 @@
                             <div class="ticket-route-dot"></div>
                         </div>
                         <div class="ticket-route-point ticket-route-dest">
-                            <span class="ticket-route-label">Arrival</span>
+                            <span class="ticket-route-label" data-translate-en="Arrival" data-translate-id="Kedatangan">Arrival</span>
                             <span class="ticket-route-port">{{ $schedule->route->destination_port }}</span>
                         </div>
                     </div>
@@ -116,9 +116,9 @@
                         <div class="ticket-seat-item">
                             <span class="ticket-seat-label">
                                 <span class="ticket-seat-dot vip-dot"></span>
-                                VIP
+                                <span data-translate-en="VIP" data-translate-id="VIP">VIP</span>
                             </span>
-                            <span class="ticket-seat-count {{ $vipSeatClass }}">{{ $vipLeft }} left</span>
+                            <span class="ticket-seat-count {{ $vipSeatClass }}">{{ $vipLeft }} <span data-translate-en="left" data-translate-id="tersisa">left</span></span>
                             <div class="ticket-seat-bar">
                                 <div class="ticket-seat-fill {{ $vipSeatClass }}" style="width: {{ $vipPct }}%"></div>
                             </div>
@@ -127,9 +127,9 @@
                         <div class="ticket-seat-item">
                             <span class="ticket-seat-label">
                                 <span class="ticket-seat-dot regular-dot"></span>
-                                Regular
+                                <span data-translate-en="Regular" data-translate-id="Regular">Regular</span>
                             </span>
-                            <span class="ticket-seat-count {{ $regularSeatClass }}">{{ $regularLeft }} left</span>
+                            <span class="ticket-seat-count {{ $regularSeatClass }}">{{ $regularLeft }} <span data-translate-en="left" data-translate-id="tersisa">left</span></span>
                             <div class="ticket-seat-bar">
                                 <div class="ticket-seat-fill {{ $regularSeatClass }}" style="width: {{ $regularPct }}%"></div>
                             </div>
@@ -139,12 +139,12 @@
                     <div class="ticket-prices">
                         @if($schedule->vessel->vip_capacity > 0)
                         <div class="ticket-price-item">
-                            <span class="ticket-price-label">VIP</span>
+                            <span class="ticket-price-label" data-translate-en="VIP" data-translate-id="VIP">VIP</span>
                             <span class="ticket-price-value">RM {{ number_format($schedule->vip_price, 2) }}</span>
                         </div>
                         @endif
                         <div class="ticket-price-item">
-                            <span class="ticket-price-label">Regular</span>
+                            <span class="ticket-price-label" data-translate-en="Regular" data-translate-id="Regular">Regular</span>
                             <span class="ticket-price-value">RM {{ number_format($schedule->regular_price, 2) }}</span>
                         </div>
                     </div>
@@ -169,14 +169,14 @@
                         </div>
                         <div class="ticket-bottom-right">
                             @if(!$schedule->isFullyBooked && !$schedule->isH6Passed)
-                                <a href="{{ route('booking.create', $schedule) }}?passenger_count={{ request('passenger_count', 1) }}" class="ticket-book-btn">
+                                <a href="{{ route('booking.create', $schedule) }}?passenger_count={{ request('passenger_count', 1) }}" class="ticket-book-btn" data-translate-en="Book Now" data-translate-id="Pesan Sekarang">
                                     Book Now
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                                 </a>
                             @elseif($schedule->isH6Passed)
-                                <span class="ticket-status-closed">Booking Closed</span>
+                                <span class="ticket-status-closed" data-translate-en="Booking Closed" data-translate-id="Pemesanan Ditutup">Booking Closed</span>
                             @else
-                                <span class="ticket-status-closed">Fully Booked</span>
+                                <span class="ticket-status-closed" data-translate-en="Fully Booked" data-translate-id="Penuh">Fully Booked</span>
                             @endif
                         </div>
                     </div>
@@ -187,8 +187,8 @@
     @else
         <div class="search-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-empty-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <h3 class="search-empty-title">No Schedules Found</h3>
-            <p class="search-empty-desc">Try adjusting your filter criteria.</p>
+            <h3 class="search-empty-title" data-translate-en="No Schedules Found" data-translate-id="Tidak Ada Jadwal Ditemukan">No Schedules Found</h3>
+            <p class="search-empty-desc" data-translate-en="Try adjusting your filter criteria." data-translate-id="Coba sesuaikan kriteria filter Anda.">Try adjusting your filter criteria.</p>
         </div>
     @endif
     </div>

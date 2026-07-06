@@ -6,18 +6,18 @@
     {{-- Header --}}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Ticket Counter</h1>
-            <p class="text-sm text-gray-500 mt-1">Offline ticket sales & cash payment</p>
+            <h1 class="text-2xl font-bold text-gray-900" data-translate-en="Ticket Counter" data-translate-id="Loket Tiket">Ticket Counter</h1>
+            <p class="text-sm text-gray-500 mt-1" data-translate-en="Offline ticket sales &amp; cash payment" data-translate-id="Penjualan tiket offline &amp; pembayaran tunai">Offline ticket sales & cash payment</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <form action="{{ route('counter.search') }}" method="GET" style="display:flex;gap:8px;">
-                <input type="text" name="query" placeholder="Search booking code..." class="form-input" style="width:220px;">
-                <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                <input type="text" name="query" placeholder="Search booking code..." class="form-input" style="width:220px;" data-translate-en="Search booking code..." data-translate-id="Cari kode pemesanan...">
+                <button type="submit" class="btn btn-primary btn-sm" data-translate-en="Search" data-translate-id="Cari">Search</button>
             </form>
         </div>
     </div>
 
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Upcoming Schedules</h2>
+    <h2 class="text-lg font-semibold text-gray-800 mb-4" data-translate-en="Upcoming Schedules" data-translate-id="Jadwal Mendatang">Upcoming Schedules</h2>
 
     <div style="display:flex;flex-direction:column;gap:12px;">
         @forelse($schedules as $schedule)
@@ -41,25 +41,25 @@
                         </div>
                     </div>
                     <div style="display:flex;gap:16px;font-size:0.8rem;color:#374151;">
-                        <span>Departure: <strong>{{ $schedule->departure_time->format('d M Y, H:i') }}</strong></span>
-                        <span>VIP: <strong>{{ max(0, $vipLeft) }}</strong> left</span>
-                        <span>Regular: <strong>{{ max(0, $regularLeft) }}</strong> left</span>
-                        <span>VIP: RM {{ number_format($schedule->vip_price, 2) }} · Reg: RM {{ number_format($schedule->regular_price, 2) }}</span>
+                        <span data-translate-en="Departure: {date}" data-translate-id="Keberangkatan: {date}">Departure: <strong>{{ $schedule->departure_time->format('d M Y, H:i') }}</strong></span>
+                        <span data-translate-en="VIP: {count} left" data-translate-id="VIP: {count} tersisa">VIP: <strong>{{ max(0, $vipLeft) }}</strong> left</span>
+                        <span data-translate-en="Regular: {count} left" data-translate-id="Regular: {count} tersisa">Regular: <strong>{{ max(0, $regularLeft) }}</strong> left</span>
+                        <span data-translate-en="VIP: {vip_price} &middot; Reg: {reg_price}" data-translate-id="VIP: {vip_price} &middot; Reg: {reg_price}">VIP: RM {{ number_format($schedule->vip_price, 2) }} · Reg: RM {{ number_format($schedule->regular_price, 2) }}</span>
                     </div>
                 </div>
                 <div style="flex-shrink:0;">
                     @if($canBook)
-                        <a href="{{ route('counter.create', $schedule) }}" class="btn btn-primary btn-sm" style="white-space:nowrap;">Sell Ticket</a>
+                        <a href="{{ route('counter.create', $schedule) }}" class="btn btn-primary btn-sm" style="white-space:nowrap;" data-translate-en="Sell Ticket" data-translate-id="Jual Tiket">Sell Ticket</a>
                     @elseif($schedule->isH6Passed)
-                        <span style="display:inline-block;padding:6px 14px;font-size:0.8rem;font-weight:600;color:#DC2626;background:#FEE2E2;border-radius:6px;white-space:nowrap;">Booking Closed</span>
+                        <span style="display:inline-block;padding:6px 14px;font-size:0.8rem;font-weight:600;color:#DC2626;background:#FEE2E2;border-radius:6px;white-space:nowrap;" data-translate-en="Booking Closed" data-translate-id="Pemesanan Ditutup">Booking Closed</span>
                     @else
-                        <span style="display:inline-block;padding:6px 14px;font-size:0.8rem;font-weight:600;color:#DC2626;background:#FEE2E2;border-radius:6px;white-space:nowrap;">Fully Booked</span>
+                        <span style="display:inline-block;padding:6px 14px;font-size:0.8rem;font-weight:600;color:#DC2626;background:#FEE2E2;border-radius:6px;white-space:nowrap;" data-translate-en="Fully Booked" data-translate-id="Penuh Terpesan">Fully Booked</span>
                     @endif
                 </div>
             </div>
         @empty
             <div class="text-center py-12" style="grid-column:1/-1;">
-                <p class="text-gray-500">No upcoming schedules available.</p>
+                <p class="text-gray-500" data-translate-en="No upcoming schedules available." data-translate-id="Tidak ada jadwal mendatang.">No upcoming schedules available.</p>
             </div>
         @endforelse
     </div>

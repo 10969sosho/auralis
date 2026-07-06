@@ -15,21 +15,21 @@
 </head>
 <body>
     <div class="header">
-        <h1>SHIP TICKETING - E-TICKET</h1>
+        <h1>AURALIS8 - E-TICKET</h1>
         <h2>{{ $ticket->booking->schedule->vessel->name }}</h2>
         <p>{{ $ticket->booking->schedule->route->origin_port }} → {{ $ticket->booking->schedule->route->destination_port }}</p>
     </div>
 
     <div class="info">
         <table>
-            <tr><td><strong>Passenger</strong></td><td>{{ $ticket->passenger->full_name }}</td></tr>
-            <tr><td><strong>Category</strong></td><td>{{ ucfirst($ticket->passenger->passenger_type) }}</td></tr>
-            <tr><td><strong>Class</strong></td><td>{{ ucfirst($ticket->ticket_class) }}</td></tr>
-            <tr><td><strong>Booking Code</strong></td><td>{{ $ticket->booking->booking_code }}</td></tr>
-            <tr><td><strong>Passport/ID</strong></td><td>{{ $ticket->passenger->passport_number }}</td></tr>
-            <tr><td><strong>Departure</strong></td><td>{{ $ticket->booking->schedule->departure_time->format('d M Y, H:i') }}</td></tr>
-            <tr><td><strong>Arrival</strong></td><td>{{ $ticket->booking->schedule->arrival_time->format('d M Y, H:i') }}</td></tr>
-            <tr><td><strong>Free Baggage</strong></td><td>{{ $ticket->booking->schedule->vessel->free_baggage }}kg</td></tr>
+            <tr><td><strong data-translate-en="Passenger" data-translate-id="Penumpang">Passenger</strong></td><td>{{ $ticket->passenger->full_name }}</td></tr>
+            <tr><td><strong data-translate-en="Category" data-translate-id="Kategori">Category</strong></td><td>{{ ucfirst($ticket->passenger->passenger_type) }}</td></tr>
+            <tr><td><strong data-translate-en="Class" data-translate-id="Kelas">Class</strong></td><td>{{ ucfirst($ticket->ticket_class) }}</td></tr>
+            <tr><td><strong data-translate-en="Booking Code" data-translate-id="Kode Pemesanan">Booking Code</strong></td><td>{{ $ticket->booking->booking_code }}</td></tr>
+            <tr><td><strong data-translate-en="Passport/ID" data-translate-id="Paspor/ID">Passport/ID</strong></td><td>{{ $ticket->passenger->passport_number }}</td></tr>
+            <tr><td><strong data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</strong></td><td>{{ $ticket->booking->schedule->departure_time->format('d M Y, H:i') }}</td></tr>
+            <tr><td><strong data-translate-en="Arrival" data-translate-id="Kedatangan">Arrival</strong></td><td>{{ $ticket->booking->schedule->arrival_time->format('d M Y, H:i') }}</td></tr>
+            <tr><td><strong data-translate-en="Free Baggage" data-translate-id="Bagasi Gratis">Free Baggage</strong></td><td>{{ $ticket->booking->schedule->vessel->free_baggage }}kg</td></tr>
         </table>
     </div>
 
@@ -39,8 +39,8 @@
     </div>
 
     <div class="footer">
-        <p>This is an electronic ticket. Present this QR code at boarding.</p>
-        <p>Generated: {{ now()->format('d M Y H:i') }}</p>
+        <p data-translate-en="This is an electronic ticket. Present this QR code at boarding." data-translate-id="Ini adalah tiket elektronik. Tunjukkan kode QR ini saat naik kapal.">This is an electronic ticket. Present this QR code at boarding.</p>
+        <p><span data-translate-en="Generated:" data-translate-id="Dibuat:">Generated:</span> {{ now()->format('d M Y H:i') }}</p>
     </div>
 </body>
 </html>

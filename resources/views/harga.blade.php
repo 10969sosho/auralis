@@ -1,17 +1,17 @@
 @extends('layouts.app')
-@section('title', 'Ticket Prices')
+@section('title', 'Daftar Harga')
 
 @section('content')
 <div class="price-page">
     <div class="price-page-header">
-        <p class="guest-section-label">Price List</p>
-        <h1 class="price-page-title">Ticket Prices</h1>
-        <p class="price-page-sub">Ticket price information for every shipping route we serve.</p>
+        <p class="guest-section-label" data-translate-en="Price List" data-translate-id="Daftar Harga">Price List</p>
+        <h1 class="price-page-title" data-translate-en="Ticket Prices" data-translate-id="Harga Tiket">Ticket Prices</h1>
+        <p class="price-page-sub" data-translate-en="Ticket price information for every shipping route we serve." data-translate-id="Informasi harga tiket untuk setiap rute pelayaran yang kami layani.">Ticket price information for every shipping route we serve.</p>
     </div>
 
     <div class="price-layout">
         <div class="price-sidebar">
-            <div class="price-sidebar-title">Province Category</div>
+            <div class="price-sidebar-title" data-translate-en="Province Category" data-translate-id="Kategori Provinsi">Province Category</div>
             @forelse($ports as $port)
                 <div class="price-sidebar-item {{ $loop->first ? 'active' : '' }}">{{ $port }}</div>
             @empty
@@ -22,9 +22,9 @@
             <table class="price-table">
                 <thead>
                     <tr>
-                        <th>Route</th>
-                        <th>Class</th>
-                        <th>Price (RM)</th>
+                        <th data-translate-en="Route" data-translate-id="Rute">Route</th>
+                        <th data-translate-en="Class" data-translate-id="Kelas">Class</th>
+                        <th data-translate-en="Price (RM)" data-translate-id="Harga (RM)">Price (RM)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,7 +41,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" style="text-align:center;color:#6C757D;padding:40px;">
+                            <td colspan="3" style="text-align:center;color:#6C757D;padding:40px;" data-translate-en="No price data available yet." data-translate-id="Belum ada data harga yang tersedia.">
                                 No price data available yet.
                             </td>
                         </tr>
@@ -52,7 +52,7 @@
     </div>
 
     <div class="text-center" style="margin-top:40px;">
-        <a href="{{ route('schedules') }}" class="guest-hero-btn" style="display:inline-flex;">
+        <a href="{{ route('schedules') }}" class="guest-hero-btn" style="display:inline-flex;" data-translate-en="Book Ticket Now" data-translate-id="Pesan Tiket Sekarang">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             Book Ticket Now
         </a>

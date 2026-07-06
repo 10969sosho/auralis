@@ -5,12 +5,12 @@
 <div class="counter-success-page">
     <div class="success-card">
         <div class="success-icon">✅</div>
-        <h2 class="success-title">Payment Successful</h2>
-        <p class="success-sub">Booking: <strong>{{ $booking->booking_code }}</strong></p>
+        <h2 class="success-title" data-translate-en="Payment Successful" data-translate-id="Pembayaran Berhasil">Payment Successful</h2>
+        <p class="success-sub" data-translate-en="Booking: {code}" data-translate-id="Pemesanan: {code}">Booking: <strong>{{ $booking->booking_code }}</strong></p>
 
         @if($changeAmount > 0)
         <div class="change-box">
-            <span class="change-label">Change to return:</span>
+            <span class="change-label" data-translate-en="Change to return:" data-translate-id="Kembalian:">Change to return:</span>
             <span class="change-value">RM {{ number_format($changeAmount, 2) }}</span>
         </div>
         @endif
@@ -18,9 +18,9 @@
         <div class="booking-details">
             <p><strong>{{ $booking->schedule->vessel->name }}</strong></p>
             <p>{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</p>
-            <p>Departure: {{ $booking->schedule->departure_time->format('d M Y, H:i') }}</p>
-            <p>Total: <strong>RM {{ number_format($booking->total_amount, 2) }}</strong></p>
-            <p>Passengers: {{ $booking->total_passengers }}</p>
+            <p data-translate-en="Departure: {date}" data-translate-id="Keberangkatan: {date}">Departure: {{ $booking->schedule->departure_time->format('d M Y, H:i') }}</p>
+            <p data-translate-en="Total: RM {amount}" data-translate-id="Total: RM {amount}">Total: <strong>RM {{ number_format($booking->total_amount, 2) }}</strong></p>
+            <p data-translate-en="Passengers: {count}" data-translate-id="Penumpang: {count}">Passengers: {{ $booking->total_passengers }}</p>
         </div>
 
         <div class="passengers-mini">
@@ -29,14 +29,14 @@
                 <span>{{ $p->full_name }}</span>
                 <span class="text-sm">{{ $p->passenger_type }} · {{ ucfirst($p->ticket_class) }}</span>
                 <span class="text-sm" style="color:#2563EB;">{{ $p->ticket->ticket_number ?? '—' }}</span>
-                <a href="{{ route('tickets.show', $p->ticket) }}" target="_blank" class="btn btn-outline btn-xs">Print</a>
+                <a href="{{ route('tickets.show', $p->ticket) }}" target="_blank" class="btn btn-outline btn-xs" data-translate-en="Print" data-translate-id="Cetak">Print</a>
             </div>
             @endforeach
         </div>
 
         <div class="success-actions">
-            <a href="{{ route('counter.dashboard') }}" class="btn btn-primary">New Sale</a>
-            <a href="{{ route('counter.search', ['query' => $booking->booking_code]) }}" class="btn btn-outline">View Booking</a>
+            <a href="{{ route('counter.dashboard') }}" class="btn btn-primary" data-translate-en="New Sale" data-translate-id="Penjualan Baru">New Sale</a>
+            <a href="{{ route('counter.search', ['query' => $booking->booking_code]) }}" class="btn btn-outline" data-translate-en="View Booking" data-translate-id="Lihat Pemesanan">View Booking</a>
         </div>
     </div>
 </div>

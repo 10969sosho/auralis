@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', config('app.name')) - Ship Ticketing</title>
+    <title>@yield('title', config('app.name')) - Auralis8</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,7 +27,13 @@
                 </div>
             </div>
             <div class="top-bar-right">
-                <a href="#" class="top-bar-social" aria-label="Instagram">
+                {{-- Language Switcher --}}
+                <div class="top-bar-lang" id="langSwitcher">
+                    <button type="button" class="top-bar-lang-btn active" data-lang="en">EN</button>
+                    <span class="top-bar-lang-sep">|</span>
+                    <button type="button" class="top-bar-lang-btn" data-lang="id">ID</button>
+                </div>
+                <a href="https://www.instagram.com/auralis8/" target="_blank" rel="noopener noreferrer" class="top-bar-social" aria-label="Instagram">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                 </a>
                 <a href="#" class="top-bar-social" aria-label="Facebook">
@@ -44,11 +51,8 @@
     <nav class="guest-nav" id="navbar">
         <div class="guest-nav-inner">
             <a href="{{ route('home') }}" class="guest-nav-brand">
-                <svg class="guest-nav-logo" viewBox="0 0 24 24" fill="none" stroke="#0E9AEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/>
-                    <path d="M5 7h14l-2 5H7L5 7Z"/>
-                </svg>
-                <span class="guest-nav-name">ShipTicketing</span>
+                <img src="{{ asset('images/logo.png') }}" alt="Auralis8" class="guest-nav-logo" style="width:32px;height:32px;object-fit:contain;">
+                <span class="guest-nav-name">Auralis8</span>
             </a>
 
             <button class="guest-nav-toggle" id="navToggle" aria-label="Toggle menu">
@@ -58,11 +62,11 @@
             <div class="guest-nav-collapse" id="navCollapse">
                 <div class="guest-nav-menu">
                     {{-- Main navigation — same for ALL users --}}
-                    <a href="{{ route('home') }}" class="guest-nav-link">Home</a>
-                    <a href="{{ route('schedules') }}" class="guest-nav-link">Booking</a>
-                    <a href="{{ route('harga') }}" class="guest-nav-link">Prices</a>
-                    <a href="{{ route('pengumuman') }}" class="guest-nav-link">Announcements</a>
-                    <a href="{{ route('informasi') }}" class="guest-nav-link">About</a>
+                    <a href="{{ route('home') }}" class="guest-nav-link" data-translate-en="Home" data-translate-id="Beranda">Home</a>
+                    <a href="{{ route('schedules') }}" class="guest-nav-link" data-translate-en="Booking" data-translate-id="Pemesanan">Booking</a>
+                    <a href="{{ route('harga') }}" class="guest-nav-link" data-translate-en="Prices" data-translate-id="Harga">Prices</a>
+                    <a href="{{ route('pengumuman') }}" class="guest-nav-link" data-translate-en="Announcements" data-translate-id="Pengumuman">Announcements</a>
+                    <a href="{{ route('informasi') }}" class="guest-nav-link" data-translate-en="About" data-translate-id="Tentang">About</a>
                 </div>
 
                 <div class="guest-nav-actions">
@@ -173,29 +177,26 @@
             <div class="guest-footer-grid">
                 <div class="guest-footer-col">
                     <div class="guest-footer-brand">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#0E9AEF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
-                            <path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/>
-                            <path d="M5 7h14l-2 5H7L5 7Z"/>
-                        </svg>
-                        <span>ShipTicketing</span>
+                        <img src="{{ asset('images/logo.png') }}" alt="Auralis8" style="width:32px;height:32px;object-fit:contain;">
+                        <span>Auralis8</span>
                     </div>
                     <p class="guest-footer-desc">
-                        Your trusted partner for inter-island ferry travel. We provide safe, comfortable, and affordable sea transportation across Indonesia.
+                        Auralis 8 is an international sea transportation company providing ferry services between Lahad Datu, Sabah, Malaysia and Bongao, Tawi-Tawi, Philippines.
                     </p>
                     <div class="guest-footer-social">
-                        <a href="#" class="guest-footer-social-icon" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                        <a href="https://www.instagram.com/auralis8/" target="_blank" rel="noopener noreferrer" class="guest-footer-social-icon" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
                         <a href="#" class="guest-footer-social-icon" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
                         <a href="#" class="guest-footer-social-icon" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
                         <a href="#" class="guest-footer-social-icon" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg></a>
                     </div>
                 </div>
                 <div class="guest-footer-col">
-                    <h4 class="guest-footer-heading">Contact Info</h4>
+                    <h4 class="guest-footer-heading" data-translate-en="Contact Info" data-translate-id="Info Kontak">Contact Info</h4>
                     <ul class="guest-footer-contact">
                         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Lahad Datu, Sabah, Malaysia</span></li>
                         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Bongao, Tawi-Tawi, Philippines</span></li>
                     </ul>
-                    <p style="font-size:13px;font-weight:600;color:#fff;margin:16px 0 8px;">Contact Number (WhatsApp only)</p>
+                    <p style="font-size:13px;font-weight:600;color:#fff;margin:16px 0 8px;" data-translate-en="Contact Number (WhatsApp only)" data-translate-id="Nomor Kontak (WhatsApp saja)">Contact Number (WhatsApp only)</p>
                     <ul class="guest-footer-contact" style="margin-top:0;">
                         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span><a href="https://wa.me/60178349331" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">+60 17-834 9331</a></span></li>
                         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span><a href="https://wa.me/60178632188" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">+60 17-863 2188</a></span></li>
@@ -203,30 +204,30 @@
                     </ul>
                 </div>
                 <div class="guest-footer-col">
-                    <h4 class="guest-footer-heading">Navigation</h4>
+                    <h4 class="guest-footer-heading" data-translate-en="Navigation" data-translate-id="Navigasi">Navigation</h4>
                     <ul class="guest-footer-links">
-                        <li><a href="{{ route('home') }}">Home</a></li>
-                        <li><a href="{{ route('schedules') }}">Booking</a></li>
-                        <li><a href="{{ route('harga') }}">Prices</a></li>
-                        <li><a href="{{ route('pengumuman') }}">Announcements</a></li>
-                        <li><a href="{{ route('informasi') }}">About</a></li>
+                        <li><a href="{{ route('home') }}" data-translate-en="Home" data-translate-id="Beranda">Home</a></li>
+                        <li><a href="{{ route('schedules') }}" data-translate-en="Booking" data-translate-id="Pemesanan">Booking</a></li>
+                        <li><a href="{{ route('harga') }}" data-translate-en="Prices" data-translate-id="Harga">Prices</a></li>
+                        <li><a href="{{ route('pengumuman') }}" data-translate-en="Announcements" data-translate-id="Pengumuman">Announcements</a></li>
+                        <li><a href="{{ route('informasi') }}" data-translate-en="About" data-translate-id="Tentang">About</a></li>
                     </ul>
                 </div>
                 <div class="guest-footer-col">
-                    <h4 class="guest-footer-heading">Services</h4>
+                    <h4 class="guest-footer-heading" data-translate-en="Services" data-translate-id="Layanan">Services</h4>
                     <ul class="guest-footer-links">
-                        <li><a href="{{ route('schedules') }}">Ticket Booking</a></li>
-                        <li><a href="https://wa.me/60178349331" target="_blank" rel="noopener noreferrer">Customer Service</a></li>
-                        <li><a href="#">Route Info</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="{{ route('schedules') }}" data-translate-en="Ticket Booking" data-translate-id="Pemesanan Tiket">Ticket Booking</a></li>
+                        <li><a href="https://wa.me/60178349331" target="_blank" rel="noopener noreferrer" data-translate-en="Customer Service" data-translate-id="Layanan Pelanggan">Customer Service</a></li>
+                        <li><a href="#" data-translate-en="Route Info" data-translate-id="Info Rute">Route Info</a></li>
+                        <li><a href="#" data-translate-en="FAQ" data-translate-id="FAQ">FAQ</a></li>
+                        <li><a href="#" data-translate-en="Privacy Policy" data-translate-id="Kebijakan Privasi">Privacy Policy</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="guest-footer-bottom">
             <div class="guest-footer-bottom-inner">
-                &copy; {{ date('Y') }} ShipTicketing. All rights reserved.
+                &copy; {{ date('Y') }} Auralis8. All rights reserved.
             </div>
         </div>
     </footer>
@@ -325,6 +326,39 @@
             });
         }
     });
+
+    // ── Language Switcher (standalone, runs even if other scripts fail) ──
+    (function() {
+        var langSwitcher = document.getElementById('langSwitcher');
+        if (!langSwitcher) return;
+
+        var savedLang = localStorage.getItem('auralis8_lang') || 'en';
+
+        function applyLang(lang) {
+            localStorage.setItem('auralis8_lang', lang);
+            // Toggle active class on buttons
+            var btns = langSwitcher.querySelectorAll('.top-bar-lang-btn');
+            btns.forEach(function(btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+            });
+            // Translate all elements with data-translate-*
+            var els = document.querySelectorAll('[data-translate-en]');
+            els.forEach(function(el) {
+                var text = el.getAttribute('data-translate-' + lang);
+                if (text) el.textContent = text;
+            });
+        }
+
+        applyLang(savedLang);
+
+        // Use event delegation on the parent container
+        langSwitcher.addEventListener('click', function(e) {
+            var btn = e.target.closest('.top-bar-lang-btn');
+            if (btn) {
+                applyLang(btn.getAttribute('data-lang'));
+            }
+        });
+    })();
     </script>
 
 </body>

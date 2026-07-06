@@ -2,11 +2,11 @@
 @section('title', 'Notifications')
 
 @section('content')
-<h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
+<h1 class="text-2xl font-bold text-gray-900" data-translate-en="Notifications" data-translate-id="Notifikasi">Notifications</h1>
 
 <form action="{{ route('notifications.markAllRead') }}" method="POST" class="mt-4">
     @csrf
-    <button type="submit" class="btn-link">Mark all as read</button>
+    <button type="submit" class="btn-link" data-translate-en="Mark all as read" data-translate-id="Tandai semua sudah dibaca">Mark all as read</button>
 </form>
 
 <div class="mt-6 space-y-3">
@@ -21,14 +21,14 @@
             @if(!$notification->is_read)
             <form action="{{ route('notifications.read', $notification) }}" method="POST">
                 @csrf
-                <button class="btn-link">Mark read</button>
+                <button class="btn-link" data-translate-en="Mark read" data-translate-id="Tandai dibaca">Mark read</button>
             </form>
             @endif
         </div>
     </div>
     @empty
     <div class="card text-center p-8">
-        <p class="text-gray-500">No notifications.</p>
+        <p class="text-gray-500" data-translate-en="No notifications." data-translate-id="Tidak ada notifikasi">No notifications.</p>
     </div>
     @endforelse
     {{ $notifications->links() }}

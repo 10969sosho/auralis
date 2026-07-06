@@ -5,8 +5,8 @@
 <div class="seat-avail-page">
     <div class="sa-header">
         <div>
-            <h1 class="sa-title">Seat Availability</h1>
-            <p class="sa-sub">Real-time seat availability for all upcoming schedules</p>
+            <h1 class="sa-title" data-translate-en="Seat Availability" data-translate-id="Ketersediaan Kursi">Seat Availability</h1>
+            <p class="sa-sub" data-translate-en="Real-time seat availability for all upcoming schedules" data-translate-id="Ketersediaan kursi real-time untuk semua jadwal mendatang">Real-time seat availability for all upcoming schedules</p>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/><path d="M5 7h14l-2 5H7L5 7Z"/><circle cx="12" cy="7" r="1.5"/></svg>
                         <span class="sa-vessel-name">{{ $schedule->vessel->name }}</span>
                     </div>
-                    <span class="sa-departure">Departure: {{ $schedule->departure_time->format('d M Y, H:i') }}</span>
+                    <span class="sa-departure" data-translate-en="Departure:" data-translate-id="Keberangkatan:">Departure: {{ $schedule->departure_time->format('d M Y, H:i') }}</span>
                 </div>
 
                 <div class="sa-route">
@@ -40,19 +40,19 @@
                 <div class="sa-stats">
                     <div class="sa-stat sa-stat-total">
                         <span class="sa-stat-num">{{ $totalCap }}</span>
-                        <span class="sa-stat-label">Total Seat</span>
+                        <span class="sa-stat-label" data-translate-en="Total Seats" data-translate-id="Total Kursi">Total Seat</span>
                     </div>
                     <div class="sa-stat sa-stat-booked">
                         <span class="sa-stat-num" id="booked-{{ $schedule->id }}">{{ $totalBooked }}</span>
-                        <span class="sa-stat-label">Seat Booked</span>
+                        <span class="sa-stat-label" data-translate-en="Booked" data-translate-id="Dipesan">Seat Booked</span>
                     </div>
                     <div class="sa-stat sa-stat-paid">
                         <span class="sa-stat-num" id="paid-{{ $schedule->id }}">—</span>
-                        <span class="sa-stat-label">Seat Paid</span>
+                        <span class="sa-stat-label" data-translate-en="Paid" data-translate-id="Dibayar">Seat Paid</span>
                     </div>
                     <div class="sa-stat sa-stat-avail">
                         <span class="sa-stat-num" id="avail-{{ $schedule->id }}">{{ $totalAvail }}</span>
-                        <span class="sa-stat-label">Seat Available</span>
+                        <span class="sa-stat-label" data-translate-en="Available" data-translate-id="Tersedia">Seat Available</span>
                     </div>
                 </div>
 
@@ -60,26 +60,26 @@
                     <div class="sa-class">
                         <div class="sa-class-header">
                             <span class="sa-class-dot vip-dot"></span>
-                            <span>VIP</span>
+                            <span data-translate-en="VIP" data-translate-id="VIP">VIP</span>
                             <span class="sa-class-price">RM {{ number_format($schedule->vip_price, 2) }}</span>
                         </div>
                         <div class="sa-class-bar">
                             @php $vipPct = $vipCap > 0 ? ($vipBooked / $vipCap) * 100 : 0; @endphp
                             <div class="sa-class-fill" style="width: {{ $vipPct }}%" data-class="vip"></div>
                         </div>
-                        <span class="sa-class-info" id="vip-info-{{ $schedule->id }}">{{ $vipBooked }}/{{ $vipCap }} booked</span>
+                        <span class="sa-class-info" id="vip-info-{{ $schedule->id }}" data-translate-en="booked" data-translate-id="dipesan">{{ $vipBooked }}/{{ $vipCap }} booked</span>
                     </div>
                     <div class="sa-class">
                         <div class="sa-class-header">
                             <span class="sa-class-dot regular-dot"></span>
-                            <span>Regular</span>
+                            <span data-translate-en="Regular" data-translate-id="Regular">Regular</span>
                             <span class="sa-class-price">RM {{ number_format($schedule->regular_price, 2) }}</span>
                         </div>
                         <div class="sa-class-bar">
                             @php $regPct = $regCap > 0 ? ($regularBooked / $regCap) * 100 : 0; @endphp
                             <div class="sa-class-fill" style="width: {{ $regPct }}%" data-class="regular"></div>
                         </div>
-                        <span class="sa-class-info" id="reg-info-{{ $schedule->id }}">{{ $regularBooked }}/{{ $regCap }} booked</span>
+                        <span class="sa-class-info" id="reg-info-{{ $schedule->id }}" data-translate-en="booked" data-translate-id="dipesan">{{ $regularBooked }}/{{ $regCap }} booked</span>
                     </div>
                 </div>
 
@@ -87,13 +87,13 @@
                     <div class="sa-occ-bar">
                         <div class="sa-occ-fill" style="width: {{ $occPct }}%"></div>
                     </div>
-                    <span class="sa-occ-text">{{ $occPct }}% Occupied</span>
+                    <span class="sa-occ-text" data-translate-en="% Occupied" data-translate-id="% Terisi">{{ $occPct }}% Occupied</span>
                 </div>
             </div>
         @empty
             <div class="empty-state" style="grid-column:1/-1;">
-                <h3>No upcoming schedules</h3>
-                <p>Check back later for available ferry schedules.</p>
+                <h3 data-translate-en="No upcoming schedules" data-translate-id="Tidak ada jadwal mendatang">No upcoming schedules</h3>
+                <p data-translate-en="Check back later for available ferry schedules." data-translate-id="Periksa kembali nanti untuk jadwal feri yang tersedia.">Check back later for available ferry schedules.</p>
             </div>
         @endforelse
     </div>

@@ -6,18 +6,18 @@
 <div class="bookings-page">
     <div class="bookings-header">
         <div>
-            <h1 class="bookings-title">My Bookings</h1>
-            <p class="bookings-sub">Manage your ferry tickets and trips</p>
+            <h1 class="bookings-title" data-translate-en="My Bookings" data-translate-id="Pemesanan Saya">My Bookings</h1>
+            <p class="bookings-sub" data-translate-en="Manage your ferry tickets and trips" data-translate-id="Kelola tiket feri dan perjalanan Anda">Manage your ferry tickets and trips</p>
         </div>
     </div>
 
     <div class="bookings-tabs">
-        <a href="{{ route('booking.history') }}?status=" class="bookings-tab {{ !request('status') ? 'bookings-tab-active' : '' }}">All</a>
-        <a href="{{ route('booking.history') }}?status=pending_payment" class="bookings-tab {{ request('status') === 'pending_payment' ? 'bookings-tab-active' : '' }}">Pending Payment</a>
-        <a href="{{ route('booking.history') }}?status=paid" class="bookings-tab {{ request('status') === 'paid' ? 'bookings-tab-active' : '' }}">Paid</a>
-        <a href="{{ route('booking.history') }}?status=used" class="bookings-tab {{ request('status') === 'used' ? 'bookings-tab-active' : '' }}">Completed</a>
-        <a href="{{ route('booking.history') }}?status=cancelled" class="bookings-tab {{ request('status') === 'cancelled' ? 'bookings-tab-active' : '' }}">Cancelled</a>
-        <a href="{{ route('booking.history') }}?status=refunded" class="bookings-tab {{ request('status') === 'refunded' ? 'bookings-tab-active' : '' }}">Refunded</a>
+        <a href="{{ route('booking.history') }}?status=" class="bookings-tab {{ !request('status') ? 'bookings-tab-active' : '' }}" data-translate-en="All" data-translate-id="Semua">All</a>
+        <a href="{{ route('booking.history') }}?status=pending_payment" class="bookings-tab {{ request('status') === 'pending_payment' ? 'bookings-tab-active' : '' }}" data-translate-en="Pending Payment" data-translate-id="Menunggu Pembayaran">Pending Payment</a>
+        <a href="{{ route('booking.history') }}?status=paid" class="bookings-tab {{ request('status') === 'paid' ? 'bookings-tab-active' : '' }}" data-translate-en="Paid" data-translate-id="Lunas">Paid</a>
+        <a href="{{ route('booking.history') }}?status=used" class="bookings-tab {{ request('status') === 'used' ? 'bookings-tab-active' : '' }}" data-translate-en="Completed" data-translate-id="Selesai">Completed</a>
+        <a href="{{ route('booking.history') }}?status=cancelled" class="bookings-tab {{ request('status') === 'cancelled' ? 'bookings-tab-active' : '' }}" data-translate-en="Cancelled" data-translate-id="Dibatalkan">Cancelled</a>
+        <a href="{{ route('booking.history') }}?status=refunded" class="bookings-tab {{ request('status') === 'refunded' ? 'bookings-tab-active' : '' }}" data-translate-en="Refunded" data-translate-id="Dikembalikan">Refunded</a>
     </div>
 
     <div class="bookings-list">
@@ -30,7 +30,7 @@
             <div class="booking-card">
                 <div class="booking-card-top">
                     <div class="booking-card-code">
-                        <span class="booking-code-label">Booking Code</span>
+                        <span class="booking-code-label" data-translate-en="Booking Code" data-translate-id="Kode Pemesanan">Booking Code</span>
                         <span class="booking-code-value">#{{ $booking->booking_code }}</span>
                     </div>
                     <span class="booking-card-status {{ $badgeClass }}">{{ $statusLabel }}</span>
@@ -61,7 +61,7 @@
                     </div>
                     <div class="booking-card-info-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>{{ $booking->total_passengers }} passenger{{ $booking->total_passengers > 1 ? 's' : '' }}</span>
+                        <span>{{ $booking->total_passengers }} <span data-translate-en="passenger(s)" data-translate-id="penumpang">passenger{{ $booking->total_passengers > 1 ? 's' : '' }}</span></span>
                     </div>
                     <div class="booking-card-info-item booking-card-info-amount">
                         <span>RM {{ number_format($booking->total_amount, 2) }}</span>
@@ -69,7 +69,7 @@
                 </div>
 
                 <div class="booking-card-bottom">
-                    <a href="{{ route('booking.detail', $booking->booking_code) }}" class="booking-card-btn">
+                    <a href="{{ route('booking.detail', $booking->booking_code) }}" class="booking-card-btn" data-translate-en="View Details" data-translate-id="Lihat Detail">
                         View Details
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </a>
@@ -78,9 +78,9 @@
         @empty
             <div class="bookings-empty">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                <h3 class="bookings-empty-title">No bookings yet</h3>
-                <p class="bookings-empty-desc">Start your journey by searching for available ferry schedules.</p>
-                <a href="{{ route('schedules') }}" class="bookings-empty-btn">Search Schedules</a>
+                <h3 class="bookings-empty-title" data-translate-en="No bookings yet" data-translate-id="Belum ada pemesanan">No bookings yet</h3>
+                <p class="bookings-empty-desc" data-translate-en="Start your journey by searching for available ferry schedules." data-translate-id="Mulai perjalanan Anda dengan mencari jadwal feri yang tersedia.">Start your journey by searching for available ferry schedules.</p>
+                <a href="{{ route('schedules') }}" class="bookings-empty-btn" data-translate-en="Search Schedules" data-translate-id="Cari Jadwal">Search Schedules</a>
             </div>
         @endforelse
     </div>

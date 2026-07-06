@@ -2,16 +2,16 @@
 @section('title', 'Book Ticket')
 
 @section('content')
-<h1 class="text-2xl font-bold text-gray-900">Book Your Ticket</h1>
+<h1 class="text-2xl font-bold text-gray-900" data-translate-en="Book Your Ticket" data-translate-id="Pesan Tiket Anda">Book Your Ticket</h1>
 
 <div class="mt-4 alert alert-info">
     <p class="font-semibold">{{ $schedule->vessel->name }}</p>
     <p class="text-gray-600">{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}</p>
-    <p class="text-sm text-gray-500">Departure: {{ $schedule->departure_time->format('d M Y, H:i') }}</p>
+    <p class="text-sm text-gray-500" data-translate-en="Departure:" data-translate-id="Keberangkatan:">Departure: {{ $schedule->departure_time->format('d M Y, H:i') }}</p>
 </div>
 
 @auth
-<div class="mt-4 alert alert-success" id="autoFillNotice" style="display:none;">
+<div class="mt-4 alert alert-success" id="autoFillNotice" style="display:none;" data-translate-en="Your profile data has been auto-filled for Passenger 1." data-translate-id="Data profil Anda telah diisi otomatis untuk Penumpang 1.">
     Your profile data has been auto-filled for Passenger 1.
 </div>
 @endauth
@@ -22,16 +22,16 @@
     <input type="hidden" id="passenger-count-input" name="passenger_count" value="{{ $passengerCount }}">
 
     <div class="form-group">
-        <label for="promo_code" class="form-label">Promo Code (optional)</label>
+        <label for="promo_code" class="form-label" data-translate-en="Promo Code (optional)" data-translate-id="Kode Promo (opsional)">Promo Code (optional)</label>
         <input type="text" name="promo_code" id="promo_code" class="form-input max-w-xs" onchange="recalculateTotal()">
         @if($autoPromos->isNotEmpty())
-            <p class="mt-1 text-sm text-green-600">Available promos: {{ $autoPromos->pluck('name')->join(', ') }}</p>
+            <p class="mt-1 text-sm text-green-600"><span data-translate-en="Available promos:" data-translate-id="Promo tersedia:">Available promos:</span> {{ $autoPromos->pluck('name')->join(', ') }}</p>
         @endif
     </div>
 
     @auth
     <div class="card mb-6" id="savedProfilesCard">
-        <h3 class="text-lg font-semibold border-b pb-2 mb-4">Quick Add: Saved Passengers</h3>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4" data-translate-en="Quick Add: Saved Passengers" data-translate-id="Tambah Cepat: Penumpang Tersimpan">Quick Add: Saved Passengers</h3>
         <div class="flex flex-wrap gap-2" id="savedProfilesList">
             @forelse($savedProfiles as $profile)
             <button type="button" class="btn btn-sm btn-outline profile-select-btn"
@@ -48,7 +48,7 @@
                 {{ $profile->full_name }}
             </button>
             @empty
-            <p class="text-sm text-gray-500">No saved passengers. <a href="{{ route('profiles.index') }}" class="link">Save some first</a></p>
+            <p class="text-sm text-gray-500"><span data-translate-en="No saved passengers." data-translate-id="Tidak ada penumpang tersimpan.">No saved passengers.</span> <a href="{{ route('profiles.index') }}" class="link" data-translate-en="Save some first" data-translate-id="Simpan beberapa dulu">Save some first</a></p>
             @endforelse
         </div>
     </div>
@@ -58,7 +58,7 @@
         @for($i = 0; $i < $passengerCount; $i++)
         <div class="card mb-6 passenger-card" id="passenger-{{ $i }}" data-index="{{ $i }}">
             <div class="flex justify-between items-center border-b pb-2 mb-4">
-                <h3 class="text-lg font-semibold">Passenger {{ $i + 1 }}</h3>
+                <h3 class="text-lg font-semibold" data-translate-en="Passenger" data-translate-id="Penumpang">Passenger {{ $i + 1 }}</h3>
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium age-category-badge" id="age-badge-{{ $i }}" style="display:none;"></span>
                     <span class="text-sm text-gray-500 passenger-price-label" id="price-label-{{ $i }}"></span>
@@ -66,68 +66,69 @@
             </div>
             <div class="grid sm:grid-cols-2 gap-4">
                 <div class="form-group">
-                    <label class="form-label">Full Name *</label>
+                    <label class="form-label" data-translate-en="Full Name *" data-translate-id="Nama Lengkap *">Full Name *</label>
                     <input type="text" name="passengers[{{ $i }}][full_name]" required class="form-input passenger-name"
                         id="name-{{ $i }}"
                         @if($i === 0 && $userProfile) value="{{ $userProfile['name'] }}" @endif>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Gender *</label>
+                    <label class="form-label" data-translate-en="Gender *" data-translate-id="Jenis Kelamin *">Gender *</label>
                     <select name="passengers[{{ $i }}][gender]" required class="form-select"
                         id="gender-{{ $i }}">
-                        <option value="">Select</option>
-                        <option value="male" @if($i === 0 && $userProfile && $userProfile['gender'] === 'male') selected @endif>Male</option>
-                        <option value="female" @if($i === 0 && $userProfile && $userProfile['gender'] === 'female') selected @endif>Female</option>
-                        <option value="other">Other</option>
+                        <option value="" data-translate-en="Select" data-translate-id="Pilih">Select</option>
+                        <option value="male" @if($i === 0 && $userProfile && $userProfile['gender'] === 'male') selected @endif data-translate-en="Male" data-translate-id="Laki-laki">Male</option>
+                        <option value="female" @if($i === 0 && $userProfile && $userProfile['gender'] === 'female') selected @endif data-translate-en="Female" data-translate-id="Perempuan">Female</option>
+                        <option value="other" data-translate-en="Other" data-translate-id="Lainnya">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date of Birth *</label>
+                    <label class="form-label" data-translate-en="Date of Birth *" data-translate-id="Tanggal Lahir *">Date of Birth *</label>
                     <input type="date" name="passengers[{{ $i }}][birth_date]" required max="{{ date('Y-m-d') }}" class="form-input passenger-birth"
                         id="birth-{{ $i }}"
                         @if($i === 0 && $userProfile && $userProfile['birth_date']) value="{{ $userProfile['birth_date'] }}" @endif
                         onchange="updateAgeInfo({{ $i }})">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Age <span class="text-xs text-gray-400">(auto)</span></label>
-                    <input type="text" class="form-input bg-gray-100" id="age-display-{{ $i }}" readonly placeholder="Select birth date">
+                    <label class="form-label"><span data-translate-en="Age" data-translate-id="Usia">Age</span> <span class="text-xs text-gray-400" data-translate-en="(auto)" data-translate-id="(otomatis)">(auto)</span></label>
+                    <input type="text" class="form-input bg-gray-100" id="age-display-{{ $i }}" readonly placeholder="Select birth date" data-translate-en="Select birth date" data-translate-id="Pilih tanggal lahir">
                     <input type="hidden" id="age-category-id-{{ $i }}" value="">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nationality *</label>
+                    <label class="form-label" data-translate-en="Nationality *" data-translate-id="Kewarganegaraan *">Nationality *</label>
                     <input type="text" name="passengers[{{ $i }}][nationality]" required placeholder="e.g. Malaysian" class="form-input"
                         id="nationality-{{ $i }}"
-                        @if($i === 0 && $userProfile && $userProfile['nationality']) value="{{ $userProfile['nationality'] }}" @endif>
+                        @if($i === 0 && $userProfile && $userProfile['nationality']) value="{{ $userProfile['nationality'] }}" @endif
+                        data-translate-en="e.g. Malaysian" data-translate-id="mis. Malaysia">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Passport/ID Number *</label>
+                    <label class="form-label" data-translate-en="Passport/ID Number *" data-translate-id="Nomor Paspor/KTP *">Passport/ID Number *</label>
                     <input type="text" name="passengers[{{ $i }}][passport_number]" required class="form-input"
                         id="passport-{{ $i }}"
                         @if($i === 0 && $userProfile && $userProfile['passport_number']) value="{{ $userProfile['passport_number'] }}" @endif>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Phone Number</label>
+                    <label class="form-label" data-translate-en="Phone Number" data-translate-id="Nomor Telepon">Phone Number</label>
                     <input type="text" name="passengers[{{ $i }}][phone_number]" class="form-input"
                         id="phone-{{ $i }}"
                         @if($i === 0 && $userProfile && $userProfile['phone']) value="{{ $userProfile['phone'] }}" @endif>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Ticket Class *</label>
+                    <label class="form-label" data-translate-en="Ticket Class *" data-translate-id="Kelas Tiket *">Ticket Class *</label>
                     <select name="passengers[{{ $i }}][ticket_class]" required class="form-select passenger-class"
                         id="class-{{ $i }}" onchange="recalculateTotal()">
-                        <option value="regular">Regular — RM {{ number_format($schedule->regular_price, 2) }}</option>
+                        <option value="regular" data-translate-en="Regular — RM" data-translate-id="Regular — RM">Regular — RM {{ number_format($schedule->regular_price, 2) }}</option>
                         @if($schedule->vessel->vip_capacity > 0)
-                        <option value="vip">VIP — RM {{ number_format($schedule->vip_price, 2) }}</option>
+                        <option value="vip" data-translate-en="VIP — RM" data-translate-id="VIP — RM">VIP — RM {{ number_format($schedule->vip_price, 2) }}</option>
                         @endif
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Passport/ID Upload *</label>
+                    <label class="form-label" data-translate-en="Passport/ID Upload *" data-translate-id="Unggah Paspor/KTP *">Passport/ID Upload *</label>
                     <input type="file" name="passengers[{{ $i }}][passport_file]" required accept=".pdf,.jpg,.jpeg,.png" class="form-input">
-                    <p class="form-hint">PDF, JPG, PNG (max 5MB)</p>
+                    <p class="form-hint" data-translate-en="PDF, JPG, PNG (max 5MB)" data-translate-id="PDF, JPG, PNG (maks 5MB)">PDF, JPG, PNG (max 5MB)</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Travel Permit (optional)</label>
+                    <label class="form-label" data-translate-en="Travel Permit (optional)" data-translate-id="Izin Perjalanan (opsional)">Travel Permit (optional)</label>
                     <input type="file" name="passengers[{{ $i }}][travel_permit]" accept=".pdf,.jpg,.jpeg,.png" class="form-input">
                 </div>
             </div>
@@ -136,15 +137,15 @@
     </div>
 
     <div class="card" id="bookingSummary">
-        <h3 class="text-lg font-semibold">Booking Summary</h3>
+        <h3 class="text-lg font-semibold" data-translate-en="Booking Summary" data-translate-id="Ringkasan Pemesanan">Booking Summary</h3>
         <div class="mt-3 space-y-2 text-sm" id="summaryDetails">
         </div>
         <div class="mt-3 pt-3 border-t">
-            <p class="text-lg font-bold text-blue-600" id="totalAmount">Total: RM 0.00</p>
+            <p class="text-lg font-bold text-blue-600" id="totalAmount" data-translate-en="Total:" data-translate-id="Total:">Total: RM 0.00</p>
         </div>
-        <p class="mt-2 text-sm text-gray-600">Free baggage: {{ $schedule->vessel->free_baggage }}kg per passenger</p>
-        <p class="mt-2 text-sm text-gray-500">Booking will be held for 30 minutes after submission.</p>
-        <button type="submit" class="btn btn-primary btn-lg mt-4 sm:w-auto btn-block">Continue to Payment</button>
+        <p class="mt-2 text-sm text-gray-600">Free baggage: {{ $schedule->vessel->free_baggage }}kg <span data-translate-en="per passenger" data-translate-id="per penumpang">per passenger</span></p>
+        <p class="mt-2 text-sm text-gray-500" data-translate-en="Booking will be held for 30 minutes after submission." data-translate-id="Pemesanan akan ditahan selama 30 menit setelah pengiriman.">Booking will be held for 30 minutes after submission.</p>
+        <button type="submit" class="btn btn-primary btn-lg mt-4 sm:w-auto btn-block" data-translate-en="Continue to Payment" data-translate-id="Lanjutkan ke Pembayaran">Continue to Payment</button>
     </div>
 </form>
 
@@ -268,7 +269,7 @@ function recalculateTotal() {
         summaryHtml += '<div class="flex justify-between pt-2 border-t mt-2 text-gray-500"><span>Insurance (' + pax + ' × RM ' + INSURANCE.toFixed(2) + ')</span><span>RM ' + insurance.toFixed(2) + '</span></div>';
     }
 
-    summaryDetails.innerHTML = summaryHtml || '<p class="text-gray-400">Complete passenger details to see pricing</p>';
+    summaryDetails.innerHTML = summaryHtml || '<p class="text-gray-400" data-translate-en="Complete passenger details to see pricing" data-translate-id="Lengkapi detail penumpang untuk melihat harga">Complete passenger details to see pricing</p>';
     totalEl.textContent = 'Total: RM ' + total.toFixed(2);
 }
 
