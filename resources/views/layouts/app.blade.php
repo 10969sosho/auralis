@@ -58,9 +58,9 @@
                     {{-- Main navigation — same for ALL users --}}
                     <a href="{{ route('home') }}" class="guest-nav-link" data-translate-en="Home" data-translate-id="Beranda">Home</a>
                     <a href="{{ route('schedules') }}" class="guest-nav-link" data-translate-en="Booking" data-translate-id="Pemesanan">Booking</a>
-                    <a href="{{ route('harga') }}" class="guest-nav-link" data-translate-en="Prices" data-translate-id="Harga">Prices</a>
-                    <a href="{{ route('pengumuman') }}" class="guest-nav-link" data-translate-en="Announcements" data-translate-id="Pengumuman">Announcements</a>
-                    <a href="{{ route('informasi') }}" class="guest-nav-link" data-translate-en="About" data-translate-id="Tentang">About</a>
+                    <a href="{{ route('prices') }}" class="guest-nav-link" data-translate-en="Prices" data-translate-id="Harga">Prices</a>
+                    <a href="{{ route('announcements') }}" class="guest-nav-link" data-translate-en="Announcements" data-translate-id="Pengumuman">Announcements</a>
+                    <a href="{{ route('information') }}" class="guest-nav-link" data-translate-en="About" data-translate-id="Tentang">About</a>
                 </div>
 
                 <div class="guest-nav-actions">
@@ -202,9 +202,9 @@
                     <ul class="guest-footer-links">
                         <li><a href="{{ route('home') }}" data-translate-en="Home" data-translate-id="Beranda">Home</a></li>
                         <li><a href="{{ route('schedules') }}" data-translate-en="Booking" data-translate-id="Pemesanan">Booking</a></li>
-                        <li><a href="{{ route('harga') }}" data-translate-en="Prices" data-translate-id="Harga">Prices</a></li>
-                        <li><a href="{{ route('pengumuman') }}" data-translate-en="Announcements" data-translate-id="Pengumuman">Announcements</a></li>
-                        <li><a href="{{ route('informasi') }}" data-translate-en="About" data-translate-id="Tentang">About</a></li>
+                        <li><a href="{{ route('prices') }}" data-translate-en="Prices" data-translate-id="Harga">Prices</a></li>
+                        <li><a href="{{ route('announcements') }}" data-translate-en="Announcements" data-translate-id="Pengumuman">Announcements</a></li>
+                        <li><a href="{{ route('information') }}" data-translate-en="About" data-translate-id="Tentang">About</a></li>
                     </ul>
                 </div>
                 <div class="guest-footer-col">

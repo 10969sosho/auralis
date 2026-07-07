@@ -4020,8 +4020,8 @@ body.guest-page,
 
 /* ── Guest Inner Pages (non-landing) ── */
 .guest-main-padded {
-    padding: 40px 0;
-    min-height: 60vh;
+    padding: 60px 0 80px;
+    min-height: 70vh;
 }
 
 .guest-main-padded h1 {
@@ -4046,12 +4046,12 @@ body.guest-page,
 }
 
 .auth-box {
-    width: 460px;
+    width: 480px;
     max-width: 100%;
 }
 
 .auth-box-lg {
-    width: 720px;
+    width: 760px;
     max-width: 100%;
 }
 
@@ -4826,37 +4826,37 @@ select.auth-input {
     font-size: 12px;
 }
 
-/* ── Password Show/Hide Toggle ── */
-.password-input-wrapper {
+/* ── Password Show/Hide (pw-field + pw-show) ── */
+.pw-field {
     position: relative;
+    display: flex;
+    align-items: center;
 }
-.password-input-wrapper .auth-input {
-    padding-right: 44px;
+.pw-field .auth-input {
+    padding-right: 56px;
 }
-.password-toggle {
+.pw-show {
     position: absolute;
-    right: 4px;
+    right: 14px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
-    padding: 8px;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0E9AEF;
     cursor: pointer;
-    color: #ADB5BD;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 1;
     line-height: 1;
-    transition: color 0.2s;
+    outline: none;
 }
-.password-toggle:hover {
-    color: #252B42;
+.pw-show:hover {
+    color: #0077CC;
+    text-decoration: underline;
 }
-.password-toggle svg {
-    width: 20px;
-    height: 20px;
-    display: block;
-}
+
     .auth-footer-text {
         margin-top: 12px;
         font-size: 12px;

@@ -69,7 +69,7 @@
                 Auralis 8 is an international sea transportation company providing ferry services between Lahad Datu, Sabah, Malaysia and Bongao, Tawi-Tawi, Philippines. We serve as a trusted link for cross-border mobility by prioritizing safety, comfort, reliability, and professional service.
             </p>
             <div style="margin-top:32px;" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
-                <a href="{{ route('informasi') }}" class="guest-hero-btn" style="display:inline-flex;padding:14px 32px;font-size:15px;" data-translate-en="Learn More →" data-translate-id="Pelajari Lebih Lanjut →">
+                <a href="{{ route('information') }}" class="guest-hero-btn" style="display:inline-flex;padding:14px 32px;font-size:15px;" data-translate-en="Learn More →" data-translate-id="Pelajari Lebih Lanjut →">
                     Learn More →
                 </a>
             </div>
@@ -88,23 +88,23 @@
                 <div class="announce-date" data-translate-en="June 15, 2026" data-translate-id="15 Juni 2026">June 15, 2026</div>
                 <h3 class="announce-title" data-translate-en="New Schedule Route Bongao - Lahad Datu" data-translate-id="Jadwal Baru Rute Bongao - Lahad Datu">New Schedule Route Bongao - Lahad Datu</h3>
                 <p class="announce-excerpt" data-translate-en="Starting July 1, 2026, we will add sailing schedules to 3 times daily for the Bongao - Lahad Datu route." data-translate-id="Mulai 1 Juli 2026, kami akan menambah jadwal keberangkatan menjadi 3 kali sehari untuk rute Bongao - Lahad Datu.">Starting July 1, 2026, we will add sailing schedules to 3 times daily for the Bongao - Lahad Datu route.</p>
-                <a href="{{ route('pengumuman.detail', 1) }}" class="announce-link" data-translate-en="Read More →" data-translate-id="Baca Selengkapnya →">Read More →</a>
+                <a href="{{ route('announcements.detail', 1) }}" class="announce-link" data-translate-en="Read More →" data-translate-id="Baca Selengkapnya →">Read More →</a>
             </div>
             <div class="announce-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
                 <div class="announce-date" data-translate-en="June 10, 2026" data-translate-id="10 Juni 2026">June 10, 2026</div>
                 <h3 class="announce-title" data-translate-en="Special Independence Month Ticket Promo" data-translate-id="Promo Tiket Bulan Kemerdekaan">Special Independence Month Ticket Promo</h3>
                 <p class="announce-excerpt" data-translate-en="Enjoy up to 20% discount on all routes during July - August 2026 in celebration of Independence Day." data-translate-id="Nikmati diskon hingga 20% untuk semua rute selama Juli - Agustus 2026 dalam rangka merayakan Hari Kemerdekaan.">Enjoy up to 20% discount on all routes during July - August 2026 in celebration of Independence Day.</p>
-                <a href="{{ route('pengumuman.detail', 2) }}" class="announce-link" data-translate-en="Read More →" data-translate-id="Baca Selengkapnya →">Read More →</a>
+                <a href="{{ route('announcements.detail', 2) }}" class="announce-link" data-translate-en="Read More →" data-translate-id="Baca Selengkapnya →">Read More →</a>
             </div>
             <div class="announce-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
                 <div class="announce-date" data-translate-en="June 5, 2026" data-translate-id="5 Juni 2026">June 5, 2026</div>
                 <h3 class="announce-title" data-translate-en="Routine Maintenance MV Auralis 8" data-translate-id="Perawatan Rutin MV Auralis 8">Routine Maintenance MV Auralis 8</h3>
                 <p class="announce-excerpt" data-translate-en="MV Auralis 8 will undergo routine maintenance on June 20-25, 2026. Schedules will be diverted to other vessels." data-translate-id="MV Auralis 8 akan menjalani perawatan rutin pada 20-25 Juni 2026. Jadwal akan dialihkan ke kapal lain.">MV Auralis 8 will undergo routine maintenance on June 20-25, 2026. Schedules will be diverted to other vessels.</p>
-                <a href="{{ route('pengumuman.detail', 3) }}" class="announce-link" data-translate-en="Read More →" data-translate-id="Baca Selengkapnya →">Read More →</a>
+                <a href="{{ route('announcements.detail', 3) }}" class="announce-link" data-translate-en="Read More →" data-translate-id="Baca Selengkapnya →">Read More →</a>
             </div>
         </div>
         <div class="text-center" style="margin-top:48px;" data-aos="fade-up" data-aos-duration="800">
-            <a href="{{ route('pengumuman') }}" class="announce-link" data-translate-en="See All Announcements →" data-translate-id="Lihat Semua Pengumuman →">See All Announcements →</a>
+            <a href="{{ route('announcements') }}" class="announce-link" data-translate-en="See All Announcements →" data-translate-id="Lihat Semua Pengumuman →">See All Announcements →</a>
         </div>
     </div>
 </section>
@@ -139,7 +139,7 @@
             @endforelse
         </div>
         <div class="text-center" style="margin-top:48px;" data-aos="fade-up" data-aos-duration="800">
-            <a href="{{ route('jadwal') }}" style="display:inline-flex;align-items:center;gap:8px;padding:14px 35px;font-size:16px;font-weight:600;color:#fff;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:5px;text-decoration:none;transition:all 0.2s;" data-translate-en="View Full Schedule →" data-translate-id="Lihat Jadwal Lengkap →">
+            <a href="{{ route('schedules') }}" style="display:inline-flex;align-items:center;gap:8px;padding:14px 35px;font-size:16px;font-weight:600;color:#fff;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:5px;text-decoration:none;transition:all 0.2s;" data-translate-en="View Full Schedule →" data-translate-id="Lihat Jadwal Lengkap →">
                 View Full Schedule →
             </a>
         </div>
@@ -191,7 +191,7 @@
             </div>
         </div>
         <div class="price-view-all" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
-            <a href="{{ route('harga') }}" data-translate-en="View All Routes &amp; Prices →" data-translate-id="Lihat Semua Rute &amp; Harga →">View All Routes &amp; Prices →</a>
+            <a href="{{ route('prices') }}" data-translate-en="View All Routes &amp; Prices →" data-translate-id="Lihat Semua Rute &amp; Harga →">View All Routes &amp; Prices →</a>
         </div>
     </div>
 </section>

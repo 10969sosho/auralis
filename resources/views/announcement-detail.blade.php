@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="article-page">
-    <a href="{{ route('pengumuman') }}" class="article-back" data-translate-en="Back to Announcements" data-translate-id="Kembali ke Pengumuman">
+    <a href="{{ route('announcements') }}" class="article-back" data-translate-en="Back to Announcements" data-translate-id="Kembali ke Pengumuman">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         Back to Announcements
     </a>

@@ -106,7 +106,10 @@ class DatabaseSeeder extends Seeder
             'arrival_time' => Carbon::now()->addDays(3)->setHour(10)->setMinute(0)->setSecond(0),
             'vip_price' => 150.00,
             'regular_price' => 80.00,
+            'vip_remaining' => $vessel->vip_capacity,
+            'regular_remaining' => $vessel->regular_capacity,
             'status' => 'scheduled',
+            'is_active' => true,
         ]);
 
         $schedule2 = Schedule::create([
@@ -116,7 +119,10 @@ class DatabaseSeeder extends Seeder
             'arrival_time' => Carbon::now()->addDays(5)->setHour(16)->setMinute(0)->setSecond(0),
             'vip_price' => 150.00,
             'regular_price' => 80.00,
+            'vip_remaining' => $vessel->vip_capacity,
+            'regular_remaining' => $vessel->regular_capacity,
             'status' => 'scheduled',
+            'is_active' => true,
         ]);
 
         $schedule3 = Schedule::create([
@@ -126,7 +132,10 @@ class DatabaseSeeder extends Seeder
             'arrival_time' => Carbon::now()->addDays(7)->setHour(10)->setMinute(0)->setSecond(0),
             'vip_price' => 150.00,
             'regular_price' => 80.00,
+            'vip_remaining' => $vessel->vip_capacity,
+            'regular_remaining' => $vessel->regular_capacity,
             'status' => 'scheduled',
+            'is_active' => true,
         ]);
 
         // ─── Age Pricing ──────────────────────────────────────

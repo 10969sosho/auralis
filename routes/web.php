@@ -35,7 +35,7 @@ Route::get('/', function () {
 
     return view('home', compact('prices', 'schedules'));
 })->name('home');
-Route::get('/harga', function () {
+Route::get('/prices', function () {
     $prices = Schedule::where('status', 'scheduled')
         ->where('departure_time', '>=', now())
         ->where('is_active', true)
@@ -51,25 +51,11 @@ Route::get('/harga', function () {
         ->unique()
         ->values();
 
-    return view('harga', compact('prices', 'ports'));
-})->name('harga');
-Route::get('/pengumuman', fn () => view('pengumuman'))->name('pengumuman');
-Route::get('/pengumuman/{id}', fn ($id) => view('pengumuman-detail', ['id' => $id]))->name('pengumuman.detail');
-Route::get('/informasi', fn () => view('informasi'))->name('informasi');
-Route::get('/jadwal', function (\Illuminate\Http\Request $request) {
-    $date = $request->input('date', now()->format('Y-m-d'));
-
-    $schedules = Schedule::where('status', 'scheduled')
-        ->where('is_active', true)
-        ->whereDate('departure_time', $date)
-        ->with(['route', 'vessel'])
-        ->orderBy('departure_time')
-        ->get();
-
-    $vessels = Vessel::where('status', 'active')->get();
-
-    return view('jadwal', compact('schedules', 'date', 'vessels'));
-})->name('jadwal');
+    return view('prices', compact('prices', 'ports'));
+})->name('prices');
+Route::get('/announcements', fn () => view('announcements'))->name('announcements');
+Route::get('/announcements/{id}', fn ($id) => view('announcement-detail', ['id' => $id]))->name('announcements.detail');
+Route::get('/information', fn () => view('information'))->name('information');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
