@@ -236,15 +236,19 @@ class BookingController extends Controller
             $toyibPay = app(ToyibPayService::class);
             $result = $toyibPay->createBill($booking);
 
+            $totalWithFee = $totalAfterDiscount + 1.00;
+
             Payment::create([
                 'booking_id' => $booking->id,
-                'amount' => $totalAfterDiscount,
+                'amount' => $totalWithFee,
                 'payment_method' => 'toyibpay',
                 'payment_status' => 'pending',
                 'transaction_id' => $result['bill_code'],
                 'payment_meta' => [
                     'bill_code' => $result['bill_code'],
                     'payment_url' => $result['payment_url'],
+                    'base_amount' => $totalAfterDiscount,
+                    'fee_amount' => 1.00,
                 ],
             ]);
 
@@ -255,7 +259,6 @@ class BookingController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            // Fallback: create payment record as pending and show payment page
             Payment::create([
                 'booking_id' => $booking->id,
                 'amount' => $totalAfterDiscount,
@@ -263,7 +266,7 @@ class BookingController extends Controller
             ]);
 
             return redirect()->route('booking.payment', $booking->booking_code)
-                ->with('error', 'Payment gateway is temporarily unavailable. Please try again or use manual transfer.');
+                ->with('error', 'Payment gateway is temporarily unavailable. Please try again.');
         }
     }
 
@@ -292,7 +295,7 @@ class BookingController extends Controller
             return redirect()->route('booking.success', $booking->booking_code);
         }
 
-        // If bill_code exists, redirect to existing ToyibPay payment URL (reuse, don't create new)
+        // If bill_code exists, redirect to existing ToyibPay payment URL
         $billCode = $booking->payment?->payment_meta['bill_code'] ?? null;
         if ($billCode && $booking->payment_status === 'pending') {
             $toyibPay = app(ToyibPayService::class);

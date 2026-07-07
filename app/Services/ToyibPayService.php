@@ -21,8 +21,8 @@ class ToyibPayService
     }
 
     /**
-     * Create a bill on ToyibPay for the given booking.
-     * All payment channels enabled: FPX, Credit Card, DuitNow QR, Virtual Account.
+     * Create a bill on ToyibPay with all payment channels (FPX, CC, DuitNow QR).
+     * Includes RM 1 flat processing fee.
      * Returns ['bill_code' => '...', 'payment_url' => '...'] or throws.
      */
     public function createBill(Booking $booking): array
@@ -34,6 +34,10 @@ class ToyibPayService
         $billName = substr('Ticket_' . $booking->booking_code, 0, 30);
         $billDescription = substr($route . ' | ' . $booking->schedule->departure_time->format('d M H:i'), 0, 100);
 
+        // Add RM 1 flat processing fee
+        $feeInCents = 100;
+        $amountInCents = (int) round($booking->total_amount * 100) + $feeInCents;
+
         $data = [
             'userSecretKey' => $this->secretKey,
             'categoryCode' => $this->categoryCode,
@@ -41,18 +45,18 @@ class ToyibPayService
             'billDescription' => $billDescription,
             'billPriceSetting' => 1,                    // fixed amount
             'billPayorInfo' => 1,                       // require payer info
-            'billAmount' => (int) round($booking->total_amount * 100), // in cents
+            'billAmount' => $amountInCents,
             'billReturnUrl' => route('booking.toyibpay-return', $booking->booking_code),
             'billCallbackUrl' => route('booking.toyibpay-callback'),
             'billExternalReferenceNo' => $booking->booking_code,
             'billTo' => $passengerNames,
             'billEmail' => $booking->user?->email ?? '',
             'billPhone' => $booking->passengers->first()?->phone_number ?? '',
-            // Payment channels: allow all available
+            'billExpiryDate' => $booking->expires_at->format('d-m-Y H:i:s'),
+            // Enable all payment channels
             'billPaymentChannel' => '2',                // 0=FPX, 1=CC, 2=Both FPX & CC
             'enableDuitNowQR' => '1',                   // Enable DuitNow QR
-            'chargeDuitNowQR' => '1',                   // 0=charge owner, 1=charge customer
-            'billExpiryDate' => $booking->expires_at->format('d-m-Y H:i:s'),
+            'chargeDuitNowQR' => '1',                   // 1% fee charged to customer
         ];
 
         Log::info('ToyibPay createBill request', $data);
