@@ -150,7 +150,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 6 4 18 12 14 12 6"/><polyline points="12 14 20 18 20 6 12 10"/><line x1="12" y1="14" x2="12" y2="10"/></svg>
                 <div>
                     <strong data-translate-en="Social Media" data-translate-id="Media Sosial">Social Media</strong>
-                    <span data-translate-en="Instagram: @auralis8" data-translate-id="Instagram: @auralis8">Instagram: @auralis8</span>
+                    <span data-translate-en="Instagram: @auralis8.official" data-translate-id="Instagram: @auralis8">Instagram: @auralis8</span>
                 </div>
             </div>
         </div>

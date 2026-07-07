@@ -2930,39 +2930,6 @@ body.guest-page,
     color: #fff;
 }
 
-/* ── Language Switcher ── */
-.top-bar-lang {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-right: 12px;
-    padding-right: 12px;
-    border-right: 1px solid #E9ECEF;
-}
-.top-bar-lang-btn {
-    font-size: 12px;
-    font-weight: 600;
-    color: #ADB5BD;
-    cursor: pointer;
-    transition: color 0.2s;
-    user-select: none;
-    background: none;
-    border: none;
-    padding: 2px 4px;
-    font-family: inherit;
-    line-height: 1;
-}
-.top-bar-lang-btn:hover {
-    color: #6C757D;
-}
-.top-bar-lang-btn.active {
-    color: #0E9AEF;
-}
-.top-bar-lang-sep {
-    font-size: 12px;
-    color: #DEE2E6;
-}
-
 /* ── Main Navbar (Guest) ── */
 .guest-nav {
     position: sticky;
@@ -4856,8 +4823,40 @@ select.auth-input {
         font-size: 13px;
     }
     .auth-label {
-        font-size: 12px;
-    }
+    font-size: 12px;
+}
+
+/* ── Password Show/Hide Toggle ── */
+.password-input-wrapper {
+    position: relative;
+}
+.password-input-wrapper .auth-input {
+    padding-right: 44px;
+}
+.password-toggle {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #ADB5BD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.password-toggle:hover {
+    color: #252B42;
+}
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
     .auth-footer-text {
         margin-top: 12px;
         font-size: 12px;

@@ -159,13 +159,25 @@
                 </div>
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="password" class="auth-label" data-translate-en="Password *" data-translate-id="Kata Sandi *">Password *</label>
-                        <input type="password" name="password" id="password" required class="auth-input" placeholder="Min. 8 characters">
+                        <label for="password" class="auth-label">Password *</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="password" id="password" required class="auth-input" placeholder="Min. 8 characters">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)" tabindex="-1" aria-label="Toggle password visibility">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
                         @error('password') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
                     <div class="auth-field">
-                        <label for="password_confirmation" class="auth-label" data-translate-en="Confirm Password *" data-translate-id="Konfirmasi Kata Sandi *">Confirm Password *</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" required class="auth-input" placeholder="Repeat password">
+                        <label for="password_confirmation" class="auth-label">Confirm Password *</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="password_confirmation" id="password_confirmation" required class="auth-input" placeholder="Repeat password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', this)" tabindex="-1" aria-label="Toggle password visibility">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="auth-btn" data-translate-en="Create Account" data-translate-id="Buat Akun">Create Account</button>
@@ -181,6 +193,18 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
+function togglePassword(fieldId, btn) {
+    var input = document.getElementById(fieldId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.querySelector('.eye-icon').style.display = 'none';
+        btn.querySelector('.eye-off-icon').style.display = '';
+    } else {
+        input.type = 'password';
+        btn.querySelector('.eye-icon').style.display = '';
+        btn.querySelector('.eye-off-icon').style.display = 'none';
+    }
+}
 document.addEventListener('DOMContentLoaded', function() {
     var select = document.getElementById('nationality');
     if (!select) return;
