@@ -142,13 +142,45 @@ Route::middleware(['auth', 'role:boarding_officer,admin'])->prefix('boarding')->
     Route::get('/manifest/{schedule}', [BoardingController::class, 'manifest'])->name('manifest');
 });
 
-Route::middleware(['auth', 'role:deportation_officer,admin'])->prefix('deportation')->name('deportation.')->group(function () {
+// ==========================
+// Deportation User Routes (pengguna deportasi - ship ticket only)
+// ==========================
+Route::get('/deportation/register', [DeportationController::class, 'showRegister'])->name('deportation.register');
+Route::post('/deportation/register', [DeportationController::class, 'register'])->name('deportation.register.store');
+
+Route::middleware('auth')->prefix('deportation')->name('deportation.')->group(function () {
+    Route::get('/dashboard', [DeportationController::class, 'dashboard'])->name('dashboard');
+    Route::get('/booking', [DeportationController::class, 'showBooking'])->name('booking');
+    Route::post('/booking', [DeportationController::class, 'storeBooking'])->name('booking.store')->middleware('throttle:10,1');
+    Route::get('/payment/{code}', [DeportationController::class, 'showPayment'])->name('payment');
+    Route::post('/payment/{code}', [DeportationController::class, 'processPayment'])->name('payment.process');
+    Route::get('/success/{code}', [DeportationController::class, 'success'])->name('success');
+    Route::get('/ticket/{ticket}', [DeportationController::class, 'showTicket'])->name('ticket');
+    Route::get('/history', [DeportationController::class, 'history'])->name('history');
+    Route::get('/check-status/{code}', [DeportationController::class, 'checkPaymentStatus'])
+        ->name('check-status')->middleware('throttle:30,1');
+});
+
+// ToyibPay callbacks for deportation (public)
+Route::get('/deportation/{code}/toyibpay-return', [DeportationController::class, 'toyibpayReturn'])
+    ->name('deportation.toyibpay-return')->middleware('auth');
+Route::post('/deportation/toyibpay-callback', [DeportationController::class, 'toyibpayCallback'])
+    ->name('deportation.toyibpay-callback')->middleware('throttle:60,1');
+
+// ==========================
+// Deportation Officer Routes (petugas - manifests, boarding scan)
+// ==========================
+Route::middleware(['auth', 'role:boarding_officer,deportation_officer,admin'])->prefix('deportation')->name('deportation.')->group(function () {
+    Route::get('/scanner', [DeportationController::class, 'scanner'])->name('scanner');
+    Route::post('/scan', [DeportationController::class, 'scan'])->name('scan');
+});
+
+Route::middleware(['auth', 'role:deportation_officer,admin'])->prefix('deportation/manifests')->name('deportation.')->group(function () {
     Route::get('/', [DeportationController::class, 'index'])->name('index');
     Route::get('/create', [DeportationController::class, 'create'])->name('create');
-    Route::post('/manifests', [DeportationController::class, 'storeManifest'])->name('manifests.store');
-    Route::get('/manifests/{code}', [DeportationController::class, 'showManifest'])->name('manifest.show');
-    Route::post('/manifests/{manifest}/passengers', [DeportationController::class, 'addPassenger'])->name('passengers.store');
-    Route::post('/boarding/scan', [DeportationController::class, 'boardingScan'])->name('boarding.scan');
+    Route::post('/', [DeportationController::class, 'storeManifest'])->name('manifests.store');
+    Route::get('/{code}', [DeportationController::class, 'showManifest'])->name('manifest.show');
+    Route::post('/{manifest}/passengers', [DeportationController::class, 'addPassenger'])->name('passengers.store');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

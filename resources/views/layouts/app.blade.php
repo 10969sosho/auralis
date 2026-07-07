@@ -56,9 +56,20 @@
             <div class="guest-nav-collapse" id="navCollapse">
                 <div class="guest-nav-menu">
                     {{-- Main navigation — same for ALL users --}}
-                    <a href="{{ route('home') }}" class="guest-nav-link" data-translate-en="Home" data-translate-id="Beranda">Home</a>
-                    <a href="{{ route('schedules') }}" class="guest-nav-link" data-translate-en="Booking" data-translate-id="Pemesanan">Booking</a>
-                    <a href="{{ route('prices') }}" class="guest-nav-link" data-translate-en="Prices" data-translate-id="Harga">Prices</a>
+                    @auth
+                        @if(auth()->user()->isDeportation())
+                            <a href="{{ route('deportation.dashboard') }}" class="guest-nav-link">Dashboard Deportasi</a>
+                            <a href="{{ route('deportation.booking') }}" class="guest-nav-link">Beli Tiket</a>
+                        @else
+                            <a href="{{ route('home') }}" class="guest-nav-link" data-translate-en="Home" data-translate-id="Beranda">Home</a>
+                            <a href="{{ route('schedules') }}" class="guest-nav-link" data-translate-en="Booking" data-translate-id="Pemesanan">Booking</a>
+                            <a href="{{ route('prices') }}" class="guest-nav-link" data-translate-en="Prices" data-translate-id="Harga">Prices</a>
+                        @endif
+                    @else
+                        <a href="{{ route('home') }}" class="guest-nav-link" data-translate-en="Home" data-translate-id="Beranda">Home</a>
+                        <a href="{{ route('schedules') }}" class="guest-nav-link" data-translate-en="Booking" data-translate-id="Pemesanan">Booking</a>
+                        <a href="{{ route('prices') }}" class="guest-nav-link" data-translate-en="Prices" data-translate-id="Harga">Prices</a>
+                    @endauth
                     <a href="{{ route('announcements') }}" class="guest-nav-link" data-translate-en="Announcements" data-translate-id="Pengumuman">Announcements</a>
                     <a href="{{ route('information') }}" class="guest-nav-link" data-translate-en="About" data-translate-id="Tentang">About</a>
                 </div>
@@ -103,8 +114,14 @@
                             </div>
 
                             <div class="guest-nav-dropdown" id="navDropdown">
+                                {{-- Deportation user links --}}
+                                @if(auth()->user()->isDeportation())
+                                    <a href="{{ route('deportation.dashboard') }}" class="guest-nav-dropdown-item">Dashboard Deportasi</a>
+                                    <a href="{{ route('deportation.history') }}" class="guest-nav-dropdown-item">Sejarah Tempahan</a>
+                                    <a href="{{ route('notifications.index') }}" class="guest-nav-dropdown-item">Notifikasi</a>
+                                    <div class="guest-nav-dropdown-divider"></div>
                                 {{-- Regular passenger links --}}
-                                @if(!$isSpecialStaff)
+                                @elseif(!$isSpecialStaff)
                                     <a href="{{ route('booking.history') }}" class="guest-nav-dropdown-item">My Bookings</a>
                                     <a href="{{ route('profiles.index') }}" class="guest-nav-dropdown-item">My Passengers</a>
                                     <a href="{{ route('notifications.index') }}" class="guest-nav-dropdown-item">Notifications</a>

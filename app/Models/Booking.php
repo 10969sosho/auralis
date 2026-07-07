@@ -13,14 +13,17 @@ class Booking extends Model
         'user_id', 'schedule_id', 'booking_code', 'total_passengers',
         'total_amount', 'discount_amount', 'promo_id', 'booking_status',
         'payment_status', 'locked_at', 'expires_at', 'paid_at',
+        'is_deportation', 'shelter_point', 'shelter_fee',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
+        'shelter_fee' => 'decimal:2',
         'locked_at' => 'datetime',
         'expires_at' => 'datetime',
         'paid_at' => 'datetime',
+        'is_deportation' => 'boolean',
     ];
 
     public function user(): BelongsTo

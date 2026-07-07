@@ -49,6 +49,9 @@ class AuthController extends Controller
             if ($user->hasRole('ticket_counter_officer') && !$user->hasRole('admin')) {
                 return redirect()->route('counter.dashboard');
             }
+            if ($user->isDeportation()) {
+                return redirect()->route('deportation.dashboard');
+            }
 
             return redirect()->intended(route('schedules'));
         }

@@ -11,11 +11,13 @@ class Ticket extends Model
     protected $fillable = [
         'booking_id', 'booking_passenger_id', 'ticket_class',
         'qr_token', 'ticket_number', 'ticket_status', 'boarded_at', 'expiry_date',
+        'is_deportation',
     ];
 
     protected $casts = [
         'boarded_at' => 'datetime',
         'expiry_date' => 'datetime',
+        'is_deportation' => 'boolean',
     ];
 
     public function booking(): BelongsTo

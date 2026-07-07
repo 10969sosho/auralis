@@ -13,16 +13,38 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'nationality', 'passport_number', 'birth_date', 'gender'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'nationality', 'passport_number', 'birth_date', 'gender', 'account_type', 'shelter_point'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
+    public const SHELTER_POINTS = [
+        'tawau' => ['name' => 'Tawau', 'fee' => 30],
+        'sandakan' => ['name' => 'Sandakan', 'fee' => 30],
+        'kinabalu_papar' => ['name' => 'Kinabalu (Papar)', 'fee' => 55],
+        'kinabalu_menggatal' => ['name' => 'Kinabalu (Menggatal)', 'fee' => 50],
+    ];
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasRole('admin');
+    }
+
+    public function isDeportation(): bool
+    {
+        return $this->account_type === 'deportation';
+    }
+
+    public function getShelterFeeAttribute(): int
+    {
+        return self::SHELTER_POINTS[$this->shelter_point]['fee'] ?? 0;
+    }
+
+    public function getShelterPointNameAttribute(): ?string
+    {
+        return self::SHELTER_POINTS[$this->shelter_point]['name'] ?? null;
     }
 
     protected function casts(): array
