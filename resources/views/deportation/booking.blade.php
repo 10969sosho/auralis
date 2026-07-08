@@ -1,23 +1,23 @@
 @extends('layouts.app')
-@section('title', 'Beli Tiket Deportasi')
+@section('title', 'Buy Deportation Ticket')
 
 @section('content')
 <div class="deportation-page">
     <div style="margin-bottom:24px;">
         <a href="{{ route('deportation.dashboard') }}" style="color:#64748b;text-decoration:none;font-size:14px;display:inline-flex;align-items:center;gap:4px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="15 18 9 12 15 6"/></svg>
-            Kembali ke Dashboard
+            Back to Dashboard
         </a>
     </div>
 
-    <h1 style="font-size:26px;font-weight:700;color:#1e293b;margin-bottom:6px;">Beli Tiket Kapal Deportasi</h1>
-    <p style="color:#64748b;margin-bottom:24px;">Titik penampungan: <strong>{{ $user->shelter_point_name }}</strong> | Tambang bas: <strong>+RM{{ number_format($user->shelter_fee, 2) }}</strong></p>
+    <h1 style="font-size:26px;font-weight:700;color:#1e293b;margin-bottom:6px;">Buy Deportation Ship Ticket</h1>
+    <p style="color:#64748b;margin-bottom:24px;">Shelter point: <strong>{{ $user->shelter_point_name }}</strong> | Bus fare: <strong>+RM{{ number_format($user->shelter_fee, 2) }}</strong></p>
 
     @if($schedules->isEmpty())
         <div style="background:#fff;border-radius:16px;padding:60px 20px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.05);border:1px solid #e5e7eb;">
             <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="width:56px;height:56px;margin:0 auto 16px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <p style="font-size:16px;color:#64748b;">Tiada jadual kapal tersedia buat masa ini.</p>
-            <p style="font-size:14px;color:#94a3b8;margin-top:4px;">Sila semak semula kemudian.</p>
+            <p style="font-size:16px;color:#64748b;">No schedules available at this time.</p>
+            <p style="font-size:14px;color:#94a3b8;margin-top:4px;">Please check back later.</p>
         </div>
     @else
         <div style="display:grid;gap:16px;">
@@ -40,7 +40,7 @@
                 </div>
                 <button onclick="openBookingForm('{{ $schedule->id }}', '{{ $schedule->route->origin_port }} → {{ $schedule->route->destination_port }}', '{{ $schedule->departure_time->format('d M Y, H:i') }}', '{{ $schedule->vessel->name }}', {{ $schedule->vip_price }}, {{ $schedule->regular_price }})"
                     style="background:#2563EB;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;">
-                    Pilih Jadual
+                    Select Schedule
                 </button>
             </div>
             @endforeach
@@ -52,7 +52,7 @@
 <div id="bookingModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:20px;">
     <div style="background:#fff;border-radius:16px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
         <div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
-            <h2 style="font-size:18px;font-weight:700;">Butiran Tempahan</h2>
+            <h2 style="font-size:18px;font-weight:700;">Booking Details</h2>
             <button onclick="closeBookingForm()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#64748b;line-height:1;">&times;</button>
         </div>
 
@@ -61,37 +61,37 @@
             <input type="hidden" name="schedule_id" id="modalScheduleId">
 
             <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:16px;">
-                <div style="font-size:13px;color:#64748b;">Laluan</div>
+                <div style="font-size:13px;color:#64748b;">Route</div>
                 <div style="font-weight:700;" id="modalRoute">—</div>
-                <div style="font-size:13px;color:#64748b;margin-top:4px;">Jadual / Kapal</div>
+                <div style="font-size:13px;color:#64748b;margin-top:4px;">Schedule / Vessel</div>
                 <div style="font-weight:600;font-size:14px;" id="modalSchedule">—</div>
                 <div style="display:flex;gap:16px;margin-top:8px;">
                     <span style="font-size:13px;color:#2563EB;font-weight:600;">VIP: RM<span id="modalVipPrice">0</span></span>
                     <span style="font-size:13px;color:#059669;font-weight:600;">Regular: RM<span id="modalRegularPrice">0</span></span>
                 </div>
                 <div style="margin-top:8px;font-size:13px;color:#ea580c;font-weight:600;">
-                    + Tambang Bas ({{ $user->shelter_point_name }}): RM{{ number_format($user->shelter_fee, 2) }} (sekali sahaja)
+                    + Bus Fare ({{ $user->shelter_point_name }}): RM{{ number_format($user->shelter_fee, 2) }} (one time)
                 </div>
             </div>
 
             <div id="passengerContainer">
                 <div class="passenger-row" style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;">
                     <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;">
-                        Penumpang <span class="passenger-index">1</span>
+                        Passenger <span class="passenger-index">1</span>
                     </h4>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                        <input type="text" name="passengers[0][full_name]" placeholder="Nama Penuh *" required class="dep-input">
+                        <input type="text" name="passengers[0][full_name]" placeholder="Full Name *" required class="dep-input">
                         <select name="passengers[0][gender]" required class="dep-input">
-                            <option value="">Jantina</option>
-                            <option value="male">Lelaki</option>
-                            <option value="female">Perempuan</option>
+                            <option value="">Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
                         </select>
-                        <input type="date" name="passengers[0][birth_date]" placeholder="Tarikh Lahir *" required class="dep-input">
-                        <input type="text" name="passengers[0][nationality]" placeholder="Kewarganegaraan *" required class="dep-input">
-                        <input type="text" name="passengers[0][passport_number]" placeholder="No. Pasport *" required class="dep-input">
-                        <input type="text" name="passengers[0][phone_number]" placeholder="Telefon" class="dep-input">
+                        <input type="date" name="passengers[0][birth_date]" placeholder="Birth Date *" required class="dep-input">
+                        <input type="text" name="passengers[0][nationality]" placeholder="Nationality *" required class="dep-input">
+                        <input type="text" name="passengers[0][passport_number]" placeholder="Passport No. *" required class="dep-input">
+                        <input type="text" name="passengers[0][phone_number]" placeholder="Phone" class="dep-input">
                         <select name="passengers[0][ticket_class]" required class="dep-input" style="grid-column:span 2;">
-                            <option value="">Pilih Kelas Tiket</option>
+                            <option value="">Select Ticket Class</option>
                             <option value="vip">VIP</option>
                             <option value="regular">Regular</option>
                         </select>
@@ -100,19 +100,19 @@
             </div>
 
             <button type="button" onclick="addPassenger()" id="addPassengerBtn" style="background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:10px;padding:12px;width:100%;text-align:center;font-weight:600;color:#64748b;cursor:pointer;margin-bottom:16px;font-size:14px;">
-                + Tambah Penumpang (Maks 8)
+                + Add Passenger (Max 8)
             </button>
 
             <div style="background:#fefce8;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #fef08a;">
-                <h4 style="font-size:13px;font-weight:700;color:#a16207;margin-bottom:8px;">Ringkasan Kos</h4>
-                <div style="font-size:13px;color:#64748b;display:flex;justify-content:space-between;"><span>Tiket Kapal:</span> <span id="summaryTicket">RM0.00</span></div>
-                <div style="font-size:13px;color:#64748b;display:flex;justify-content:space-between;"><span>Tambang Bas ({{ $user->shelter_point_name }}):</span> <span>RM{{ number_format($user->shelter_fee, 2) }}</span></div>
-                <div style="font-size:13px;color:#64748b;display:flex;justify-content:space-between;"><span>Insurans (RM10/pax):</span> <span id="summaryInsurance">RM0.00</span></div>
-                <div style="border-top:1px solid #fef08a;margin-top:8px;padding-top:8px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;"><span>Jumlah:</span> <span id="summaryTotal">RM0.00</span></div>
+                <h4 style="font-size:13px;font-weight:700;color:#a16207;margin-bottom:8px;">Cost Summary</h4>
+                <div style="font-size:13px;color:#64748b;display:flex;justify-content:space-between;"><span>Ship Ticket:</span> <span id="summaryTicket">RM0.00</span></div>
+                <div style="font-size:13px;color:#64748b;display:flex;justify-content:space-between;"><span>Bus Fare ({{ $user->shelter_point_name }}):</span> <span>RM{{ number_format($user->shelter_fee, 2) }}</span></div>
+                <div style="font-size:13px;color:#64748b;display:flex;justify-content:space-between;"><span>Insurance (RM10/pax):</span> <span id="summaryInsurance">RM0.00</span></div>
+                <div style="border-top:1px solid #fef08a;margin-top:8px;padding-top:8px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;"><span>Total:</span> <span id="summaryTotal">RM0.00</span></div>
             </div>
 
             <button type="submit" style="background:#2563EB;color:#fff;border:none;padding:14px;width:100%;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;">
-            Lanjutkan ke Pembayaran
+                Proceed to Payment
             </button>
         </form>
     </div>
@@ -163,22 +163,22 @@ function addPassenger() {
     row.style.cssText = 'border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;';
     row.innerHTML = `
         <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;">
-            Penumpang <span class="passenger-index">${passengerCount + 1}</span>
-            <button type="button" onclick="this.closest('.passenger-row').remove(); passengerCount--; reindexPassengers(); updateSummary();" style="background:#fef2f2;color:#dc2626;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;">Buang</button>
+            Passenger <span class="passenger-index">${passengerCount + 1}</span>
+            <button type="button" onclick="this.closest('.passenger-row').remove(); passengerCount--; reindexPassengers(); updateSummary();" style="background:#fef2f2;color:#dc2626;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;">Remove</button>
         </h4>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <input type="text" name="passengers[${passengerCount}][full_name]" placeholder="Nama Penuh *" required class="dep-input">
+            <input type="text" name="passengers[${passengerCount}][full_name]" placeholder="Full Name *" required class="dep-input">
             <select name="passengers[${passengerCount}][gender]" required class="dep-input">
-                <option value="">Jantina</option>
-                <option value="male">Lelaki</option>
-                <option value="female">Perempuan</option>
+                <option value="">Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
             </select>
-            <input type="date" name="passengers[${passengerCount}][birth_date]" placeholder="Tarikh Lahir *" required class="dep-input">
-            <input type="text" name="passengers[${passengerCount}][nationality]" placeholder="Kewarganegaraan *" required class="dep-input">
-            <input type="text" name="passengers[${passengerCount}][passport_number]" placeholder="No. Pasport *" required class="dep-input">
-            <input type="text" name="passengers[${passengerCount}][phone_number]" placeholder="Telefon" class="dep-input">
+            <input type="date" name="passengers[${passengerCount}][birth_date]" placeholder="Birth Date *" required class="dep-input">
+            <input type="text" name="passengers[${passengerCount}][nationality]" placeholder="Nationality *" required class="dep-input">
+            <input type="text" name="passengers[${passengerCount}][passport_number]" placeholder="Passport No. *" required class="dep-input">
+            <input type="text" name="passengers[${passengerCount}][phone_number]" placeholder="Phone" class="dep-input">
             <select name="passengers[${passengerCount}][ticket_class]" required class="dep-input" style="grid-column:span 2;" onchange="updateSummary()">
-                <option value="">Pilih Kelas Tiket</option>
+                <option value="">Select Ticket Class</option>
                 <option value="vip">VIP</option>
                 <option value="regular">Regular</option>
             </select>

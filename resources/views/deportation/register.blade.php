@@ -1,13 +1,32 @@
 @extends('layouts.guest')
-@section('title', 'Daftar Akaun Deportasi')
+@section('title', 'Register Deportation Account')
+
+@push('styles')
+<style>
+.country-wrapper { position: relative; }
+.country-input { width: 100%; }
+.country-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+    background: #fff; border: 1px solid #d1d5db; border-top: none;
+    border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto;
+    display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.country-dropdown .country-option {
+    padding: 10px 14px; cursor: pointer; font-size: 14px;
+}
+.country-dropdown .country-option:hover { background: #f0f7ff; color: #2563EB; }
+.country-dropdown .country-option.selected { background: #eff6ff; font-weight: 600; }
+.country-dropdown .no-results { padding: 10px 14px; color: #94a3b8; font-size: 13px; text-align: center; }
+</style>
+@endpush
 
 @section('content')
 <div class="auth-page">
     <div class="auth-box auth-box-lg">
         <div class="auth-card">
             <div class="auth-header">
-                <h2>Daftar Akaun Deportasi</h2>
-                <p>Daftar untuk pembelian tiket kapal khas deportasi dengan harga termasuk tambang bas dari titik penampungan</p>
+                <h2>Register Deportation Account</h2>
+                <p>Register for deportation ship ticket purchases with bus fare from shelter point</p>
             </div>
 
             <form action="{{ route('deportation.register.store') }}" method="POST" class="auth-form">
@@ -15,55 +34,57 @@
 
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="name" class="auth-label">Nama Penuh *</label>
-                        <input type="text" name="name" id="name" value="{{ old('name') }}" required class="auth-input" placeholder="Nama penuh">
+                        <label for="name" class="auth-label">Full Name *</label>
+                        <input type="text" name="name" id="name" value="{{ old('name') }}" required class="auth-input" placeholder="Full name">
                         @error('name') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
                     <div class="auth-field">
                         <label for="email" class="auth-label">Email *</label>
-                        <input type="email" name="email" id="email" value="{{ old('email') }}" required class="auth-input" placeholder="email@contoh.com">
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" required class="auth-input" placeholder="email@example.com">
                         @error('email') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="phone" class="auth-label">Telefon</label>
+                        <label for="phone" class="auth-label">Phone</label>
                         <input type="text" name="phone" id="phone" value="{{ old('phone') }}" class="auth-input" placeholder="+60...">
                     </div>
                     <div class="auth-field">
-                        <label for="nationality" class="auth-label">Kewarganegaraan</label>
-                        <select name="nationality" id="nationality" class="auth-input">
-                            <option value="">Pilih kewarganegaraan</option>
-                        </select>
+                        <label for="nationality" class="auth-label">Nationality</label>
+                        <div class="country-wrapper">
+                            <input type="text" name="nationality" id="nationality" class="auth-input country-input" placeholder="Search nationality..." value="{{ old('nationality') }}" autocomplete="off">
+                            <div id="countryDropdown" class="country-dropdown"></div>
+                        </div>
+                        @error('nationality') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="passport_number" class="auth-label">No. Pasport / IC</label>
-                        <input type="text" name="passport_number" id="passport_number" value="{{ old('passport_number') }}" class="auth-input" placeholder="Opsional">
+                        <label for="passport_number" class="auth-label">Passport / ID</label>
+                        <input type="text" name="passport_number" id="passport_number" value="{{ old('passport_number') }}" class="auth-input" placeholder="Optional">
                     </div>
                     <div class="auth-field">
-                        <label for="birth_date" class="auth-label">Tarikh Lahir</label>
+                        <label for="birth_date" class="auth-label">Birth Date</label>
                         <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}" class="auth-input">
                     </div>
                 </div>
 
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="gender" class="auth-label">Jantina</label>
+                        <label for="gender" class="auth-label">Gender</label>
                         <select name="gender" id="gender" class="auth-input">
-                            <option value="">Pilih</option>
-                            <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Lelaki</option>
-                            <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Perempuan</option>
-                            <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Lain-lain</option>
+                            <option value="">Select</option>
+                            <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                            <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                            <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
                         </select>
                     </div>
                     <div class="auth-field">
-                        <label for="shelter_point" class="auth-label">Titik Penampungan *</label>
+                        <label for="shelter_point" class="auth-label">Shelter Point *</label>
                         <select name="shelter_point" id="shelter_point" required class="auth-input">
-                            <option value="">Pilih titik penampungan</option>
+                            <option value="">Select shelter point</option>
                             <option value="tawau" {{ old('shelter_point') == 'tawau' ? 'selected' : '' }}>Tawau (+RM30)</option>
                             <option value="sandakan" {{ old('shelter_point') == 'sandakan' ? 'selected' : '' }}>Sandakan (+RM30)</option>
                             <option value="kinabalu_papar" {{ old('shelter_point') == 'kinabalu_papar' ? 'selected' : '' }}>Kinabalu (Papar) (+RM55)</option>
@@ -75,27 +96,27 @@
 
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="password" class="auth-label">Kata Laluan *</label>
+                        <label for="password" class="auth-label">Password *</label>
                         <div class="pw-field">
-                            <input type="password" name="password" id="password" required class="auth-input" placeholder="Min. 8 aksara">
-                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.textContent=p?'Sembunyi':'Tunjuk'">Tunjuk</button>
+                            <input type="password" name="password" id="password" required class="auth-input" placeholder="Min. 8 characters">
+                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.textContent=p?'Hide':'Show'">Show</button>
                         </div>
                         @error('password') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
                     <div class="auth-field">
-                        <label for="password_confirmation" class="auth-label">Sahkan Kata Laluan *</label>
+                        <label for="password_confirmation" class="auth-label">Confirm Password *</label>
                         <div class="pw-field">
-                            <input type="password" name="password_confirmation" id="password_confirmation" required class="auth-input" placeholder="Ulang kata laluan">
-                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.textContent=p?'Sembunyi':'Tunjuk'">Tunjuk</button>
+                            <input type="password" name="password_confirmation" id="password_confirmation" required class="auth-input" placeholder="Repeat password">
+                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.textContent=p?'Hide':'Show'">Show</button>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="auth-btn">Daftar Akaun Deportasi</button>
+                <button type="submit" class="auth-btn">Register Deportation Account</button>
             </form>
 
             <p class="auth-footer-text">
-                Sudah ada akaun? <a href="{{ route('login') }}">Log Masuk</a>
+                Already have an account? <a href="{{ route('login') }}">Sign In</a>
             </p>
         </div>
     </div>
@@ -103,34 +124,74 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var select = document.getElementById('nationality');
-    if (!select) return;
-    var oldVal = '{{ old('nationality') }}';
+    var input = document.getElementById('nationality');
+    var dropdown = document.getElementById('countryDropdown');
+    var countries = [];
+    var selectedIndex = -1;
 
-    fetch('{{ route('api.countries') }}')
+    if (!input) return;
+
+    fetch('{{ route("api.countries") }}')
         .then(function(res) { return res.json(); })
-        .then(function(options) {
-            var ts = new TomSelect('#nationality', {
-                valueField: 'value', labelField: 'text', searchField: 'text',
-                options: options, placeholder: 'Cari kewarganegaraan...',
-                maxOptions: null, create: true,
-                onChange: function(v) { select.dispatchEvent(new Event('change', { bubbles: true })); },
-                render: {
-                    option: function(item, escape) { return '<div>' + escape(item.text) + '</div>'; },
-                    item: function(item, escape) { return '<div>' + escape(item.text) + '</div>'; }
-                }
-            });
-            if (oldVal) { ts.addOption({ value: oldVal, text: oldVal }); ts.setValue(oldVal); }
+        .then(function(data) {
+            countries = data;
         })
-        .catch(function() {
-            var inp = document.createElement('input');
-            inp.type = 'text'; inp.name = 'nationality'; inp.id = 'nationality';
-            inp.className = 'auth-input'; inp.placeholder = 'e.g. Indonesia'; inp.value = oldVal;
-            select.parentNode.replaceChild(inp, select);
+        .catch(function() {});
+
+    input.addEventListener('input', function() {
+        var val = this.value.trim().toLowerCase();
+        dropdown.innerHTML = '';
+        selectedIndex = -1;
+
+        if (!val || countries.length === 0) {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        var matches = countries.filter(function(c) {
+            return c.text.toLowerCase().includes(val);
+        }).slice(0, 50);
+
+        if (matches.length === 0) {
+            dropdown.innerHTML = '<div class="no-results">No results found</div>';
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        matches.forEach(function(c, i) {
+            var div = document.createElement('div');
+            div.className = 'country-option';
+            div.textContent = c.text;
+            div.dataset.value = c.value;
+            div.addEventListener('click', function() {
+                input.value = this.dataset.value;
+                dropdown.style.display = 'none';
+            });
+            dropdown.appendChild(div);
         });
+
+        dropdown.style.display = 'block';
+    });
+
+    input.addEventListener('keydown', function(e) {
+        var items = dropdown.querySelectorAll('.country-option');
+        if (items.length === 0) return;
+
+        if (e.key === 'ArrowDown') { e.preventDefault(); if (selectedIndex < items.length - 1) selectedIndex++; updateSelected(items); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); if (selectedIndex > 0) selectedIndex--; updateSelected(items); }
+        else if (e.key === 'Enter' && selectedIndex >= 0) { e.preventDefault(); items[selectedIndex].click(); }
+    });
+
+    function updateSelected(items) {
+        items.forEach(function(item, i) { item.classList.toggle('selected', i === selectedIndex); });
+        if (selectedIndex >= 0) items[selectedIndex].scrollIntoView({ block: 'nearest' });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none';
+    });
 });
 </script>
 @endpush

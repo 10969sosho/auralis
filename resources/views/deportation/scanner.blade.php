@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Scanner QR Deportasi')
+@section('title', 'Deportation QR Scanner')
 
 @section('content')
 <div class="scanner-page">
     <div class="scanner-header">
-        <h1 class="scanner-title">Scanner QR Deportasi</h1>
-        <p class="scanner-sub">Imbas kod QR tiket deportasi untuk validasi boarding. Tiket deportasi adalah tiket terbuka tanpa tarikh luput.</p>
+        <h1 class="scanner-title">Deportation QR Scanner</h1>
+        <p class="scanner-sub">Scan deportation ticket QR code for boarding validation. Deportation tickets are open tickets with no expiry date.</p>
     </div>
 
     <div class="scanner-layout">
@@ -17,17 +17,17 @@
                 </div>
                 <div class="scanner-placeholder" id="cameraPlaceholder">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="scanner-placeholder-icon"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    <p class="scanner-placeholder-text">Tekan <strong>Mulakan Kamera</strong> untuk imbas</p>
+                    <p class="scanner-placeholder-text">Press <strong>Start Camera</strong> to begin scanning</p>
                 </div>
             </div>
             <div class="scanner-controls">
                 <button id="startScanBtn" class="scanner-btn scanner-btn-primary" onclick="startScanner()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    Mulakan Kamera
+                    Start Camera
                 </button>
                 <button id="stopScanBtn" class="scanner-btn scanner-btn-danger" onclick="stopScanner()" style="display:none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="6" y="6" width="12" height="12"/></svg>
-                    Hentikan Kamera
+                    Stop Camera
                 </button>
                 <span id="scannerStatus" class="scanner-status"></span>
             </div>
@@ -42,7 +42,7 @@
                 <div id="scanResultBody" class="scanner-result-body"></div>
                 <button id="scanAgainBtn" class="scanner-btn scanner-btn-outline" style="display:none;margin-top:14px;width:100%;" onclick="resetAndScan()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                    Imbas Tiket Lain
+                    Scan Another Ticket
                 </button>
             </div>
         </div>
@@ -129,12 +129,12 @@ async function startScanner() {
         document.getElementById('cameraPlaceholder').style.display = 'none';
         document.getElementById('startScanBtn').style.display = 'none';
         document.getElementById('stopScanBtn').style.display = 'inline-flex';
-        document.getElementById('scannerStatus').textContent = 'Mengimbas...';
+        document.getElementById('scannerStatus').textContent = 'Scanning...';
         document.getElementById('scannerStatus').style.color = '#EA580C';
         isScanning = true;
         requestAnimationFrame(scanLoop);
     } catch (err) {
-        document.getElementById('scannerStatus').textContent = 'Capaian kamera dinafikan.';
+        document.getElementById('scannerStatus').textContent = 'Camera access denied.';
         document.getElementById('scannerStatus').style.color = '#DC2626';
     }
 }
@@ -146,7 +146,7 @@ function stopScanner() {
     document.getElementById('cameraPlaceholder').style.display = 'flex';
     document.getElementById('startScanBtn').style.display = 'inline-flex';
     document.getElementById('stopScanBtn').style.display = 'none';
-    document.getElementById('scannerStatus').textContent = 'Kamera dihentikan.';
+    document.getElementById('scannerStatus').textContent = 'Camera stopped.';
     document.getElementById('scannerStatus').style.color = '#6b7280';
     isScanning = false;
 }
@@ -168,7 +168,7 @@ function scanLoop() {
 function processScan(qrData) {
     isScanning = false;
     stopScanner();
-    document.getElementById('scannerStatus').textContent = 'Memproses...';
+    document.getElementById('scannerStatus').textContent = 'Processing...';
     document.getElementById('scannerStatus').style.color = '#6b7280';
     document.getElementById('scanResult').style.display = 'none';
 
@@ -192,37 +192,37 @@ function processScan(qrData) {
 
         if (data.success) {
             icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" style="width:48px;height:48px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
-            title.textContent = 'Boarding Deportasi Diluluskan';
+            title.textContent = 'Deportation Boarding Approved';
             title.style.color = '#059669';
             body.innerHTML = '<table>' +
-                '<tr><td>Penumpang</td><td><strong>' + data.passenger_name + '</strong></td></tr>' +
-                '<tr><td>Tiket</td><td>' + data.ticket_number + '</td></tr>' +
-                '<tr><td>Kelas</td><td>' + data.ticket_class + '</td></tr>' +
-                '<tr><td>Jenis</td><td>' + data.passenger_type + '</td></tr>' +
-                '<tr><td>Titik</td><td>' + (data.shelter_point || '—') + '</td></tr>' +
-                '<tr><td>Laluan</td><td>' + (data.route || '—') + '</td></tr>' +
-                '<tr><td>Kapal</td><td>' + (data.vessel || '—') + '</td></tr>' +
+                '<tr><td>Passenger</td><td><strong>' + data.passenger_name + '</strong></td></tr>' +
+                '<tr><td>Ticket</td><td>' + data.ticket_number + '</td></tr>' +
+                '<tr><td>Class</td><td>' + data.ticket_class + '</td></tr>' +
+                '<tr><td>Type</td><td>' + data.passenger_type + '</td></tr>' +
+                '<tr><td>Shelter</td><td>' + (data.shelter_point || '—') + '</td></tr>' +
+                '<tr><td>Route</td><td>' + (data.route || '—') + '</td></tr>' +
+                '<tr><td>Vessel</td><td>' + (data.vessel || '—') + '</td></tr>' +
                 '<tr><td>Status</td><td><span style="color:#059669;font-weight:700;">BOARDED</span></td></tr>' +
                 '</table>';
             againBtn.style.display = 'block';
         } else {
             icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" style="width:48px;height:48px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
-            title.textContent = (data.message || 'Tiket Tidak Sah');
+            title.textContent = (data.message || 'Invalid Ticket');
             title.style.color = '#DC2626';
-            body.innerHTML = '<p style="color:#DC2626;text-align:center;padding:8px 0;font-size:0.95rem;">' + (data.message || 'Tiket deportasi tidak sah.') + '</p>';
+            body.innerHTML = '<p style="color:#DC2626;text-align:center;padding:8px 0;font-size:0.95rem;">' + (data.message || 'Deportation ticket is not valid.') + '</p>';
             if (data.boarded_at) {
-                body.innerHTML += '<p style="color:#64748b;text-align:center;font-size:0.85rem;">Telah digunakan pada: ' + data.boarded_at + '</p>';
+                body.innerHTML += '<p style="color:#64748b;text-align:center;font-size:0.85rem;">Used on: ' + data.boarded_at + '</p>';
             }
             againBtn.style.display = 'block';
         }
-        againBtn.textContent = 'Imbas Tiket Lain';
+        againBtn.textContent = 'Scan Another Ticket';
     })
     .catch(err => {
         document.getElementById('scanResult').style.display = 'block';
         document.getElementById('scanResultIcon').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="width:48px;height:48px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-        document.getElementById('scanResultTitle').textContent = 'Ralat';
+        document.getElementById('scanResultTitle').textContent = 'Connection Error';
         document.getElementById('scanResultTitle').style.color = '#D97706';
-        document.getElementById('scanResultBody').innerHTML = '<p style="color:#D97706;text-align:center;">Sila cuba lagi.</p>';
+        document.getElementById('scanResultBody').innerHTML = '<p style="color:#D97706;text-align:center;">Please try again.</p>';
         document.getElementById('scanAgainBtn').style.display = 'block';
     });
 }

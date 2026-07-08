@@ -1,16 +1,16 @@
 @extends('layouts.app')
-@section('title', 'Dashboard Deportasi')
+@section('title', 'Deportation Dashboard')
 
 @section('content')
 <div class="deportation-page">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;">
         <div>
-            <h1 style="font-size:26px;font-weight:700;color:#1e293b;">Dashboard Deportasi</h1>
-            <p style="color:#64748b;margin-top:2px;">Selamat datang, {{ $user->name }}</p>
+            <h1 style="font-size:26px;font-weight:700;color:#1e293b;">Deportation Dashboard</h1>
+            <p style="color:#64748b;margin-top:2px;">Welcome, {{ $user->name }}</p>
         </div>
         <a href="{{ route('deportation.booking') }}" style="display:inline-flex;align-items:center;gap:8px;background:#2563EB;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Beli Tiket Kapal
+            Buy Ship Ticket
         </a>
     </div>
 
@@ -20,35 +20,35 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px;height:28px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         </div>
         <div>
-            <p style="font-size:12px;opacity:0.8;text-transform:uppercase;letter-spacing:0.5px;">Titik Penampungan</p>
+            <p style="font-size:12px;opacity:0.8;text-transform:uppercase;letter-spacing:0.5px;">Shelter Point</p>
             <p style="font-size:20px;font-weight:700;">{{ $user->shelter_point_name ?? '—' }}</p>
-            <p style="font-size:14px;opacity:0.85;">Tambang bas: <strong>RM{{ number_format($user->shelter_fee, 2) }}</strong></p>
+            <p style="font-size:14px;opacity:0.85;">Bus fare: <strong>RM{{ number_format($user->shelter_fee, 2) }}</strong></p>
         </div>
     </div>
 
     {{-- Recent Bookings --}}
     <div style="background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08);border:1px solid #e5e7eb;overflow:hidden;">
         <div style="padding:18px 20px;border-bottom:1px solid #f1f5f9;">
-            <h2 style="font-size:16px;font-weight:700;">Tempahan Terkini</h2>
+            <h2 style="font-size:16px;font-weight:700;">Recent Bookings</h2>
         </div>
 
         @if($bookings->isEmpty())
             <div style="padding:40px 20px;text-align:center;color:#94a3b8;">
-                <p>Tiada tempahan lagi.</p>
-                <a href="{{ route('deportation.booking') }}" style="display:inline-block;margin-top:8px;color:#2563EB;font-weight:600;text-decoration:none;">Buat tempahan pertama anda</a>
+                <p>No bookings yet.</p>
+                <a href="{{ route('deportation.booking') }}" style="display:inline-block;margin-top:8px;color:#2563EB;font-weight:600;text-decoration:none;">Make your first booking</a>
             </div>
         @else
             <div style="overflow-x:auto;">
                 <table style="width:100%;border-collapse:collapse;">
                     <thead>
                         <tr style="background:#f8fafc;font-size:12px;text-transform:uppercase;color:#64748b;letter-spacing:0.3px;">
-                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Kod Tempahan</th>
-                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Laluan</th>
-                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Jadual</th>
-                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Penumpang</th>
-                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Jumlah</th>
+                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Booking Code</th>
+                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Route</th>
+                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Schedule</th>
+                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Passengers</th>
+                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Total</th>
                             <th style="padding:12px 16px;text-align:left;font-weight:600;">Status</th>
-                            <th style="padding:12px 16px;text-align:right;font-weight:600;">Tindakan</th>
+                            <th style="padding:12px 16px;text-align:right;font-weight:600;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,11 +69,11 @@
                                         default => 'gray'
                                     };
                                     $statusLabel = match($booking->payment_status) {
-                                        'paid', 'approved' => 'Berbayar',
-                                        'pending' => 'Menunggu Bayaran',
-                                        'awaiting_approval' => 'Menunggu Kelulusan',
-                                        'failed' => 'Gagal',
-                                        'expired' => 'Luput',
+                                        'paid', 'approved' => 'Paid',
+                                        'pending' => 'Pending',
+                                        'awaiting_approval' => 'Awaiting Approval',
+                                        'failed' => 'Failed',
+                                        'expired' => 'Expired',
                                         default => $booking->payment_status
                                     };
                                 @endphp
@@ -83,9 +83,9 @@
                             </td>
                             <td style="padding:12px 16px;text-align:right;">
                                 @if(in_array($booking->payment_status, ['paid', 'approved']))
-                                    <a href="{{ route('deportation.success', $booking->booking_code) }}" style="color:#2563EB;text-decoration:none;font-weight:600;font-size:13px;">Lihat Tiket</a>
+                                    <a href="{{ route('deportation.success', $booking->booking_code) }}" style="color:#2563EB;text-decoration:none;font-weight:600;font-size:13px;">View Ticket</a>
                                 @elseif($booking->payment_status === 'pending')
-                                    <a href="{{ route('deportation.payment', $booking->booking_code) }}" style="color:#ea580c;text-decoration:none;font-weight:600;font-size:13px;">Bayar</a>
+                                    <a href="{{ route('deportation.payment', $booking->booking_code) }}" style="color:#ea580c;text-decoration:none;font-weight:600;font-size:13px;">Pay</a>
                                 @else
                                     <span style="font-size:13px;color:#94a3b8;">—</span>
                                 @endif

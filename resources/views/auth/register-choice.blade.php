@@ -1,13 +1,13 @@
 @extends('layouts.guest')
-@section('title', 'Pilih Jenis Pendaftaran')
+@section('title', 'Choose Registration Type')
 
 @section('content')
 <div class="auth-page">
     <div class="auth-box" style="max-width:560px;">
         <div class="auth-card">
             <div class="auth-header">
-                <h2>Daftar Akaun</h2>
-                <p>Pilih jenis akaun yang ingin didaftarkan</p>
+                <h2>Create Account</h2>
+                <p>Choose the type of account you want to register</p>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;">
@@ -23,7 +23,7 @@
                     </div>
                     <div style="text-align:center;">
                         <h3 style="font-size:16px;font-weight:700;margin:0;">Regular</h3>
-                        <p style="font-size:13px;color:#64748b;margin:4px 0 0;">Untuk pembelian tiket kapal biasa</p>
+                        <p style="font-size:13px;color:#64748b;margin:4px 0 0;">For regular ferry ticket purchases</p>
                     </div>
                 </a>
 
@@ -39,14 +39,14 @@
                         </svg>
                     </div>
                     <div style="text-align:center;">
-                        <h3 style="font-size:16px;font-weight:700;margin:0;">Deportasi</h3>
-                        <p style="font-size:13px;color:#64748b;margin:4px 0 0;">Untuk pembelian tiket deportasi dengan tambang bas</p>
+                        <h3 style="font-size:16px;font-weight:700;margin:0;">Deportation</h3>
+                        <p style="font-size:13px;color:#64748b;margin:4px 0 0;">For deportation ticket purchases with bus fare</p>
                     </div>
                 </a>
             </div>
 
             <p class="auth-footer-text" style="margin-top:24px;">
-                Sudah ada akaun? <a href="{{ route('login') }}">Log Masuk</a>
+                Already have an account? <a href="{{ route('login') }}">Sign In</a>
             </p>
         </div>
     </div>
