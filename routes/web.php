@@ -66,34 +66,35 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/api/countries', function () {
-    $cacheKey = 'countries_list';
+    $cacheKey = 'countries_list_v3';
     $countries = cache()->remember($cacheKey, 86400, function () {
-        $client = new \GuzzleHttp\Client(['timeout' => 10]);
-        $apiKey = env('RESTCOUNTRIES_API_KEY', 'rc_live_070d837a7f134b6094906a6a2f1d952e');
-        $baseUrl = 'https://api.restcountries.com/countries/v5';
-        $fields = 'response_fields=names.common,codes.alpha_2';
-        $all = [];
+        $client = new \GuzzleHttp\Client(['timeout' => 15]);
 
-        foreach ([0, 100, 200] as $offset) {
-            $resp = $client->get("{$baseUrl}?{$fields}&limit=100&offset={$offset}", [
-                'headers' => ['Authorization' => "Bearer {$apiKey}"],
-            ]);
-            $body = json_decode($resp->getBody(), true);
-            $objects = $body['data']['objects'] ?? [];
-            $all = array_merge($all, $objects);
-            if (!($body['data']['meta']['more'] ?? false)) break;
+        try {
+            $response = $client->get('https://restcountries.com/v3.1/all?fields=name,cca2');
+            $data = json_decode($response->getBody(), true);
+
+            if (!is_array($data)) {
+                return [];
+            }
+
+            $list = array_map(function ($c) {
+                $name = $c['name']['common'] ?? '';
+                return [
+                    'value' => $name,
+                    'text'  => $name,
+                ];
+            }, $data);
+
+            $list = array_filter($list, fn($c) => !empty($c['value']));
+
+            usort($list, fn($a, $b) => strcmp($a['text'], $b['text']));
+
+            return array_values($list);
+        } catch (\Exception $e) {
+            Log::warning('Countries API failed', ['error' => $e->getMessage()]);
+            return [];
         }
-
-        usort($all, function ($a, $b) {
-            return strcmp($a['names']['common'] ?? '', $b['names']['common'] ?? '');
-        });
-
-        return array_map(function ($c) {
-            return [
-                'value' => $c['names']['common'] ?? '',
-                'text'  => $c['names']['common'] ?? '',
-            ];
-        }, $all);
     });
 
     return response()->json($countries);

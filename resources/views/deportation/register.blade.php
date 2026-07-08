@@ -192,6 +192,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         if (!input.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none';
     });
+
+    input.addEventListener('focus', function() {
+        if (this.value.trim() && countries.length > 0) {
+            this.dispatchEvent(new Event('input'));
+        }
+    });
 });
 </script>
 @endpush
