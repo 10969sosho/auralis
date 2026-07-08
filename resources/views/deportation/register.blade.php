@@ -35,12 +35,12 @@
                 <div class="auth-form-row">
                     <div class="auth-field">
                         <label for="name" class="auth-label">Full Name *</label>
-                        <input type="text" name="name" id="name" value="{{ old('name') }}" required class="auth-input" placeholder="Full name">
+                        <input type="text" name="name" id="name" value="{{ old('name') }}" required class="auth-input" placeholder="John Doe">
                         @error('name') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
                     <div class="auth-field">
                         <label for="email" class="auth-label">Email *</label>
-                        <input type="email" name="email" id="email" value="{{ old('email') }}" required class="auth-input" placeholder="email@example.com">
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" required class="auth-input" placeholder="your@email.com">
                         @error('email') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -62,7 +62,7 @@
 
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="passport_number" class="auth-label">Passport / ID</label>
+                        <label for="passport_number" class="auth-label">Passport Number</label>
                         <input type="text" name="passport_number" id="passport_number" value="{{ old('passport_number') }}" class="auth-input" placeholder="Optional">
                     </div>
                     <div class="auth-field">
@@ -99,7 +99,10 @@
                         <label for="password" class="auth-label">Password *</label>
                         <div class="pw-field">
                             <input type="password" name="password" id="password" required class="auth-input" placeholder="Min. 8 characters">
-                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.textContent=p?'Hide':'Show'">Show</button>
+                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.classList.toggle('pw-visible',p)" aria-label="Toggle password visibility">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
                         </div>
                         @error('password') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
@@ -107,7 +110,10 @@
                         <label for="password_confirmation" class="auth-label">Confirm Password *</label>
                         <div class="pw-field">
                             <input type="password" name="password_confirmation" id="password_confirmation" required class="auth-input" placeholder="Repeat password">
-                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.textContent=p?'Hide':'Show'">Show</button>
+                            <button type="button" class="pw-show" onclick="var i=this.previousElementSibling;var p=i.type==='password';i.type=p?'text':'password';this.classList.toggle('pw-visible',p)" aria-label="Toggle password visibility">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -66,36 +66,28 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/api/countries', function () {
-    $cacheKey = 'countries_list_v3';
-    $countries = cache()->remember($cacheKey, 86400, function () {
-        $client = new \GuzzleHttp\Client(['timeout' => 15]);
-
-        try {
-            $response = $client->get('https://restcountries.com/v3.1/all?fields=name,cca2');
-            $data = json_decode($response->getBody(), true);
-
-            if (!is_array($data)) {
-                return [];
-            }
-
-            $list = array_map(function ($c) {
-                $name = $c['name']['common'] ?? '';
-                return [
-                    'value' => $name,
-                    'text'  => $name,
-                ];
-            }, $data);
-
-            $list = array_filter($list, fn($c) => !empty($c['value']));
-
-            usort($list, fn($a, $b) => strcmp($a['text'], $b['text']));
-
-            return array_values($list);
-        } catch (\Exception $e) {
-            Log::warning('Countries API failed', ['error' => $e->getMessage()]);
-            return [];
-        }
-    });
+    $countries = [
+        ['value' => 'Afghanistan', 'text' => 'Afghanistan'],
+        ['value' => 'Australia', 'text' => 'Australia'],
+        ['value' => 'Bangladesh', 'text' => 'Bangladesh'],
+        ['value' => 'Brunei', 'text' => 'Brunei'],
+        ['value' => 'Cambodia', 'text' => 'Cambodia'],
+        ['value' => 'China', 'text' => 'China'],
+        ['value' => 'India', 'text' => 'India'],
+        ['value' => 'Indonesia', 'text' => 'Indonesia'],
+        ['value' => 'Japan', 'text' => 'Japan'],
+        ['value' => 'Laos', 'text' => 'Laos'],
+        ['value' => 'Malaysia', 'text' => 'Malaysia'],
+        ['value' => 'Myanmar', 'text' => 'Myanmar'],
+        ['value' => 'Nepal', 'text' => 'Nepal'],
+        ['value' => 'Pakistan', 'text' => 'Pakistan'],
+        ['value' => 'Philippines', 'text' => 'Philippines'],
+        ['value' => 'Singapore', 'text' => 'Singapore'],
+        ['value' => 'South Korea', 'text' => 'South Korea'],
+        ['value' => 'Sri Lanka', 'text' => 'Sri Lanka'],
+        ['value' => 'Thailand', 'text' => 'Thailand'],
+        ['value' => 'Vietnam', 'text' => 'Vietnam'],
+    ];
 
     return response()->json($countries);
 })->name('api.countries');

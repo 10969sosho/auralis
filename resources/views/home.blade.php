@@ -1,4 +1,4 @@
-@extends('layouts.guest')
+@extends('layouts.app')
 @section('title', 'Home')
 @section('page_class', 'guest-page')
 @section('full_width', true)
