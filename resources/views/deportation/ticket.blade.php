@@ -41,9 +41,9 @@
 
         <div style="margin-top:20px;text-align:left;border-top:1px solid #f1f5f9;padding-top:16px;display:grid;grid-template-columns:120px 1fr;gap:6px 8px;font-size:13px;">
             <span style="color:#64748b;">Route:</span>
-            <span style="font-weight:600;">{{ $ticket->booking->schedule->route->origin_port }} &rarr; {{ $ticket->booking->schedule->route->destination_port }}</span>
+            <span style="font-weight:600;">{{ $ticket->booking->route_display }}</span>
             <span style="color:#64748b;">Vessel:</span>
-            <span>{{ $ticket->booking->schedule->vessel->name }}</span>
+            <span>{{ $ticket->booking->vessel_display }}</span>
             <span style="color:#64748b;">Class:</span>
             <span style="font-weight:600;text-transform:uppercase;">{{ $ticket->ticket_class }}</span>
             <span style="color:#64748b;">Gender:</span>

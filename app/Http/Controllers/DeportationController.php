@@ -36,7 +36,7 @@ class DeportationController extends Controller
 
         $bookings = $user->bookings()
             ->where('is_deportation', true)
-            ->with(['schedule.vessel', 'schedule.route', 'passengers.ticket', 'payment'])
+            ->with(['passengers.ticket', 'payment'])
             ->latest()
             ->take(10)
             ->get();
@@ -113,16 +113,20 @@ class DeportationController extends Controller
             return redirect()->route('home')->with('error', 'Akses terhad untuk akaun deportasi sahaja.');
         }
 
-        $schedules = Schedule::with(['vessel', 'route'])
+        // Show routes with their latest schedule prices (no dates/times)
+        $routes = Schedule::with(['vessel', 'route'])
             ->where('status', 'scheduled')
             ->where('is_active', true)
             ->where('departure_time', '>', now())
             ->orderBy('departure_time')
-            ->get();
+            ->get()
+            ->groupBy(fn($s) => $s->route_id . '_' . $s->vessel_id)
+            ->map(fn($group) => $group->first())
+            ->values();
 
         $ageCategories = AgeCategory::where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('deportation.booking', compact('schedules', 'ageCategories', 'user'));
+        return view('deportation.booking', compact('routes', 'ageCategories', 'user'));
     }
 
     /**
@@ -138,7 +142,7 @@ class DeportationController extends Controller
 
         $validated = $request->validate([
             'schedule_id' => ['required', 'exists:schedules,id'],
-            'passengers' => ['required', 'array', 'min:1', 'max:8'],
+            'passengers' => ['required', 'array', 'min:1'],
             'passengers.*.full_name' => ['required', 'string', 'max:255'],
             'passengers.*.gender' => ['required', 'in:male,female,other'],
             'passengers.*.birth_date' => ['required', 'date', 'before:today'],
@@ -148,10 +152,10 @@ class DeportationController extends Controller
             'passengers.*.ticket_class' => ['required', 'in:vip,regular'],
         ]);
 
-        $schedule = Schedule::with('vessel')->findOrFail($validated['schedule_id']);
+        $schedule = Schedule::with('vessel', 'route')->findOrFail($validated['schedule_id']);
 
-        if ($schedule->isH6Passed || $schedule->status !== 'scheduled' || !$schedule->is_active) {
-            return back()->with('error', 'Jadual ini tidak lagi tersedia.');
+        if ($schedule->status !== 'scheduled' || !$schedule->is_active) {
+            return back()->with('error', 'Perkhidmatan ini tidak lagi tersedia.');
         }
 
         // Calculate base ticket price
@@ -173,7 +177,7 @@ class DeportationController extends Controller
         $booking = DB::transaction(function () use ($validated, $schedule, $totalAmount, $user, $shelterFee) {
             $booking = Booking::create([
                 'user_id' => $user->id,
-                'schedule_id' => $schedule->id,
+                'schedule_id' => null, // Not tied to a specific schedule - open ticket
                 'booking_code' => strtoupper('DEP-'.date('Ymd').'-'.substr(uniqid(), -5)),
                 'total_passengers' => count($validated['passengers']),
                 'total_amount' => $totalAmount,
@@ -185,6 +189,10 @@ class DeportationController extends Controller
                 'is_deportation' => true,
                 'shelter_point' => $user->shelter_point,
                 'shelter_fee' => $shelterFee,
+                'route_text' => $schedule->route->origin_port . ' → ' . $schedule->route->destination_port,
+                'vessel_text' => $schedule->vessel->name,
+                'route_vip_price' => $schedule->vip_price,
+                'route_regular_price' => $schedule->regular_price,
             ]);
 
             foreach ($validated['passengers'] as $passengerData) {
@@ -266,12 +274,12 @@ class DeportationController extends Controller
      */
     private function createDeportationToyibPayBill(Booking $booking, ToyibPayService $toyibPay): array
     {
-        $booking->loadMissing('schedule.route', 'passengers');
+        $booking->loadMissing('passengers');
 
         $passengerNames = $booking->passengers->pluck('full_name')->join(', ');
-        $route = $booking->schedule->route->origin_port.' → '.$booking->schedule->route->destination_port;
+        $route = $booking->route_display;
         $billName = substr('DEP_'.$booking->booking_code, 0, 30);
-        $billDescription = substr('Deportasi '.$route.' | '.$booking->schedule->departure_time->format('d M H:i'), 0, 100);
+        $billDescription = substr('Deportasi '.$route, 0, 100);
 
         $feeInCents = 100;
         $amountInCents = (int) round($booking->total_amount * 100) + $feeInCents;
@@ -326,7 +334,7 @@ class DeportationController extends Controller
         $booking = Booking::where('booking_code', $code)
             ->where('is_deportation', true)
             ->where('user_id', auth()->id())
-            ->with(['passengers', 'payment', 'schedule.vessel', 'schedule.route'])
+            ->with(['passengers', 'payment'])
             ->firstOrFail();
 
         if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
@@ -399,7 +407,7 @@ class DeportationController extends Controller
         $booking = Booking::where('booking_code', $code)
             ->where('is_deportation', true)
             ->where('user_id', auth()->id())
-            ->with(['passengers.ticket', 'schedule.vessel', 'schedule.route', 'payment'])
+            ->with(['passengers.ticket', 'payment'])
             ->firstOrFail();
 
         return view('deportation.success', compact('booking'));
@@ -818,7 +826,7 @@ class DeportationController extends Controller
 
         $bookings = $user->bookings()
             ->where('is_deportation', true)
-            ->with(['schedule.vessel', 'schedule.route', 'passengers.ticket', 'payment'])
+            ->with(['passengers.ticket', 'payment'])
             ->latest()
             ->paginate(10);
 

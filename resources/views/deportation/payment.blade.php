@@ -11,11 +11,9 @@
         <h2 style="font-size:15px;font-weight:700;margin-bottom:14px;">Booking Summary</h2>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;">
             <div style="color:#64748b;">Route</div>
-            <div style="font-weight:600;">{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</div>
-            <div style="color:#64748b;">Schedule</div>
-            <div style="font-weight:600;">{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</div>
+            <div style="font-weight:600;">{{ $booking->route_display }}</div>
             <div style="color:#64748b;">Vessel</div>
-            <div style="font-weight:600;">{{ $booking->schedule->vessel->name }}</div>
+            <div style="font-weight:600;">{{ $booking->vessel_display }}</div>
             <div style="color:#64748b;">Passengers</div>
             <div style="font-weight:600;">{{ $booking->total_passengers }} pax</div>
             <div style="color:#64748b;">Shelter Point</div>

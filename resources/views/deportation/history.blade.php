@@ -21,8 +21,8 @@
                     <div>
                         <p style="font-weight:700;font-family:monospace;">{{ $booking->booking_code }}</p>
                         <p style="font-size:13px;color:#64748b;">
-                            {{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}
-                            &bull; {{ $booking->schedule->departure_time->format('d M Y') }}
+                            {{ $booking->route_display }}
+                            &bull; {{ $booking->vessel_display }}
                             &bull; {{ $booking->total_passengers }} pax
                         </p>
                         <p style="font-size:13px;color:#64748b;">Total: <strong>RM{{ number_format($booking->total_amount, 2) }}</strong></p>

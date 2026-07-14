@@ -14,12 +14,15 @@ class Booking extends Model
         'total_amount', 'discount_amount', 'promo_id', 'booking_status',
         'payment_status', 'locked_at', 'expires_at', 'paid_at',
         'is_deportation', 'shelter_point', 'shelter_fee',
+        'route_text', 'vessel_text', 'route_vip_price', 'route_regular_price',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'shelter_fee' => 'decimal:2',
+        'route_vip_price' => 'decimal:2',
+        'route_regular_price' => 'decimal:2',
         'locked_at' => 'datetime',
         'expires_at' => 'datetime',
         'paid_at' => 'datetime',
@@ -59,5 +62,33 @@ class Booking extends Model
     public function refund(): HasOne
     {
         return $this->hasOne(Refund::class);
+    }
+
+    /**
+     * Get display route text, falling back to schedule route if available.
+     */
+    public function getRouteDisplayAttribute(): string
+    {
+        if ($this->route_text) {
+            return $this->route_text;
+        }
+
+        if ($this->schedule && $this->schedule->route) {
+            return $this->schedule->route->origin_port . ' → ' . $this->schedule->route->destination_port;
+        }
+
+        return '—';
+    }
+
+    /**
+     * Get display vessel name, falling back to schedule vessel if available.
+     */
+    public function getVesselDisplayAttribute(): string
+    {
+        if ($this->vessel_text) {
+            return $this->vessel_text;
+        }
+
+        return $this->schedule?->vessel?->name ?? '—';
     }
 }

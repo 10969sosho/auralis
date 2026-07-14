@@ -44,7 +44,7 @@
                         <tr style="background:#f8fafc;font-size:12px;text-transform:uppercase;color:#64748b;letter-spacing:0.3px;">
                             <th style="padding:12px 16px;text-align:left;font-weight:600;">Booking Code</th>
                             <th style="padding:12px 16px;text-align:left;font-weight:600;">Route</th>
-                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Schedule</th>
+                            <th style="padding:12px 16px;text-align:left;font-weight:600;">Vessel</th>
                             <th style="padding:12px 16px;text-align:left;font-weight:600;">Passengers</th>
                             <th style="padding:12px 16px;text-align:left;font-weight:600;">Total</th>
                             <th style="padding:12px 16px;text-align:left;font-weight:600;">Status</th>
@@ -55,8 +55,8 @@
                         @foreach($bookings as $booking)
                         <tr style="border-bottom:1px solid #f1f5f9;">
                             <td style="padding:12px 16px;font-weight:600;font-family:monospace;">{{ $booking->booking_code }}</td>
-                            <td style="padding:12px 16px;font-size:14px;">{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</td>
-                            <td style="padding:12px 16px;font-size:13px;">{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</td>
+                            <td style="padding:12px 16px;font-size:14px;">{{ $booking->route_display }}</td>
+                            <td style="padding:12px 16px;font-size:13px;">{{ $booking->vessel_display }}</td>
                             <td style="padding:12px 16px;">{{ $booking->total_passengers }}</td>
                             <td style="padding:12px 16px;font-weight:600;">RM{{ number_format($booking->total_amount, 2) }}</td>
                             <td style="padding:12px 16px;">

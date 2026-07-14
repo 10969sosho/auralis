@@ -2932,15 +2932,11 @@ body.guest-page,
 
 /* ── Main Navbar (Guest) ── */
 .guest-nav {
-    position: sticky;
-    top: 0;
-    z-index: 999;
     background: #fff;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
     height: 90px;
     display: flex;
     align-items: center;
-    transition: box-shadow 0.3s;
 }
 
 .guest-nav-scrolled {
@@ -4037,10 +4033,6 @@ body.guest-page,
 }
 
 /* ── Auth Pages ── */
-html, body {
-    height: 100%;
-    margin: 0;
-}
 
 .auth-page {
     display: flex;
