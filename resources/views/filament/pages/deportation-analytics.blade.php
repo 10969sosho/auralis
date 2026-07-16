@@ -154,8 +154,6 @@
         </div>
     </div>
 
-</div>
-
 <style>
 .deportation-analytics-page {
     padding: 8px 0;
