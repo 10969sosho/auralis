@@ -2,6 +2,25 @@
 @section('title', 'Book Ticket')
 
 @section('content')
+@push('styles')
+<style>
+.country-wrapper { position: relative; }
+.country-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+    background: #fff; border: 1px solid #d1d5db; border-top: none;
+    border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto;
+    display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.country-dropdown .country-option {
+    padding: 10px 14px; cursor: pointer; font-size: 14px;
+}
+.country-dropdown .country-option:hover { background: #f0f7ff; color: #2563EB; }
+.country-dropdown .country-option.selected { background: #eff6ff; font-weight: 600; }
+.country-dropdown .no-results { padding: 10px 14px; color: #94a3b8; font-size: 13px; text-align: center; }
+</style>
+@endpush
+
+@section('content')
 <h1 class="text-2xl font-bold text-gray-900" data-translate-en="Book Your Ticket" data-translate-id="Pesan Tiket Anda">Book Your Ticket</h1>
 
 <div class="mt-4 alert alert-info">
@@ -112,10 +131,13 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" data-translate-en="Nationality *" data-translate-id="Kewarganegaraan *">Nationality *</label>
-                    <input type="text" name="passengers[{{ $i }}][nationality]" required placeholder="e.g. Malaysian" class="form-input"
-                        id="nationality-{{ $i }}"
-                        @if($i === 0 && $userProfile && $userProfile['nationality']) value="{{ $userProfile['nationality'] }}" @endif
-                        data-translate-en="e.g. Malaysian" data-translate-id="mis. Malaysia">
+                    <div class="country-wrapper">
+                        <input type="text" name="passengers[{{ $i }}][nationality]" required placeholder="e.g. Malaysian" class="form-input country-input passenger-nationality"
+                            id="nationality-{{ $i }}"
+                            @if($i === 0 && $userProfile && $userProfile['nationality']) value="{{ $userProfile['nationality'] }}" @endif
+                            data-translate-en="e.g. Malaysian" data-translate-id="mis. Malaysia" autocomplete="off">
+                        <div class="country-dropdown" id="country-dropdown-{{ $i }}"></div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label" data-translate-en="Passport/ID Number *" data-translate-id="Nomor Paspor/KTP *">Passport/ID Number *</label>
@@ -367,3 +389,104 @@ document.querySelectorAll('.passenger-birth').forEach(input => {
 }
 </style>
 @endsection
+
+@push('scripts')
+<script>
+// Country autocomplete for nationality fields
+document.addEventListener('DOMContentLoaded', function() {
+    var countries = [];
+
+    fetch('{{ route("api.countries") }}')
+        .then(function(res) { return res.json(); })
+        .then(function(data) { countries = data; })
+        .catch(function() {});
+
+    function setupCountryDropdown(inputId, dropdownId) {
+        var input = document.getElementById(inputId);
+        var dropdown = document.getElementById(dropdownId);
+        if (!input || !dropdown) return;
+        var selectedIndex = -1;
+
+        input.addEventListener('input', function() {
+            var val = this.value.trim().toLowerCase();
+            dropdown.innerHTML = '';
+            selectedIndex = -1;
+
+            if (!val || countries.length === 0) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            var matches = countries.filter(function(c) {
+                return c.text.toLowerCase().includes(val);
+            }).slice(0, 50);
+
+            if (matches.length === 0) {
+                dropdown.innerHTML = '<div class="no-results">No results found</div>';
+                dropdown.style.display = 'block';
+                return;
+            }
+
+            matches.forEach(function(c, i) {
+                var div = document.createElement('div');
+                div.className = 'country-option';
+                div.textContent = c.text;
+                div.dataset.value = c.value;
+                div.addEventListener('click', function() {
+                    input.value = this.dataset.value;
+                    dropdown.style.display = 'none';
+                });
+                dropdown.appendChild(div);
+            });
+
+            dropdown.style.display = 'block';
+        });
+
+        input.addEventListener('keydown', function(e) {
+            var items = dropdown.querySelectorAll('.country-option');
+            if (items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (selectedIndex < items.length - 1) selectedIndex++;
+                updateSelected(items, selectedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (selectedIndex > 0) selectedIndex--;
+                updateSelected(items, selectedIndex);
+            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                e.preventDefault();
+                items[selectedIndex].click();
+            }
+        });
+
+        input.addEventListener('focus', function() {
+            if (this.value.trim() && countries.length > 0) {
+                this.dispatchEvent(new Event('input'));
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    function updateSelected(items, index) {
+        items.forEach(function(item, i) {
+            item.classList.toggle('selected', i === index);
+        });
+        if (index >= 0) {
+            items[index].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    // Init for all passenger nationality fields
+    var passengerCount = {{ $passengerCount }};
+    for (var i = 0; i < passengerCount; i++) {
+        setupCountryDropdown('nationality-' + i, 'country-dropdown-' + i);
+    }
+});
+</script>
+@endpush
