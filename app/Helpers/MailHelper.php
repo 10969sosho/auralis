@@ -39,10 +39,16 @@ class MailHelper
 
     public static function sendPaymentApproved(Booking $booking): void
     {
-        $user = $booking->user;
-        if (!$user?->email) return;
-        $ticketUrl = route('booking.detail', $booking->booking_code);
-        Mail::to($user->email)->send(new PaymentApprovedEmail($booking, $ticketUrl));
+        $email = $booking->user?->email ?? $booking->guest_email;
+        if (!$email) return;
+
+        if ($booking->guest_email) {
+            $ticketUrl = route('booking.guest', ['code' => $booking->booking_code, 'token' => $booking->guest_token]);
+        } else {
+            $ticketUrl = route('booking.detail', $booking->booking_code);
+        }
+
+        Mail::to($email)->send(new PaymentApprovedEmail($booking, $ticketUrl));
     }
 
     public static function sendScheduleChanged(Booking $booking, Schedule $old, Schedule $new): void
@@ -54,15 +60,15 @@ class MailHelper
 
     public static function sendBookingCancelled(Booking $booking, string $reason = ''): void
     {
-        $user = $booking->user;
-        if (!$user?->email) return;
-        Mail::to($user->email)->send(new BookingCancelledEmail($booking, $reason));
+        $email = $booking->user?->email ?? $booking->guest_email;
+        if (!$email) return;
+        Mail::to($email)->send(new BookingCancelledEmail($booking, $reason));
     }
 
     public static function sendBoardingSuccess(Booking $booking, string $passengerName = ''): void
     {
-        $user = $booking->user;
-        if (!$user?->email) return;
-        Mail::to($user->email)->send(new BoardingSuccessEmail($booking, $passengerName));
+        $email = $booking->user?->email ?? $booking->guest_email;
+        if (!$email) return;
+        Mail::to($email)->send(new BoardingSuccessEmail($booking, $passengerName));
     }
 }
