@@ -50,79 +50,17 @@
     justify-content: center;
 }
 .payment-qr-hint {
-     font-size: 0.8rem;
-     color: #6b7280;
-     text-align: center;
-     margin: 12px 0 0;
- }
- .payment-qr-expired {
-     text-align: center;
-     padding: 20px;
- }
- /* QR Modal */
- .payment-qr-modal {
-     display: none;
-     position: fixed;
-     inset: 0;
-     z-index: 9999;
-     background: rgba(0,0,0,0.85);
-     backdrop-filter: blur(6px);
-     justify-content: center;
-     align-items: center;
-     padding: 16px;
- }
- .payment-qr-modal-body {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     gap: 16px;
-     background: #fff;
-     padding: 28px;
-     border-radius: 20px;
-     box-shadow: 0 16px 48px rgba(0,0,0,0.3);
-     max-width: 400px;
-     width: 100%;
- }
- .payment-qr-modal-img {
-     width: 100%;
-     max-width: 320px;
-     height: auto;
-     aspect-ratio: 1 / 1;
-     object-fit: contain;
-     display: block;
-     border-radius: 8px;
- }
- .payment-qr-modal-hint {
-     font-size: 0.85rem;
-     color: #6b7280;
-     text-align: center;
-     margin: 0;
- }
- .payment-qr-modal-close {
-     position: absolute;
-     top: 20px;
-     right: 24px;
-     width: 40px;
-     height: 40px;
-     font-size: 1.6rem;
-     color: #fff;
-     cursor: pointer;
-     opacity: 0.8;
-     transition: opacity 0.2s;
-     background: rgba(255,255,255,0.15);
-     border: none;
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     line-height: 1;
- }
- .payment-qr-modal-close:hover {
-     opacity: 1;
-     background: rgba(255,255,255,0.25);
- }
- </style>
-  @endpush
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-align: center;
+    margin: 12px 0 0;
+}
+.payment-qr-expired {
+    text-align: center;
+    padding: 20px;
+}
+</style>
+@endpush
 
 @section('content')
 <div class="payment-page">
@@ -247,7 +185,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <span data-translate-en="Booking expires in" data-translate-id="Pemesanan tamat dalam">Booking expires in <strong id="timerDisplay">--:--</strong></span>
                     </div>
-                    <div class="payment-qr-image-wrap" id="qrImageWrap" onclick="openQrModal(this)" style="cursor:pointer;">
+                    <div class="payment-qr-image-wrap" id="qrImageWrap" style="cursor:pointer;">
                         <img src="{{ asset('storage/' . $qrValue) }}" alt="Payment QR Code" class="payment-qr-image">
                         <span class="payment-qr-zoom-hint" data-translate-en="Click to enlarge" data-translate-id="Klik untuk besarkan">Click to enlarge</span>
                     </div>
@@ -332,14 +270,14 @@
 </div>
 
 {{-- QR Modal --}}
-<div id="qrModal" class="payment-qr-modal" onclick="if(event.target===this)closeQrModal()">
-    <button class="payment-qr-modal-close" onclick="closeQrModal()">&times;</button>
-    <div class="payment-qr-modal-body">
+<div id="qrModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);justify-content:center;align-items:center;padding:16px;" onclick="if(event.target===this)closeQrModal()">
+    <button style="position:absolute;top:20px;right:24px;width:40px;height:40px;font-size:1.6rem;color:#fff;cursor:pointer;opacity:0.8;background:rgba(255,255,255,0.15);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1;" onclick="closeQrModal()">&times;</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;background:#fff;padding:28px;border-radius:20px;box-shadow:0 16px 48px rgba(0,0,0,0.3);max-width:400px;width:100%;">
         @php $qrValue = App\Models\Setting::getValue('payment_qr_image'); @endphp
         @if($qrValue)
-        <img src="{{ asset('storage/' . $qrValue) }}" alt="QR Code" class="payment-qr-modal-img">
+        <img src="{{ asset('storage/' . $qrValue) }}" alt="QR Code" style="width:100%;max-width:320px;height:auto;aspect-ratio:1/1;object-fit:contain;display:block;border-radius:8px;">
         @endif
-        <p class="payment-qr-modal-hint">Scan this QR code using your e-wallet or banking app</p>
+        <p style="font-size:0.85rem;color:#6b7280;text-align:center;margin:0;">Scan this QR code using your e-wallet or banking app</p>
     </div>
 </div>
 @endsection
@@ -396,6 +334,17 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCountdown();
     const timerInterval = setInterval(updateCountdown, 1000);
 
+    // QR click to enlarge
+    const qrImageWrapEl = document.getElementById('qrImageWrap');
+    if (qrImageWrapEl) {
+        qrImageWrapEl.addEventListener('click', function() {
+            var modalImg = document.querySelector('#qrModal img');
+            if (modalImg && modalImg.src) {
+                document.getElementById('qrModal').style.display = 'flex';
+            }
+        });
+    }
+
     // Drag & drop upload
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('proof_of_transfer');
@@ -437,15 +386,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function openQrModal(el) {
-    var img = el.querySelector('img');
-    if (!img) return;
-    document.getElementById('qrModal').style.display = 'flex';
-}
-
 function closeQrModal() {
     document.getElementById('qrModal').style.display = 'none';
 }
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        var modal = document.getElementById('qrModal');
+        if (modal && modal.style.display === 'flex') {
+            modal.style.display = 'none';
+        }
+    }
+});
 
 function cancelBookingOnServer() {
     fetch('{{ route("booking.cancel-expired", $booking->booking_code) }}', {
