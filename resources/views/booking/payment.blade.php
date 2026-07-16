@@ -65,32 +65,61 @@
      position: fixed;
      inset: 0;
      z-index: 9999;
-     background: rgba(0,0,0,0.8);
-     backdrop-filter: blur(4px);
+     background: rgba(0,0,0,0.85);
+     backdrop-filter: blur(6px);
      justify-content: center;
      align-items: center;
-     padding: 24px;
+     padding: 16px;
  }
- .payment-qr-modal img {
-     max-width: 90vw;
-     max-height: 90vh;
-     width: auto;
+ .payment-qr-modal-body {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 16px;
+     background: #fff;
+     padding: 28px;
+     border-radius: 20px;
+     box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+     max-width: 400px;
+     width: 100%;
+ }
+ .payment-qr-modal-img {
+     width: 100%;
+     max-width: 320px;
      height: auto;
-     border-radius: 12px;
-     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+     aspect-ratio: 1 / 1;
+     object-fit: contain;
+     display: block;
+     border-radius: 8px;
+ }
+ .payment-qr-modal-hint {
+     font-size: 0.85rem;
+     color: #6b7280;
+     text-align: center;
+     margin: 0;
  }
  .payment-qr-modal-close {
      position: absolute;
-     top: 16px;
+     top: 20px;
      right: 24px;
-     font-size: 2rem;
+     width: 40px;
+     height: 40px;
+     font-size: 1.6rem;
      color: #fff;
      cursor: pointer;
      opacity: 0.8;
      transition: opacity 0.2s;
+     background: rgba(255,255,255,0.15);
+     border: none;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     line-height: 1;
  }
  .payment-qr-modal-close:hover {
      opacity: 1;
+     background: rgba(255,255,255,0.25);
  }
  </style>
   @endpush
@@ -303,12 +332,15 @@
 </div>
 
 {{-- QR Modal --}}
-<div id="qrModal" class="payment-qr-modal" onclick="closeQrModal()">
-    <span class="payment-qr-modal-close">&times;</span>
-    @php $qrValue = App\Models\Setting::getValue('payment_qr_image'); @endphp
-    @if($qrValue)
-    <img src="{{ asset('storage/' . $qrValue) }}" alt="QR Code">
-    @endif
+<div id="qrModal" class="payment-qr-modal" onclick="if(event.target===this)closeQrModal()">
+    <button class="payment-qr-modal-close" onclick="closeQrModal()">&times;</button>
+    <div class="payment-qr-modal-body">
+        @php $qrValue = App\Models\Setting::getValue('payment_qr_image'); @endphp
+        @if($qrValue)
+        <img src="{{ asset('storage/' . $qrValue) }}" alt="QR Code" class="payment-qr-modal-img">
+        @endif
+        <p class="payment-qr-modal-hint">Scan this QR code using your e-wallet or banking app</p>
+    </div>
 </div>
 @endsection
 
