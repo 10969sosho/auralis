@@ -3,22 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\AgeCategory;
-use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\DeportationAnalytics;
 use App\Models\DeportationManifest;
 use App\Models\DeportationPassenger;
-use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\Schedule;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Services\ToyibPayService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
 class DeportationController extends Controller
@@ -230,101 +226,15 @@ class DeportationController extends Controller
             ],
         ]);
 
-        // Create ToyibPay bill
-        try {
-            $toyibPay = app(ToyibPayService::class);
-            $result = $this->createDeportationToyibPayBill($booking, $toyibPay);
+        Payment::create([
+            'booking_id' => $booking->id,
+            'amount' => $totalAmount,
+            'payment_status' => 'pending',
+        ]);
 
-            $totalWithFee = $totalAmount + 1.00;
-
-            Payment::create([
-                'booking_id' => $booking->id,
-                'amount' => $totalWithFee,
-                'payment_method' => 'toyibpay',
-                'payment_status' => 'pending',
-                'transaction_id' => $result['bill_code'],
-                'payment_meta' => [
-                    'bill_code' => $result['bill_code'],
-                    'payment_url' => $result['payment_url'],
-                    'base_amount' => $totalAmount,
-                    'fee_amount' => 1.00,
-                ],
-            ]);
-
-            return redirect()->away($result['payment_url']);
-        } catch (\Exception $e) {
-            Log::error('Deportation ToyibPay createBill failed', [
-                'booking_id' => $booking->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            Payment::create([
-                'booking_id' => $booking->id,
-                'amount' => $totalAmount,
-                'payment_status' => 'pending',
-            ]);
-
-            return redirect()->route('deportation.payment', $booking->booking_code)
-                ->with('error', 'Gateway pembayaran tidak tersedia. Sila cuba lagi.');
-        }
+        return redirect()->route('deportation.payment', $booking->booking_code);
     }
 
-    /**
-     * Create ToyibPay bill for deportation booking.
-     */
-    private function createDeportationToyibPayBill(Booking $booking, ToyibPayService $toyibPay): array
-    {
-        $booking->loadMissing('passengers');
-
-        $passengerNames = $booking->passengers->pluck('full_name')->join(', ');
-        $route = $booking->route_display;
-        $billName = substr('DEP_'.$booking->booking_code, 0, 30);
-        $billDescription = substr('Deportasi '.$route, 0, 100);
-
-        $feeInCents = 100;
-        $amountInCents = (int) round($booking->total_amount * 100) + $feeInCents;
-
-        $data = [
-            'userSecretKey' => $toyibPay->secretKey ?? config('toyibpay.secret_key'),
-            'categoryCode' => $toyibPay->categoryCode ?? config('toyibpay.category_code'),
-            'billName' => $billName,
-            'billDescription' => $billDescription,
-            'billPriceSetting' => 1,
-            'billPayorInfo' => 1,
-            'billAmount' => $amountInCents,
-            'billReturnUrl' => route('deportation.toyibpay-return', $booking->booking_code),
-            'billCallbackUrl' => route('deportation.toyibpay-callback'),
-            'billExternalReferenceNo' => $booking->booking_code,
-            'billTo' => $passengerNames,
-            'billEmail' => $booking->user?->email ?? '',
-            'billPhone' => $booking->passengers->first()?->phone_number ?? '',
-            'billExpiryDate' => $booking->expires_at->format('d-m-Y H:i:s'),
-            'billPaymentChannel' => '2',
-            'enableDuitNowQR' => '1',
-            'chargeDuitNowQR' => '1',
-        ];
-
-        $baseUrl = rtrim(config('toyibpay.base_url'), '/');
-
-        $response = \Illuminate\Support\Facades\Http::asForm()
-            ->timeout(30)
-            ->post($baseUrl.'/index.php/api/createBill', $data);
-
-        if (!$response->successful()) {
-            throw new \RuntimeException('ToyibPay API error: HTTP '.$response->status());
-        }
-
-        $result = $response->json();
-
-        if (!is_array($result) || !isset($result[0]['BillCode'])) {
-            throw new \RuntimeException('ToyibPay API unexpected response: '.$response->body());
-        }
-
-        return [
-            'bill_code' => $result[0]['BillCode'],
-            'payment_url' => $baseUrl.'/'.$result[0]['BillCode'],
-        ];
-    }
 
     /**
      * Show payment page for deportation booking.
@@ -344,12 +254,6 @@ class DeportationController extends Controller
 
         if (in_array($booking->payment_status, ['paid', 'approved'])) {
             return redirect()->route('deportation.success', $booking->booking_code);
-        }
-
-        $billCode = $booking->payment?->payment_meta['bill_code'] ?? null;
-        if ($billCode && $booking->payment_status === 'pending') {
-            $toyibPay = app(ToyibPayService::class);
-            return redirect()->away($toyibPay->getPaymentUrl($billCode));
         }
 
         return view('deportation.payment', compact('booking'));
@@ -430,278 +334,6 @@ class DeportationController extends Controller
         return view('deportation.ticket', compact('ticket'));
     }
 
-    /**
-     * Check ToyibPay payment status for deportation.
-     */
-    public function checkPaymentStatus($code)
-    {
-        $booking = Booking::where('booking_code', $code)
-            ->where('is_deportation', true)
-            ->where('user_id', auth()->id())
-            ->with(['payment', 'passengers', 'schedule'])
-            ->firstOrFail();
-
-        $response = [
-            'booking_status' => $booking->booking_status,
-            'payment_status' => $booking->payment_status,
-        ];
-
-        if (in_array($booking->payment_status, ['paid', 'approved', 'failed', 'expired'])) {
-            $response['done'] = true;
-            if (in_array($booking->payment_status, ['paid', 'approved'])) {
-                $response['redirect'] = route('deportation.success', $booking->booking_code);
-            }
-            return response()->json($response);
-        }
-
-        $billCode = $booking->payment->payment_meta['bill_code'] ?? null;
-        if ($billCode && $booking->payment->payment_method === 'toyibpay') {
-            try {
-                $toyibPay = app(ToyibPayService::class);
-                $tx = $this->checkToyibPayBill($toyibPay, $billCode);
-
-                if ($tx && ($tx['billpaymentStatus'] ?? '') === '1') {
-                    $this->markDeportationPaymentPaid($booking, $tx);
-                    $response['booking_status'] = 'paid';
-                    $response['payment_status'] = 'paid';
-                    $response['done'] = true;
-                    $response['redirect'] = route('deportation.success', $booking->booking_code);
-                }
-            } catch (\Exception $e) {
-                Log::warning('Deportation checkPaymentStatus error', ['booking' => $code, 'error' => $e->getMessage()]);
-            }
-        }
-
-        if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
-            $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
-            $response['booking_status'] = 'cancelled';
-            $response['payment_status'] = 'expired';
-            $response['done'] = true;
-        }
-
-        $response['done'] = $response['done'] ?? false;
-
-        return response()->json($response);
-    }
-
-    /**
-     * ToyibPay return URL for deportation.
-     */
-    public function toyibpayReturn($code)
-    {
-        $booking = Booking::where('booking_code', $code)
-            ->where('is_deportation', true)
-            ->with(['payment', 'passengers', 'schedule'])
-            ->firstOrFail();
-
-        if ($booking->user_id && $booking->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (in_array($booking->payment_status, ['paid', 'approved'])) {
-            return redirect()->route('deportation.success', $booking->booking_code);
-        }
-
-        $billCode = $booking->payment->payment_meta['bill_code'] ?? null;
-        if ($billCode) {
-            try {
-                $toyibPay = app(ToyibPayService::class);
-                $tx = $this->checkToyibPayBill($toyibPay, $billCode);
-
-                if ($tx && ($tx['billpaymentStatus'] ?? '') === '1') {
-                    $this->markDeportationPaymentPaid($booking, $tx);
-                    return redirect()->route('deportation.success', $booking->booking_code);
-                }
-            } catch (\Exception $e) {
-                Log::warning('Deportation toyibpayReturn error', ['booking' => $code, 'error' => $e->getMessage()]);
-            }
-        }
-
-        return view('deportation.payment', compact('booking'));
-    }
-
-    /**
-     * ToyibPay callback for deportation.
-     */
-    public function toyibpayCallback(Request $request)
-    {
-        $data = $request->all();
-        Log::info('Deportation ToyibPay callback', $data);
-
-        $toyibPay = app(ToyibPayService::class);
-
-        if (!$toyibPay->verifyCallback($data)) {
-            Log::warning('Deportation ToyibPay callback hash verification failed', $data);
-            return response('Invalid hash', 400);
-        }
-
-        $orderId = $data['order_id'] ?? null;
-        $status = (int) ($data['status'] ?? 0);
-
-        if (!$orderId) {
-            return response('Missing order_id', 400);
-        }
-
-        $booking = Booking::where('booking_code', $orderId)
-            ->where('is_deportation', true)
-            ->with(['payment', 'passengers', 'schedule'])
-            ->first();
-
-        if (!$booking) {
-            return response('Booking not found', 404);
-        }
-
-        $refno = $data['refno'] ?? null;
-        if ($refno) {
-            $processedRefnos = $booking->payment->payment_meta['processed_refnos'] ?? [];
-            if (in_array($refno, $processedRefnos)) {
-                return response('OK (already processed)');
-            }
-        }
-
-        if ($status === 1) {
-            if (!in_array($booking->payment_status, ['paid', 'approved'])) {
-                $this->markDeportationPaymentPaid($booking, $data);
-            }
-        } elseif ($status === 3) {
-            if ($booking->payment_status === 'pending') {
-                DB::transaction(function () use ($booking, $refno) {
-                    $booking->payment->update([
-                        'payment_status' => 'failed',
-                        'payment_meta' => array_merge($booking->payment->payment_meta ?? [], [
-                            'processed_refnos' => array_unique(array_merge(
-                                $booking->payment->payment_meta['processed_refnos'] ?? [],
-                                $refno ? [$refno] : []
-                            )),
-                        ]),
-                    ]);
-                    $booking->update(['payment_status' => 'failed']);
-                });
-            }
-        }
-
-        AuditLog::log(
-            action: 'deportation_toyibpay_callback',
-            entityType: 'payment',
-            entityId: $booking->payment?->id,
-            payload: ['booking_code' => $booking->booking_code, 'status' => $status, 'refno' => $refno, 'data' => $data],
-            ipAddress: request()->ip(),
-        );
-
-        return response('OK');
-    }
-
-    /**
-     * Check ToyibPay bill status directly via API.
-     */
-    private function checkToyibPayBill(ToyibPayService $toyibPay, string $billCode): ?array
-    {
-        $baseUrl = rtrim(config('toyibpay.base_url'), '/');
-        $response = \Illuminate\Support\Facades\Http::asForm()
-            ->timeout(30)
-            ->post($baseUrl.'/index.php/api/getBillTransactions', [
-                'billCode' => $billCode,
-                'billpaymentStatus' => '1',
-            ]);
-
-        if (!$response->successful()) {
-            return null;
-        }
-
-        $result = $response->json();
-        if (!is_array($result) || empty($result)) {
-            return null;
-        }
-
-        foreach ($result as $tx) {
-            if (($tx['billpaymentStatus'] ?? '') === '1') {
-                return $tx;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Mark deportation payment as paid and generate open tickets.
-     */
-    private function markDeportationPaymentPaid(Booking $booking, array $txData): void
-    {
-        DB::transaction(function () use ($booking, $txData) {
-            $booking->payment->update([
-                'payment_status' => 'paid',
-                'transaction_id' => $txData['billpaymentInvoiceNo'] ?? $booking->payment->transaction_id,
-                'paid_at' => now(),
-                'payment_meta' => array_merge($booking->payment->payment_meta ?? [], [
-                    'toyibpay_refno' => $txData['refno'] ?? null,
-                    'toyibpay_channel' => $txData['billpaymentChannel'] ?? null,
-                    'toyibpay_amount' => $txData['billpaymentAmount'] ?? null,
-                    'toyibpay_date' => $txData['billPaymentDate'] ?? null,
-                    'processed_refnos' => array_unique(array_merge(
-                        $booking->payment->payment_meta['processed_refnos'] ?? [],
-                        ($txData['refno'] ?? null) ? [$txData['refno']] : []
-                    )),
-                ]),
-            ]);
-
-            $booking->update([
-                'booking_status' => 'paid',
-                'payment_status' => 'paid',
-                'paid_at' => now(),
-            ]);
-
-            // Generate deportation open tickets (no expiry date)
-            foreach ($booking->passengers as $passenger) {
-                if (!$passenger->ticket) {
-                    $passenger->ticket()->create([
-                        'booking_id' => $booking->id,
-                        'ticket_class' => $passenger->ticket_class,
-                        'qr_token' => Ticket::generateQrToken(),
-                        'ticket_number' => Ticket::generateTicketNumber(),
-                        'ticket_status' => 'active',
-                        'expiry_date' => null, // Open ticket - no expiry
-                        'is_deportation' => true,
-                    ]);
-                }
-            }
-
-            // Log analytics
-            DeportationAnalytics::create([
-                'event_type' => 'payment',
-                'user_id' => $booking->user_id,
-                'booking_id' => $booking->id,
-                'shelter_point' => $booking->shelter_point,
-                'payload' => [
-                    'amount' => $booking->total_amount,
-                    'toyibpay_refno' => $txData['refno'] ?? null,
-                ],
-            ]);
-        });
-
-        // Notify user
-        if ($booking->user_id) {
-            Notification::create([
-                'user_id' => $booking->user_id,
-                'type' => 'payment_success',
-                'channel' => 'database',
-                'title' => 'Pembayaran Deportasi Berjaya',
-                'body' => 'Pembayaran untuk tiket deportasi #'.$booking->booking_code.' telah diterima. Tiket terbuka anda siap sedia!',
-                'sent_at' => now(),
-            ]);
-        }
-
-        AuditLog::log(
-            action: 'deportation_payment_paid',
-            entityType: 'booking',
-            entityId: $booking->id,
-            payload: [
-                'booking_code' => $booking->booking_code,
-                'amount' => $booking->total_amount,
-                'toyibpay_refno' => $txData['refno'] ?? null,
-            ],
-            ipAddress: request()->ip(),
-        );
-    }
 
     /**
      * Show deportation QR scanner for boarding officer.

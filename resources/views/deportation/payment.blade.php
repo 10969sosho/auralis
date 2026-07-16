@@ -34,11 +34,7 @@
         <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px;margin-bottom:20px;text-align:center;">
             <p style="font-weight:700;color:#ea580c;">Payment Pending</p>
             <p style="font-size:13px;color:#9a3412;margin-top:4px;">
-                @if($payment->payment_method === 'toyibpay')
-                    Please complete payment via ToyibPay. This page will update automatically after successful payment.
-                @else
-                    Please upload your payment proof below.
-                @endif
+                Please upload your payment proof below.
             </p>
         </div>
 

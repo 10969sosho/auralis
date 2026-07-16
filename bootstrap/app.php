@@ -19,10 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'audit' => AuditLogging::class,
         ]);
-
-        $middleware->validateCsrfTokens(except: [
-            'booking/toyibpay-callback',
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

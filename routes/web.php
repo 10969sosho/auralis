@@ -104,15 +104,6 @@ Route::get('/booking/{code}/success', [BookingController::class, 'success'])->na
 Route::get('/booking/{code}/detail', [BookingController::class, 'showBooking'])->name('booking.detail');
 Route::post('/booking/{code}/refund', [BookingController::class, 'refundRequest'])->name('booking.refund');
 
-// ToyibPay payment gateway routes
-Route::get('/booking/{code}/toyibpay-return', [BookingController::class, 'toyibpayReturn'])->name('booking.toyibpay-return');
-Route::post('/booking/toyibpay-callback', [BookingController::class, 'toyibpayCallback'])
-    ->name('booking.toyibpay-callback')
-    ->middleware('throttle:60,1');
-Route::get('/booking/{code}/check-status', [BookingController::class, 'checkPaymentStatus'])
-    ->name('booking.check-status')
-    ->middleware('throttle:30,1');
-
 Route::middleware('auth')->group(function () {
     Route::get('/my-bookings', [BookingController::class, 'history'])->name('booking.history');
     Route::post('/booking/{code}/cancel-expired', [BookingController::class, 'cancelExpired'])->name('booking.cancel-expired');
@@ -151,15 +142,7 @@ Route::middleware('auth')->prefix('deportation')->name('deportation.')->group(fu
     Route::get('/success/{code}', [DeportationController::class, 'success'])->name('success');
     Route::get('/ticket/{ticket}', [DeportationController::class, 'showTicket'])->name('ticket');
     Route::get('/history', [DeportationController::class, 'history'])->name('history');
-    Route::get('/check-status/{code}', [DeportationController::class, 'checkPaymentStatus'])
-        ->name('check-status')->middleware('throttle:30,1');
 });
-
-// ToyibPay callbacks for deportation (public)
-Route::get('/deportation/{code}/toyibpay-return', [DeportationController::class, 'toyibpayReturn'])
-    ->name('deportation.toyibpay-return')->middleware('auth');
-Route::post('/deportation/toyibpay-callback', [DeportationController::class, 'toyibpayCallback'])
-    ->name('deportation.toyibpay-callback')->middleware('throttle:60,1');
 
 // ==========================
 // Deportation Officer Routes (petugas - manifests, boarding scan)
