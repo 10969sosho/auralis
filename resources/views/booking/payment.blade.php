@@ -3,6 +3,103 @@
 
 @push('styles')
 <style>
+/* SVG icons base */
+.payment-page svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Alert banners */
+.payment-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+}
+.payment-alert.payment-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+.payment-alert.payment-success svg {
+    color: #059669;
+    width: 22px;
+    height: 22px;
+}
+.payment-alert.payment-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+.payment-alert.payment-error svg {
+    color: #dc2626;
+    width: 22px;
+    height: 22px;
+}
+
+/* Waiting / status blocks */
+.payment-waiting {
+    text-align: center;
+    padding: 32px 20px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+.payment-waiting-icon svg {
+    width: 48px;
+    height: 48px;
+    color: #2563eb;
+    margin-bottom: 12px;
+}
+.payment-waiting h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 16px;
+}
+.payment-waiting-details {
+    max-width: 360px;
+    margin: 0 auto 16px;
+    text-align: left;
+}
+.payment-waiting-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+.payment-waiting-row span {
+    color: #6b7280;
+}
+
+/* Expiry banner */
+.payment-expiry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    color: #9a3412;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+.payment-expiry svg {
+    width: 18px;
+    height: 18px;
+    color: #ea580c;
+}
+
+/* QR section */
 .payment-qr-image-wrap {
     display: flex;
     flex-direction: column;
@@ -49,6 +146,11 @@
     margin-bottom: 14px;
     justify-content: center;
 }
+.payment-qr-timer svg {
+    width: 18px;
+    height: 18px;
+    color: #ea580c;
+}
 .payment-qr-hint {
     font-size: 0.8rem;
     color: #6b7280;
@@ -58,6 +160,217 @@
 .payment-qr-expired {
     text-align: center;
     padding: 20px;
+}
+
+/* Cards grid */
+.payment-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+    .payment-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.payment-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.payment-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111827;
+}
+.payment-card-header svg {
+    width: 20px;
+    height: 20px;
+    color: #2563eb;
+}
+.payment-card-body {
+    padding: 20px;
+}
+.payment-card-body.p-0 {
+    padding: 0;
+}
+.payment-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.88rem;
+}
+.payment-info-label {
+    color: #6b7280;
+}
+.payment-info-value {
+    font-weight: 600;
+    color: #111827;
+}
+.payment-total {
+    font-size: 1.05rem;
+    color: #2563eb;
+}
+.payment-divider {
+    height: 1px;
+    background: #f3f4f6;
+    margin: 10px 0;
+}
+
+/* Bank details */
+.payment-bank-info {
+    text-align: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+.payment-bank-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #111827;
+    margin: 0 0 4px;
+}
+.payment-bank-account {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #2563eb;
+    letter-spacing: 2px;
+    margin: 0 0 4px;
+}
+.payment-bank-holder {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Upload section */
+.payment-upload-section {
+    margin-bottom: 16px;
+}
+.payment-upload-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+.payment-upload-desc {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0 0 12px;
+}
+.payment-upload-dropzone {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+.payment-upload-dropzone:hover,
+.payment-upload-dropzone.dragover {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+.payment-upload-icon {
+    width: 32px;
+    height: 32px;
+    color: #9ca3af;
+    margin-bottom: 8px;
+}
+.payment-upload-text {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0;
+}
+.payment-upload-filename {
+    display: block;
+    font-size: 0.8rem;
+    color: #059669;
+    font-weight: 600;
+    margin-top: 6px;
+}
+.payment-upload-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.payment-error {
+    display: block;
+    font-size: 0.8rem;
+    color: #dc2626;
+    margin-top: 6px;
+}
+
+/* Submit button */
+.payment-submit {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.payment-submit:hover {
+    background: #1d4ed8;
+}
+
+/* Table */
+.payment-table-wrap {
+    overflow-x: auto;
+}
+.payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.payment-table th {
+    background: #f8fafc;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #64748b;
+}
+.payment-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.payment-passenger-name {
+    font-weight: 600;
+}
+
+/* Proof preview in awaiting_approval */
+.payment-proof-preview {
+    max-width: 320px;
+    margin: 16px auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.payment-proof-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.payment-proof-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0 0 8px;
 }
 </style>
 @endpush
@@ -96,6 +409,12 @@
                 <span class="badge badge-warning" data-translate-en="Awaiting Verification" data-translate-id="Menunggu Verifikasi">Awaiting Verification</span>
             </div>
         </div>
+        @if($booking->payment && $booking->payment->proof_of_transfer)
+        <p class="payment-proof-label">Your uploaded proof of transfer:</p>
+        <div class="payment-proof-preview">
+            <img src="{{ asset('storage/' . $booking->payment->proof_of_transfer) }}" alt="Proof of Transfer">
+        </div>
+        @endif
         <div class="payment-actions">
             <a href="{{ route('booking.detail', $booking->booking_code) }}" class="btn btn-primary" data-translate-en="View Booking Details" data-translate-id="Lihat Detail Pemesanan">View Booking Details</a>
         </div>
