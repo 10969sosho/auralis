@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Payments\Tables;
 
 use App\Events\SeatAvailabilityUpdated;
+use App\Helpers\MailHelper;
 use App\Models\Payment;
 use App\Models\Ticket;
 use Filament\Actions\Action;
@@ -147,6 +148,8 @@ class PaymentsTable
                             if (!$isDeportation && $booking->schedule) {
                                 event(new SeatAvailabilityUpdated($booking->schedule));
                             }
+
+                            MailHelper::sendPaymentApproved($booking);
                         });
                     })
                     ->visible(fn (Payment $record): bool => $record->payment_status === 'awaiting_approval'),

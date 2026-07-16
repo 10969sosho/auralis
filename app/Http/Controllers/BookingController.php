@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\SeatAvailabilityUpdated;
+use App\Helpers\MailHelper;
 use App\Models\AgeCategory;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -233,6 +234,8 @@ class BookingController extends Controller
             'amount' => $totalAfterDiscount,
             'payment_status' => 'pending',
         ]);
+
+        MailHelper::sendBookingPending($booking);
 
         return redirect()->route('booking.payment', $booking->booking_code);
     }

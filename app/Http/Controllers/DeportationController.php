@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\MailHelper;
 use App\Models\AgeCategory;
 use App\Models\Booking;
 use App\Models\DeportationAnalytics;
@@ -232,9 +233,10 @@ class DeportationController extends Controller
             'payment_status' => 'pending',
         ]);
 
+        MailHelper::sendBookingPending($booking);
+
         return redirect()->route('deportation.payment', $booking->booking_code);
     }
-
 
     /**
      * Show payment page for deportation booking.
@@ -410,6 +412,8 @@ class DeportationController extends Controller
                     $booking->payment->update(['payment_status' => 'completed']);
                 }
             }
+
+            MailHelper::sendBoardingSuccess($booking, $ticket->passenger->full_name);
 
             // Log analytics
             DeportationAnalytics::create([

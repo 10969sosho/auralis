@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\SeatAvailabilityUpdated;
+use App\Helpers\MailHelper;
 use App\Models\BoardingLog;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
@@ -165,6 +166,8 @@ class BoardingController extends Controller
             }
 
             event(new SeatAvailabilityUpdated($booking->schedule));
+
+            MailHelper::sendBoardingSuccess($booking, $ticket->passenger->full_name);
         });
 
         return [

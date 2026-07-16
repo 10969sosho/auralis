@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\MailHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -93,6 +94,8 @@ class AuthController extends Controller
         ]);
 
         $user->assignRole('passenger');
+
+        MailHelper::sendWelcome($user);
 
         Auth::login($user);
 

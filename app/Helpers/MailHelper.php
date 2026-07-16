@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Helpers;
+
+use App\Mail\BoardingSuccessEmail;
+use App\Mail\BookingCancelledEmail;
+use App\Mail\BookingPendingEmail;
+use App\Mail\PaymentApprovedEmail;
+use App\Mail\ScheduleChangedEmail;
+use App\Mail\WelcomeEmail;
+use App\Models\Booking;
+use App\Models\Schedule;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+
+class MailHelper
+{
+    public static function sendWelcome(User $user, string $password = ''): void
+    {
+        if (!$user->email) return;
+        Mail::to($user->email)->send(new WelcomeEmail($user, $password));
+    }
+
+    public static function sendBookingPending(Booking $booking): void
+    {
+        $user = $booking->user;
+        if (!$user?->email) return;
+        $paymentUrl = route('booking.payment', $booking->booking_code);
+        Mail::to($user->email)->send(new BookingPendingEmail($booking, $paymentUrl));
+    }
+
+    public static function sendPaymentApproved(Booking $booking): void
+    {
+        $user = $booking->user;
+        if (!$user?->email) return;
+        $ticketUrl = route('booking.detail', $booking->booking_code);
+        Mail::to($user->email)->send(new PaymentApprovedEmail($booking, $ticketUrl));
+    }
+
+    public static function sendScheduleChanged(Booking $booking, Schedule $old, Schedule $new): void
+    {
+        $user = $booking->user;
+        if (!$user?->email) return;
+        Mail::to($user->email)->send(new ScheduleChangedEmail($booking, $old, $new));
+    }
+
+    public static function sendBookingCancelled(Booking $booking, string $reason = ''): void
+    {
+        $user = $booking->user;
+        if (!$user?->email) return;
+        Mail::to($user->email)->send(new BookingCancelledEmail($booking, $reason));
+    }
+
+    public static function sendBoardingSuccess(Booking $booking, string $passengerName = ''): void
+    {
+        $user = $booking->user;
+        if (!$user?->email) return;
+        Mail::to($user->email)->send(new BoardingSuccessEmail($booking, $passengerName));
+    }
+}
