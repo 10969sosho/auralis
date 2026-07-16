@@ -38,12 +38,12 @@
             </div>
             <div class="payment-settings-card-body payment-settings-preview-body">
                 @php
-                    $qrPreviewFromDb = \App\Models\Setting::getValue('payment_qr_image');
+                    $qrPath = is_array($this->payment_qr_image) ? ($this->payment_qr_image[0] ?? null) : $this->payment_qr_image;
                 @endphp
                 <div class="payment-settings-preview">
-                    @if($qrPreviewFromDb)
+                    @if($qrPath)
                         <div class="payment-settings-qr-wrap">
-                            <img src="{{ asset('storage/' . $qrPreviewFromDb) }}" alt="QR Preview" class="payment-settings-qr-img">
+                            <img src="{{ asset('storage/' . $qrPath) }}" alt="QR Preview" class="payment-settings-qr-img">
                         </div>
                     @else
                         <div class="payment-settings-qr-empty">

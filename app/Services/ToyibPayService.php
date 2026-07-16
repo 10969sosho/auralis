@@ -53,10 +53,11 @@ class ToyibPayService
             'billEmail' => $booking->user?->email ?? '',
             'billPhone' => $booking->passengers->first()?->phone_number ?? '',
             'billExpiryDate' => $booking->expires_at->format('d-m-Y H:i:s'),
-            // Enable all payment channels
-            'billPaymentChannel' => '2',                // 0=FPX, 1=CC, 2=Both FPX & CC
-            'enableDuitNowQR' => '1',                   // Enable DuitNow QR
-            'chargeDuitNowQR' => '1',                   // 1% fee charged to customer
+            // All payment channels, charge to customer
+            'billPaymentChannel' => '2',                 // 0=FPX, 1=CC, 2=Both
+            'enableDuitNowQR' => '1',                    // Enable DuitNow QR
+            'chargeDuitNowQR' => '1',                    // charge to customer
+            'billChargeToCustomer' => '0',               // charge FPX to customer
         ];
 
         Log::info('ToyibPay createBill request', $data);
