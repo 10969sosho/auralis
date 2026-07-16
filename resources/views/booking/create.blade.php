@@ -29,6 +29,23 @@
         @endif
     </div>
 
+    @guest
+    <div class="card mb-6" id="guestEmailCard">
+        <div class="flex items-center gap-2 mb-4">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#2563eb;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <h3 class="text-lg font-semibold" data-translate-en="Email for Booking Confirmation" data-translate-id="Email untuk Konfirmasi Pemesanan">Email for Booking Confirmation</h3>
+        </div>
+        <p class="text-sm text-gray-500 mb-3" data-translate-en="Enter your email to receive booking confirmation and ticket links." data-translate-id="Masukkan email Anda untuk menerima konfirmasi pemesanan dan tautan tiket.">Enter your email to receive booking confirmation and ticket links.</p>
+        <div class="form-group">
+            <label for="guest_email" class="form-label" data-translate-en="Email Address *" data-translate-id="Alamat Email *">Email Address *</label>
+            <input type="email" name="guest_email" id="guest_email" required class="form-input max-w-md" placeholder="you@example.com">
+            @error('guest_email')
+                <span class="text-sm text-red-600">{{ $message }}</span>
+            @enderror
+        </div>
+    </div>
+    @endguest
+
     @auth
     <div class="card mb-6" id="savedProfilesCard">
         <h3 class="text-lg font-semibold border-b pb-2 mb-4" data-translate-en="Quick Add: Saved Passengers" data-translate-id="Tambah Cepat: Penumpang Tersimpan">Quick Add: Saved Passengers</h3>

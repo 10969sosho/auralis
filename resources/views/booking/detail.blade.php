@@ -5,10 +5,17 @@
 
 <div class="detail-page">
     <div class="detail-top">
+        @if(!($isGuestAccess ?? false))
         <a href="{{ route('booking.history') }}" class="detail-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             <span data-translate-en="My Bookings" data-translate-id="Pemesanan Saya">My Bookings</span>
         </a>
+        @else
+        <a href="{{ route('home') }}" class="detail-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span data-translate-en="Home" data-translate-id="Beranda">Home</span>
+        </a>
+        @endif
         @php
             $statusLabel = \App\Helpers\StatusHelper::effectiveStatusLabel($booking);
             $badgeClass = \App\Helpers\StatusHelper::effectiveBadgeClass($booking);
@@ -119,12 +126,15 @@
                                 @endif
                             </div>
                             @if($passenger->ticket)
+                            @php
+                                $tokenParam = ($isGuestAccess ?? false) ? '?token='.$booking->guest_token : '';
+                            @endphp
                             <div class="detail-passenger-actions">
-                                <a href="{{ route('tickets.show', $passenger->ticket) }}" class="detail-passenger-btn" data-translate-en="View E-Ticket" data-translate-id="Lihat E-Tiket">
+                                <a href="{{ route('tickets.show', $passenger->ticket).$tokenParam }}" class="detail-passenger-btn" data-translate-en="View E-Ticket" data-translate-id="Lihat E-Tiket">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                                     View E-Ticket
                                 </a>
-                                <a href="{{ route('tickets.download', $passenger->ticket) }}" class="detail-passenger-btn detail-passenger-btn-secondary" data-translate-en="PDF" data-translate-id="PDF">
+                                <a href="{{ route('tickets.download', $passenger->ticket).$tokenParam }}" class="detail-passenger-btn detail-passenger-btn-secondary" data-translate-en="PDF" data-translate-id="PDF">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     PDF
                                 </a>
@@ -223,10 +233,17 @@
     @endif
 
     <div class="detail-actions">
+        @if(!($isGuestAccess ?? false))
         <a href="{{ route('booking.history') }}" class="detail-action-btn detail-action-outline" data-translate-en="Back to My Bookings" data-translate-id="Kembali ke Pemesanan Saya">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             Back to My Bookings
         </a>
+        @else
+        <a href="{{ route('home') }}" class="detail-action-btn detail-action-outline" data-translate-en="Back to Home" data-translate-id="Kembali ke Beranda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to Home
+        </a>
+        @endif
     </div>
 </div>
 

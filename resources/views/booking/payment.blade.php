@@ -415,8 +415,9 @@
             <img src="{{ asset('storage/' . $booking->payment->proof_of_transfer) }}" alt="Proof of Transfer">
         </div>
         @endif
+        @php $guestTokenParam = $booking->guest_token ? '?token='.$booking->guest_token : ''; @endphp
         <div class="payment-actions">
-            <a href="{{ route('booking.detail', $booking->booking_code) }}" class="btn btn-primary" data-translate-en="View Booking Details" data-translate-id="Lihat Detail Pemesanan">View Booking Details</a>
+            <a href="{{ route('booking.detail', $booking->booking_code).$guestTokenParam }}" class="btn btn-primary" data-translate-en="View Booking Details" data-translate-id="Lihat Detail Pemesanan">View Booking Details</a>
         </div>
     </div>
     @elseif(in_array($booking->payment_status, ['paid', 'approved']))

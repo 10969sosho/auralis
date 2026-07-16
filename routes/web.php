@@ -97,16 +97,18 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::get('/schedules', [BookingController::class, 'search'])->name('schedules');
 Route::get('/seat-availability', [SeatAvailabilityController::class, 'index'])->name('seat-availability');
 Route::get('/booking/{schedule}', [BookingController::class, 'show'])->name('booking.create');
-Route::post('/booking', [BookingController::class, 'store'])->middleware('auth', 'throttle:10,1')->name('booking.store');
+Route::post('/booking', [BookingController::class, 'store'])->middleware('throttle:10,1')->name('booking.store');
+Route::get('/booking/guest/{code}', [BookingController::class, 'showBooking'])->name('booking.guest');
 Route::get('/booking/{code}/payment', [BookingController::class, 'showPayment'])->name('booking.payment');
 Route::post('/booking/{code}/payment', [BookingController::class, 'processPayment'])->name('booking.process-payment');
 Route::get('/booking/{code}/success', [BookingController::class, 'success'])->name('booking.success');
 Route::get('/booking/{code}/detail', [BookingController::class, 'showBooking'])->name('booking.detail');
 Route::post('/booking/{code}/refund', [BookingController::class, 'refundRequest'])->name('booking.refund');
 
+Route::post('/booking/{code}/cancel-expired', [BookingController::class, 'cancelExpired'])->name('booking.cancel-expired')->middleware('throttle:10,1');
+
 Route::middleware('auth')->group(function () {
     Route::get('/my-bookings', [BookingController::class, 'history'])->name('booking.history');
-    Route::post('/booking/{code}/cancel-expired', [BookingController::class, 'cancelExpired'])->name('booking.cancel-expired');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
@@ -115,10 +117,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profiles', [PassengerProfileController::class, 'index'])->name('profiles.index');
     Route::post('/profiles', [PassengerProfileController::class, 'store'])->name('profiles.store');
     Route::delete('/profiles/{profile}', [PassengerProfileController::class, 'destroy'])->name('profiles.destroy');
-
-    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
-    Route::get('/tickets/{ticket}/download', [TicketController::class, 'download'])->name('tickets.download');
 });
+
+// Ticket routes — accessible by guests with valid guest_token query param
+Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+Route::get('/tickets/{ticket}/download', [TicketController::class, 'download'])->name('tickets.download');
 
 Route::middleware(['auth', 'role:boarding_officer,admin'])->prefix('boarding')->name('boarding.')->group(function () {
     Route::get('/scanner', [BoardingController::class, 'scanner'])->name('scanner');

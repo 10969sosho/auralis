@@ -8,18 +8,24 @@ use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\Output\QROutputInterface;
+use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
-    protected function authorizeTicketAccess(Ticket $ticket): void
+    protected function authorizeTicketAccess(Ticket $ticket, ?Request $request = null): void
     {
         // Allow if the ticket belongs to the authenticated user
         if ($ticket->booking->user_id === auth()->id()) {
             return;
         }
 
+        // Allow guest access if the booking's guest_token matches
+        if ($request && $request->query('token') && $ticket->booking->guest_token === $request->query('token')) {
+            return;
+        }
+
         // Allow if the authenticated user is a counter officer or admin
-        if (auth()->user()->hasRole(['ticket_counter_officer', 'admin'])) {
+        if (auth()->check() && auth()->user()->hasRole(['ticket_counter_officer', 'admin'])) {
             return;
         }
 
@@ -47,9 +53,9 @@ class TicketController extends Controller
         return (new QRCode($options))->render($qrData);
     }
 
-    public function download(Ticket $ticket)
+    public function download(Ticket $ticket, Request $request)
     {
-        $this->authorizeTicketAccess($ticket);
+        $this->authorizeTicketAccess($ticket, $request);
 
         $ticket->load(['passenger', 'booking.schedule.vessel', 'booking.schedule.route']);
 
@@ -60,9 +66,9 @@ class TicketController extends Controller
         return $pdf->download('ticket-'.$ticket->ticket_number.'.pdf');
     }
 
-    public function show(Ticket $ticket)
+    public function show(Ticket $ticket, Request $request)
     {
-        $this->authorizeTicketAccess($ticket);
+        $this->authorizeTicketAccess($ticket, $request);
 
         $ticket->load(['passenger', 'booking.schedule.vessel', 'booking.schedule.route']);
 

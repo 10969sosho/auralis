@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Mail\BoardingSuccessEmail;
 use App\Mail\BookingCancelledEmail;
+use App\Mail\BookingGuestEmail;
 use App\Mail\BookingPendingEmail;
 use App\Mail\PaymentApprovedEmail;
 use App\Mail\ScheduleChangedEmail;
@@ -27,6 +28,13 @@ class MailHelper
         if (!$user?->email) return;
         $paymentUrl = route('booking.payment', $booking->booking_code);
         Mail::to($user->email)->send(new BookingPendingEmail($booking, $paymentUrl));
+    }
+
+    public static function sendBookingGuest(Booking $booking): void
+    {
+        if (!$booking->guest_email) return;
+        $bookingLink = route('booking.guest', ['code' => $booking->booking_code, 'token' => $booking->guest_token]);
+        Mail::to($booking->guest_email)->send(new BookingGuestEmail($booking, $bookingLink));
     }
 
     public static function sendPaymentApproved(Booking $booking): void

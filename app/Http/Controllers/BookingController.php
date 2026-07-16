@@ -16,6 +16,7 @@ use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
@@ -100,7 +101,7 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'schedule_id' => ['required', 'exists:schedules,id'],
             'passengers' => ['required', 'array', 'min:1', 'max:8'],
             'passengers.*.full_name' => ['required', 'string', 'max:255'],
@@ -113,7 +114,14 @@ class BookingController extends Controller
             'passengers.*.passport_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'passengers.*.travel_permit' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'promo_code' => ['nullable', 'string'],
-        ]);
+        ];
+
+        // Require guest_email for unauthenticated users
+        if (!auth()->check()) {
+            $rules['guest_email'] = ['required', 'email', 'max:255'];
+        }
+
+        $validated = $request->validate($rules);
 
         $schedule = Schedule::with('vessel')->findOrFail($validated['schedule_id']);
 
@@ -163,9 +171,14 @@ class BookingController extends Controller
 
         $totalAfterDiscount = max(0, $totalAmount - $discountAmount);
 
-        $booking = DB::transaction(function () use ($validated, $schedule, $totalAfterDiscount, $discountAmount, $promo) {
+        $isGuest = !auth()->check();
+        $guestToken = $isGuest ? Str::random(40) : null;
+
+        $booking = DB::transaction(function () use ($validated, $schedule, $totalAfterDiscount, $discountAmount, $promo, $isGuest, $guestToken) {
             $booking = Booking::create([
                 'user_id' => auth()->id(),
+                'guest_email' => $isGuest ? $validated['guest_email'] : null,
+                'guest_token' => $guestToken,
                 'schedule_id' => $schedule->id,
                 'booking_code' => strtoupper('BK-'.date('Ymd').'-'.substr(uniqid(), -5)),
                 'total_passengers' => count($validated['passengers']),
@@ -235,7 +248,11 @@ class BookingController extends Controller
             'payment_status' => 'pending',
         ]);
 
-        MailHelper::sendBookingPending($booking);
+        if ($isGuest) {
+            MailHelper::sendBookingGuest($booking);
+        } else {
+            MailHelper::sendBookingPending($booking);
+        }
 
         return redirect()->route('booking.payment', $booking->booking_code);
     }
@@ -325,7 +342,9 @@ class BookingController extends Controller
             ->with(['passengers.ticket', 'schedule.vessel', 'schedule.route', 'payment'])
             ->firstOrFail();
 
-        return view('booking.success', compact('booking'));
+        $isGuestAccess = $booking->guest_token !== null && !auth()->check();
+
+        return view('booking.success', compact('booking', 'isGuestAccess'));
     }
 
     public function history(Request $request)
@@ -339,11 +358,18 @@ class BookingController extends Controller
         return view('booking.history', compact('bookings'));
     }
 
-    public function showBooking($code)
+    public function showBooking($code, Request $request)
     {
-        $booking = Booking::where('booking_code', $code)
-            ->with(['passengers.ticket', 'passengers.documents', 'schedule.vessel', 'schedule.route', 'payment', 'refund'])
-            ->firstOrFail();
+        $query = Booking::where('booking_code', $code)
+            ->with(['passengers.ticket', 'passengers.documents', 'schedule.vessel', 'schedule.route', 'payment', 'refund']);
+
+        // If a guest token is provided, verify against it
+        $guestToken = $request->query('token');
+        if ($guestToken) {
+            $query->where('guest_token', $guestToken);
+        }
+
+        $booking = $query->firstOrFail();
 
         // Auto-cancel expired payments
         if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
@@ -354,7 +380,9 @@ class BookingController extends Controller
             $booking->refresh();
         }
 
-        return view('booking.detail', compact('booking'));
+        $isGuestAccess = $guestToken !== null;
+
+        return view('booking.detail', compact('booking', 'isGuestAccess'));
     }
 
     public function cancelExpired($code)

@@ -46,7 +46,7 @@
                     <span class="success-ticket-name">{{ $passenger->full_name }}</span>
                     <span class="success-ticket-meta">{{ $passenger->ticket->ticket_number }} | {{ ucfirst($passenger->ticket_class) }}</span>
                 </div>
-                <a href="{{ route('tickets.show', $passenger->ticket) }}" class="success-ticket-link" data-translate-en="View Ticket" data-translate-id="Lihat Tiket">View Ticket</a>
+                <a href="{{ route('tickets.show', $passenger->ticket).(($isGuestAccess ?? false) ? '?token='.$booking->guest_token : '') }}" class="success-ticket-link" data-translate-en="View Ticket" data-translate-id="Lihat Tiket">View Ticket</a>
             </div>
             @endforeach
         </div>
@@ -54,7 +54,9 @@
 
     <div class="success-actions">
         <a href="{{ route('home') }}" class="success-btn success-btn-outline" data-translate-en="Back to Home" data-translate-id="Kembali ke Beranda">Back to Home</a>
+        @if(!($isGuestAccess ?? false))
         <a href="{{ route('booking.history') }}" class="success-btn success-btn-primary" data-translate-en="My Bookings" data-translate-id="Pemesanan Saya">My Bookings</a>
+        @endif
     </div>
 </div>
 @endsection
