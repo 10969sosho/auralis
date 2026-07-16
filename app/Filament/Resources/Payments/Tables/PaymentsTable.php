@@ -40,7 +40,12 @@ class PaymentsTable
                     ->label('Rute')
                     ->formatStateUsing(function (TextColumn $column) {
                         $record = $column->getRecord();
-                        return $record?->booking?->schedule?->route?->origin_port . ' → ' . $record?->booking?->schedule?->route?->destination_port;
+                        $booking = $record?->booking;
+                        if (!$booking) return '—';
+                        if ($booking->is_deportation) {
+                            return $booking->route_display ?? 'Deportation';
+                        }
+                        return ($booking->schedule?->route?->origin_port ?? '?') . ' → ' . ($booking->schedule?->route?->destination_port ?? '?');
                     }),
 
                 TextColumn::make('amount')
@@ -115,20 +120,33 @@ class PaymentsTable
                                 'paid_at' => now(),
                             ]);
 
+                            $isDeportation = $booking->is_deportation ?? false;
+
                             foreach ($booking->passengers as $passenger) {
                                 if (!$passenger->ticket) {
-                                    $passenger->ticket()->create([
+                                    $ticketData = [
                                         'booking_id' => $booking->id,
                                         'ticket_class' => $passenger->ticket_class,
                                         'qr_token' => Ticket::generateQrToken(),
                                         'ticket_number' => Ticket::generateTicketNumber(),
                                         'ticket_status' => 'active',
-                                        'expiry_date' => $booking->schedule->departure_time->startOfDay(),
-                                    ]);
+                                    ];
+
+                                    if ($isDeportation) {
+                                        // Open ticket — no expiry date
+                                        $ticketData['expiry_date'] = null;
+                                        $ticketData['is_deportation'] = true;
+                                    } else {
+                                        $ticketData['expiry_date'] = $booking->schedule?->departure_time?->startOfDay();
+                                    }
+
+                                    $passenger->ticket()->create($ticketData);
                                 }
                             }
 
-                            event(new SeatAvailabilityUpdated($booking->schedule));
+                            if (!$isDeportation && $booking->schedule) {
+                                event(new SeatAvailabilityUpdated($booking->schedule));
+                            }
                         });
                     })
                     ->visible(fn (Payment $record): bool => $record->payment_status === 'awaiting_approval'),
