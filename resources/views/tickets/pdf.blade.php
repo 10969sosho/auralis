@@ -16,8 +16,8 @@
 <body>
     <div class="header">
         <h1>AURALIS8 - E-TICKET</h1>
-        <h2>{{ $ticket->booking->schedule->vessel->name }}</h2>
-        <p>{{ $ticket->booking->schedule->route->origin_port }} → {{ $ticket->booking->schedule->route->destination_port }}</p>
+        <h2>{{ $ticket->booking->schedule?->vessel?->name ?? $ticket->booking->vessel_text ?? 'Auralis8' }}</h2>
+        <p>{{ $ticket->booking->route_display }}</p>
     </div>
 
     <div class="info">
@@ -27,9 +27,11 @@
             <tr><td><strong data-translate-en="Class" data-translate-id="Kelas">Class</strong></td><td>{{ ucfirst($ticket->ticket_class) }}</td></tr>
             <tr><td><strong data-translate-en="Booking Code" data-translate-id="Kode Pemesanan">Booking Code</strong></td><td>{{ $ticket->booking->booking_code }}</td></tr>
             <tr><td><strong data-translate-en="Passport/ID" data-translate-id="Paspor/ID">Passport/ID</strong></td><td>{{ $ticket->passenger->passport_number }}</td></tr>
+            @if($ticket->booking->schedule)
             <tr><td><strong data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</strong></td><td>{{ $ticket->booking->schedule->departure_time->format('d M Y, H:i') }}</td></tr>
             <tr><td><strong data-translate-en="Arrival" data-translate-id="Kedatangan">Arrival</strong></td><td>{{ $ticket->booking->schedule->arrival_time->format('d M Y, H:i') }}</td></tr>
             <tr><td><strong data-translate-en="Free Baggage" data-translate-id="Bagasi Gratis">Free Baggage</strong></td><td>{{ $ticket->booking->schedule->vessel->free_baggage }}kg</td></tr>
+            @endif
         </table>
     </div>
 
