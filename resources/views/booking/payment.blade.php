@@ -282,7 +282,7 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Server-time based countdown (timezone-safe)
@@ -410,4 +410,4 @@ function cancelBookingOnServer() {
     });
 }
 </script>
-@endsection
+@endpush
