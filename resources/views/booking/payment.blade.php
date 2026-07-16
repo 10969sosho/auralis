@@ -1,6 +1,100 @@
 @extends('layouts.app')
 @section('title', 'Payment')
 
+@push('styles')
+<style>
+.payment-qr-image-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: border-color 0.2s;
+    max-width: 260px;
+    margin: 0 auto;
+}
+.payment-qr-image-wrap:hover {
+    border-color: #93c5fd;
+}
+.payment-qr-image {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    display: block;
+}
+.payment-qr-zoom-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 8px;
+    text-align: center;
+}
+.payment-qr-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+    text-align: center;
+}
+.payment-qr-timer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 14px;
+    justify-content: center;
+}
+.payment-qr-hint {
+     font-size: 0.8rem;
+     color: #6b7280;
+     text-align: center;
+     margin: 12px 0 0;
+ }
+ .payment-qr-expired {
+     text-align: center;
+     padding: 20px;
+ }
+ /* QR Modal */
+ .payment-qr-modal {
+     display: none;
+     position: fixed;
+     inset: 0;
+     z-index: 9999;
+     background: rgba(0,0,0,0.8);
+     backdrop-filter: blur(4px);
+     justify-content: center;
+     align-items: center;
+     padding: 24px;
+ }
+ .payment-qr-modal img {
+     max-width: 90vw;
+     max-height: 90vh;
+     width: auto;
+     height: auto;
+     border-radius: 12px;
+     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+ }
+ .payment-qr-modal-close {
+     position: absolute;
+     top: 16px;
+     right: 24px;
+     font-size: 2rem;
+     color: #fff;
+     cursor: pointer;
+     opacity: 0.8;
+     transition: opacity 0.2s;
+ }
+ .payment-qr-modal-close:hover {
+     opacity: 1;
+ }
+ </style>
+  @endpush
+
 @section('content')
 <div class="payment-page">
     <h1 class="payment-title" data-translate-en="Payment" data-translate-id="Pembayaran">Payment</h1>
