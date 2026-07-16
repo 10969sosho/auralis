@@ -31,7 +31,7 @@
 <body>
     <div class="email-wrapper">
         <div class="email-header">
-            <img src="{{ asset('images/logo.png') }}" alt="Auralis8" style="max-width:160px;height:auto;">
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="Auralis8" style="max-width:160px;height:auto;">
         </div>
         <div class="email-body">
             <h1>{{ $heading ?? '' }}</h1>
