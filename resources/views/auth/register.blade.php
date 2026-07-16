@@ -108,7 +108,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="auth-btn">Create Account</button>
+                <button type="submit" class="auth-btn" id="registerBtn">Create Account</button>
             </form>
 
             <p class="auth-footer-text">
@@ -211,6 +211,16 @@ document.addEventListener('DOMContentLoaded', function() {
             this.dispatchEvent(new Event('input'));
         }
     });
+
+    // Prevent double submit
+    var form = document.querySelector('.auth-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            var btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+        });
+    }
 });
 </script>
 @endpush

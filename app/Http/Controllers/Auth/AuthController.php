@@ -95,11 +95,15 @@ class AuthController extends Controller
 
         $user->assignRole('passenger');
 
-        MailHelper::sendWelcome($user);
+        try {
+            MailHelper::sendWelcome($user);
+        } catch (\Exception $e) {
+            // Email failure shouldn't block registration
+        }
 
         Auth::login($user);
 
-        return redirect('/');
+        return redirect()->intended(route('schedules'));
     }
 
     public function logout(Request $request)
