@@ -17,8 +17,11 @@
 
     @if($ticketUrl)
     <div style="text-align:center;">
-        <a href="{{ $ticketUrl }}" class="email-btn">View Tickets</a>
+        <a href="{{ $ticketUrl }}" class="email-btn">View Booking &amp; Download Tickets</a>
     </div>
+    <p style="font-size:0.8rem;color:#6b7280;text-align:center;margin-top:8px;">
+        Your e-ticket PDFs are also attached to this email.
+    </p>
     @endif
 
     <p>Thank you for choosing Auralis8. Have a safe journey!</p>

@@ -17,7 +17,7 @@
 
     @if($bookingLink)
     <div style="text-align:center;">
-        <a href="{{ $bookingLink }}" class="email-btn">View Booking &amp; Complete Payment</a>
+        <a href="{{ $bookingLink }}" class="email-btn">View Booking &amp; Make Payment</a>
     </div>
     @endif
 
