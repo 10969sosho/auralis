@@ -61,7 +61,7 @@ Route::get('/information', fn () => view('information'))->name('information');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     Route::get('/register', fn () => view('auth.register-choice'))->name('register');
     Route::get('/register/regular', [AuthController::class, 'showRegister'])->name('register.regular');
     Route::post('/register', [AuthController::class, 'register']);

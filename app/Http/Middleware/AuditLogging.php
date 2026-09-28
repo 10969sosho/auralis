@@ -14,7 +14,7 @@ class AuditLogging
         $response = $next($request);
 
         $auditableActions = [
-            'login', 'logout', 'booking.store', 'booking.process-payment',
+            'login', 'login.post', 'logout', 'booking.store', 'booking.process-payment',
             'booking.refund', 'boarding.scan', 'counter.store', 'counter.refund',
             'deportation.booking.store', 'deportation.payment.process',
             'deportation.manifests.store', 'deportation.passengers.store',
