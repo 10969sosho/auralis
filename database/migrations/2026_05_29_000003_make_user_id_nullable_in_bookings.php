@@ -9,12 +9,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('ALTER TABLE bookings MODIFY user_id BIGINT UNSIGNED NULL');
+        Schema::table('bookings', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->nullable()->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement('UPDATE bookings SET user_id = 1 WHERE user_id IS NULL');
-        DB::statement('ALTER TABLE bookings MODIFY user_id BIGINT UNSIGNED NOT NULL');
+        DB::table('bookings')->whereNull('user_id')->update(['user_id' => 1]);
+
+        Schema::table('bookings', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->nullable(false)->change();
+        });
     }
 };

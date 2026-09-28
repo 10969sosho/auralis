@@ -64,6 +64,11 @@ class Booking extends Model
         return $this->hasOne(Refund::class);
     }
 
+    public function openReturnTicket(): HasOne
+    {
+        return $this->hasOne(OpenReturnTicket::class);
+    }
+
     /**
      * Get display route text, falling back to schedule route if available.
      */
@@ -74,7 +79,7 @@ class Booking extends Model
         }
 
         if ($this->schedule && $this->schedule->route) {
-            return $this->schedule->route->origin_port . ' → ' . $this->schedule->route->destination_port;
+            return $this->schedule->route->origin_port.' → '.$this->schedule->route->destination_port;
         }
 
         return '—';

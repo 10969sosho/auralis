@@ -15,14 +15,15 @@ return new class extends Migration
             $table->timestamp('approved_at')->nullable()->after('rejection_reason');
         });
 
-        DB::statement("ALTER TABLE payments MODIFY COLUMN payment_status ENUM('pending', 'awaiting_approval', 'paid', 'approved', 'rejected', 'failed', 'expired') DEFAULT 'pending'");
+        Schema::table('payments', function (Blueprint $table) {
+            $table->enum('payment_status', ['pending', 'awaiting_approval', 'paid', 'approved', 'rejected', 'failed', 'expired'])->default('pending')->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE payments MODIFY COLUMN payment_status ENUM('pending', 'paid', 'failed', 'expired') DEFAULT 'pending'");
-
         Schema::table('payments', function (Blueprint $table) {
+            $table->enum('payment_status', ['pending', 'paid', 'failed', 'expired'])->default('pending')->change();
             $table->dropColumn(['proof_of_transfer', 'approved_by', 'rejection_reason', 'approved_at']);
         });
     }

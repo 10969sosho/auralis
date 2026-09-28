@@ -88,7 +88,7 @@
                         <input type="date" name="passengers[0][birth_date]" value="{{ old('passengers.0.birth_date', $user->birth_date ? $user->birth_date->format('Y-m-d') : '') }}" placeholder="Birth Date *" required class="dep-input">
                         <input type="text" name="passengers[0][nationality]" value="{{ old('passengers.0.nationality', $user->nationality) }}" placeholder="Nationality *" required class="dep-input">
                         <input type="text" name="passengers[0][passport_number]" value="{{ old('passengers.0.passport_number', $user->passport_number) }}" placeholder="Passport No. *" required class="dep-input">
-                        <input type="text" name="passengers[0][phone_number]" value="{{ old('passengers.0.phone_number', $user->phone) }}" placeholder="Phone" class="dep-input">
+                        <input type="text" name="passengers[0][phone_number]" value="{{ old('passengers.0.phone_number', $user->phone) }}" placeholder="Phone/WhatsApp Number" class="dep-input">
                         <select name="passengers[0][ticket_class]" id="ticketClassSelect" required class="dep-input" style="grid-column:span 2;" onchange="updateSummary()">
                             <option value="">Select Ticket Class</option>
                             <option value="vip">VIP</option>

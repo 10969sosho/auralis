@@ -4,27 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use Barryvdh\DomPDF\Facade\Pdf;
-use chillerlan\QRCode\QRCode;
-use chillerlan\QRCode\QROptions;
 use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\Output\QROutputInterface;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
     protected function authorizeTicketAccess(Ticket $ticket, ?Request $request = null): void
     {
-        // Allow if the ticket belongs to the authenticated user
-        if ($ticket->booking->user_id === auth()->id()) {
+        $booking = $ticket->booking;
+
+        // Owner access (never compare null to null — that opens every ticket to guests)
+        if (auth()->check() && $booking->user_id !== null && (int) $booking->user_id === (int) auth()->id()) {
             return;
         }
 
-        // Allow guest access if the booking's guest_token matches
-        if ($request && $request->query('token') && $ticket->booking->guest_token === $request->query('token')) {
-            return;
+        // Guest access requires a matching token when the booking has one
+        if ($booking->guest_token) {
+            $token = (string) $request?->query('token', '');
+            if ($token !== '' && hash_equals((string) $booking->guest_token, $token)) {
+                return;
+            }
         }
 
-        // Allow if the authenticated user is a counter officer or admin
+        // Counter officer / admin
         if (auth()->check() && auth()->user()->hasRole(['ticket_counter_officer', 'admin'])) {
             return;
         }

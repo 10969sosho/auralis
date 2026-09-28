@@ -59,7 +59,7 @@ class DeportationAnalytics extends Page
     public function getTotalPaid(): int
     {
         return Booking::where('is_deportation', true)
-            ->whereIn('payment_status', ['paid', 'approved'])
+            ->whereIn('payment_status', ['paid'])
             ->count();
     }
 

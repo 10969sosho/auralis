@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
-use App\Models\Booking;
-use App\Models\Ticket;
-use App\Models\Refund;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -89,6 +86,7 @@ class AdminReportController extends Controller
 
         $bookings = $schedule->bookings()->get();
         $totalPassengers = 0;
+        $activePassengers = 0;
         $paymentSuccess = 0;
         $boarded = 0;
         $refundCount = 0;
@@ -99,6 +97,10 @@ class AdminReportController extends Controller
         foreach ($bookings as $booking) {
             $pCount = $booking->passengers()->count();
             $totalPassengers += $pCount;
+
+            if (in_array($booking->booking_status, ['paid', 'used', 'refund_requested'], true)) {
+                $activePassengers += $pCount;
+            }
 
             if ($booking->booking_status === 'paid' || $booking->booking_status === 'used') {
                 $paymentSuccess += $pCount;
@@ -121,15 +123,15 @@ class AdminReportController extends Controller
             }
         }
 
-        $remaining = max(0, $totalCapacity - $boarded);
-        $occupancy = $totalCapacity > 0 ? round(($totalPassengers / $totalCapacity) * 100, 2) : 0;
+        $remaining = max(0, $totalCapacity - $activePassengers);
+        $occupancy = $totalCapacity > 0 ? round(($activePassengers / $totalCapacity) * 100, 2) : 0;
         $departed = $schedule->status === 'departed' ? 1 : 0;
 
         return [
             'schedule' => [
                 'id' => $schedule->id,
                 'vessel' => $schedule->vessel->name,
-                'route' => $schedule->route->origin_port . ' → ' . $schedule->route->destination_port,
+                'route' => $schedule->route->origin_port.' → '.$schedule->route->destination_port,
                 'departure' => $schedule->departure_time->format('d M Y H:i'),
                 'status' => $schedule->status,
             ],
@@ -149,6 +151,7 @@ class AdminReportController extends Controller
     public function detail(Schedule $schedule)
     {
         $metrics = $this->getMetrics($schedule);
+
         return view('admin.report-detail', compact('metrics', 'schedule'));
     }
 
@@ -164,17 +167,17 @@ class AdminReportController extends Controller
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="schedule-report-' . date('Ymd') . '.csv"',
+            'Content-Disposition' => 'attachment; filename="schedule-report-'.date('Ymd').'.csv"',
         ];
 
         $callback = function () use ($schedules) {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($file, [
                 'Schedule ID', 'Vessel', 'Route', 'Departure', 'Status',
                 'Total Registered', 'Payment Success', 'Boarded', 'Pending',
-                'Refund', 'Cancel', 'Revenue (MYR)', 'Remaining', 'Occupancy %'
+                'Refund', 'Cancel', 'Revenue (MYR)', 'Remaining', 'Occupancy %',
             ]);
 
             foreach ($schedules as $schedule) {
@@ -193,7 +196,7 @@ class AdminReportController extends Controller
                     $metrics['total_cancel'],
                     number_format($metrics['total_revenue'], 2),
                     $metrics['remaining_passengers'],
-                    $metrics['occupancy_percentage'] . '%',
+                    $metrics['occupancy_percentage'].'%',
                 ]);
             }
 

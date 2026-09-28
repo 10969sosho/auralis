@@ -134,7 +134,7 @@ class OperationsTest extends TestCase
     public function test_deportation_officer_can_access_module(): void
     {
         $response = $this->actingAs($this->deportationOfficer)
-            ->get('/deportation');
+            ->get('/deportation/manifests');
 
         $response->assertStatus(200);
     }
@@ -142,7 +142,7 @@ class OperationsTest extends TestCase
     public function test_passenger_cannot_access_deportation(): void
     {
         $response = $this->actingAs($this->passenger)
-            ->get('/deportation');
+            ->get('/deportation/manifests');
 
         $response->assertStatus(403);
     }

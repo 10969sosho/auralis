@@ -7,12 +7,10 @@ use App\Helpers\MailHelper;
 use App\Models\AgeCategory;
 use App\Models\Booking;
 use App\Models\Payment;
-use App\Models\PassengerProfile;
 use App\Models\Promo;
 use App\Models\Refund;
 use App\Models\Route;
 use App\Models\Schedule;
-use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +18,30 @@ use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
+    /**
+     * Booking pages carry personal data: owner, guest token, or staff only.
+     */
+    protected function authorizeBookingAccess(Booking $booking, ?string $token = null): void
+    {
+        if (auth()->check() && $booking->user_id !== null && (int) $booking->user_id === (int) auth()->id()) {
+            return;
+        }
+
+        if (auth()->check() && auth()->user()->hasRole(['ticket_counter_officer', 'admin', 'deportation_officer'])) {
+            return;
+        }
+
+        if ($booking->guest_token !== null) {
+            if (is_string($token) && $token !== '' && hash_equals((string) $booking->guest_token, $token)) {
+                return;
+            }
+
+            abort(403, 'Invalid or missing booking token.');
+        }
+
+        abort(403, 'Unauthorized access to this booking.');
+    }
+
     public function search(Request $request)
     {
         $validated = $request->validate([
@@ -65,7 +87,7 @@ class BookingController extends Controller
     {
         $schedule->load('vessel', 'route', 'agePrices.ageCategory');
 
-        if ($schedule->isH6Passed || $schedule->status !== 'scheduled' || !$schedule->is_active) {
+        if ($schedule->isH6Passed || $schedule->status !== 'scheduled' || ! $schedule->is_active) {
             return back()->with('error', 'This schedule is no longer available for booking.');
         }
 
@@ -102,7 +124,8 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'schedule_id' => ['required', 'exists:schedules,id'],
+            'schedule_id' => ['nullable', 'exists:schedules,id'],
+            'return_date' => ['nullable', 'date', 'after_or_equal:today'],
             'passengers' => ['required', 'array', 'min:1', 'max:8'],
             'passengers.*.full_name' => ['required', 'string', 'max:255'],
             'passengers.*.gender' => ['required', 'in:male,female,other'],
@@ -117,38 +140,51 @@ class BookingController extends Controller
         ];
 
         // Require guest_email for unauthenticated users
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $rules['guest_email'] = ['required', 'email', 'max:255'];
         }
 
         $validated = $request->validate($rules);
 
-        $schedule = Schedule::with('vessel')->findOrFail($validated['schedule_id']);
+        $returnDate = $validated['return_date'] ?? null;
 
-        if ($schedule->isH6Passed || $schedule->status !== 'scheduled') {
-            return back()->with('error', 'This schedule is no longer available.');
+        if (empty($validated['schedule_id']) && ! $returnDate) {
+            return back()->with('error', 'Please choose a departure schedule or an open return date.');
+        }
+
+        $schedule = empty($validated['schedule_id'])
+            ? null
+            : Schedule::with('vessel')->findOrFail($validated['schedule_id']);
+
+        if ($schedule) {
+            if ($schedule->isH6Passed || $schedule->status !== 'scheduled' || ! $schedule->is_active) {
+                return back()->with('error', 'This schedule is no longer available.');
+            }
+
+            $priceSource = $schedule;
+        } else {
+            // Open return booking: no departure schedule to validate, price from the return-date sailing
+            $priceSource = Schedule::whereDate('departure_time', $returnDate)
+                ->where('status', 'scheduled')
+                ->first()
+                ?? Schedule::where('is_active', true)
+                    ->where('status', 'scheduled')
+                    ->orderByDesc('departure_time')
+                    ->first();
         }
 
         $vipCount = collect($validated['passengers'])->where('ticket_class', 'vip')->count();
         $regularCount = collect($validated['passengers'])->where('ticket_class', 'regular')->count();
 
-        $vipBooked = (int) $schedule->vipBooked;
-        $regularBooked = (int) $schedule->regularBooked;
-
-        if (($vipBooked + $vipCount) > $schedule->vessel->vip_capacity) {
-            return back()->with('error', 'Not enough VIP seats available.');
-        }
-
-        if (($regularBooked + $regularCount) > $schedule->vessel->regular_capacity) {
-            return back()->with('error', 'Not enough Regular seats available.');
-        }
+        $passengerClasses = collect($validated['passengers'])->pluck('ticket_class')->unique()->values();
+        $promoClass = $passengerClasses->count() === 1 ? $passengerClasses->first() : 'all';
 
         $totalAmount = 0;
         $passengerPrices = [];
         foreach ($validated['passengers'] as $p) {
             $birthDate = Carbon::parse($p['birth_date']);
             $age = $birthDate->diffInYears(now());
-            $price = $schedule->getPassengerPrice($age, $p['ticket_class']);
+            $price = $priceSource ? $priceSource->getPassengerPrice($age, $p['ticket_class']) : 0.0;
             $totalAmount += $price;
             $passengerPrices[] = $price;
         }
@@ -159,94 +195,118 @@ class BookingController extends Controller
 
         $promo = null;
         $discountAmount = 0;
-        if ($request->promo_code) {
+        if ($request->promo_code && $schedule) {
             $promo = Promo::where('code', $request->promo_code)
                 ->where('is_active', true)
                 ->first();
 
-            if ($promo && $promo->isApplicableToSchedule($schedule, count($validated['passengers']), 'regular')) {
+            if ($promo && $promo->isApplicableToSchedule($schedule, count($validated['passengers']), $promoClass)) {
                 $discountAmount = $promo->calculateDiscount($totalAmount);
             }
         }
 
         $totalAfterDiscount = max(0, $totalAmount - $discountAmount);
 
-        $isGuest = !auth()->check();
+        $isGuest = ! auth()->check();
         $guestToken = $isGuest ? Str::random(40) : null;
 
-        $booking = DB::transaction(function () use ($validated, $schedule, $totalAfterDiscount, $discountAmount, $promo, $isGuest, $guestToken) {
-            $booking = Booking::create([
-                'user_id' => auth()->id(),
-                'guest_email' => $isGuest ? $validated['guest_email'] : null,
-                'guest_token' => $guestToken,
-                'schedule_id' => $schedule->id,
-                'booking_code' => strtoupper('BK-'.date('Ymd').'-'.substr(uniqid(), -5)),
-                'total_passengers' => count($validated['passengers']),
-                'total_amount' => $totalAfterDiscount,
-                'discount_amount' => $discountAmount,
-                'promo_id' => $promo?->id,
-                'booking_status' => 'pending_payment',
-                'payment_status' => 'pending',
-                'locked_at' => now(),
-                'expires_at' => now()->addMinutes(10),
-            ]);
+        try {
+            $booking = DB::transaction(function () use ($validated, $schedule, $returnDate, $totalAfterDiscount, $discountAmount, $promo, $isGuest, $guestToken, $vipCount, $regularCount) {
+                // Re-check capacity on a locked row so concurrent submissions cannot oversell
+                if ($schedule) {
+                    $locked = Schedule::with('vessel')->whereKey($schedule->id)->lockForUpdate()->first() ?? $schedule;
 
-            foreach ($validated['passengers'] as $index => $passengerData) {
-                $birthDate = Carbon::parse($passengerData['birth_date']);
-                $age = $birthDate->diffInYears(now());
-                $category = AgeCategory::detectCategory($age);
+                    if (($locked->vipBooked + $vipCount) > (int) $locked->vessel->vip_capacity) {
+                        throw new \RuntimeException('Not enough VIP seats available.');
+                    }
 
-                $passenger = $booking->passengers()->create([
-                    'full_name' => $passengerData['full_name'],
-                    'gender' => $passengerData['gender'],
-                    'birth_date' => $passengerData['birth_date'],
-                    'nationality' => $passengerData['nationality'],
-                    'passport_number' => $passengerData['passport_number'],
-                    'phone_number' => $passengerData['phone_number'] ?? null,
-                    'passenger_type' => $category ? $category->name : ($age <= 12 ? 'Child' : 'Adult'),
-                    'ticket_class' => $passengerData['ticket_class'],
-                    'age_category_id' => $category?->id,
+                    if (($locked->regularBooked + $regularCount) > (int) $locked->vessel->regular_capacity) {
+                        throw new \RuntimeException('Not enough Regular seats available.');
+                    }
+                }
+
+                $booking = Booking::create([
+                    'user_id' => auth()->id(),
+                    'guest_email' => $isGuest ? $validated['guest_email'] : null,
+                    'guest_token' => $guestToken,
+                    'schedule_id' => $schedule?->id,
+                    'booking_code' => strtoupper('BK-'.date('Ymd').'-'.substr(uniqid(), -5)),
+                    'total_passengers' => count($validated['passengers']),
+                    'total_amount' => $totalAfterDiscount,
+                    'discount_amount' => $discountAmount,
+                    'promo_id' => $promo?->id,
+                    'booking_status' => 'pending_payment',
+                    'payment_status' => 'pending',
+                    'locked_at' => now(),
+                    'expires_at' => now()->addMinutes(10),
                 ]);
 
-                $passportFile = $passengerData['passport_file'] ?? null;
-                if ($passportFile) {
-                    $path = $passportFile->store('documents/passports', 'public');
-                    $passenger->documents()->create([
-                        'type' => 'passport',
-                        'file_path' => $path,
-                        'file_name' => $passportFile->getClientOriginalName(),
-                        'mime_type' => $passportFile->getMimeType(),
-                        'file_size' => $passportFile->getSize(),
-                        'uploaded_at' => now(),
+                if ($returnDate) {
+                    $openReturn = $booking->openReturnTicket()->create([
+                        'return_date' => $returnDate,
+                        'status' => 'open',
                     ]);
+                    $openReturn->assignIfPossible();
                 }
 
-                $travelPermit = $passengerData['travel_permit'] ?? null;
-                if ($travelPermit) {
-                    $path = $travelPermit->store('documents/permits', 'public');
-                    $passenger->documents()->create([
-                        'type' => 'travel_permit',
-                        'file_path' => $path,
-                        'file_name' => $travelPermit->getClientOriginalName(),
-                        'mime_type' => $travelPermit->getMimeType(),
-                        'file_size' => $travelPermit->getSize(),
-                        'uploaded_at' => now(),
+                foreach ($validated['passengers'] as $index => $passengerData) {
+                    $birthDate = Carbon::parse($passengerData['birth_date']);
+                    $age = $birthDate->diffInYears(now());
+                    $category = AgeCategory::detectCategory($age);
+
+                    $passenger = $booking->passengers()->create([
+                        'full_name' => $passengerData['full_name'],
+                        'gender' => $passengerData['gender'],
+                        'birth_date' => $passengerData['birth_date'],
+                        'nationality' => $passengerData['nationality'],
+                        'passport_number' => $passengerData['passport_number'],
+                        'phone_number' => $passengerData['phone_number'] ?? null,
+                        'passenger_type' => $category ? $category->name : ($age <= 12 ? 'Child' : 'Adult'),
+                        'ticket_class' => $passengerData['ticket_class'],
+                        'age_category_id' => $category?->id,
                     ]);
+
+                    $passportFile = $passengerData['passport_file'] ?? null;
+                    if ($passportFile) {
+                        $path = $passportFile->store('documents/passports', 'public');
+                        $passenger->documents()->create([
+                            'type' => 'passport',
+                            'file_path' => $path,
+                            'file_name' => $passportFile->getClientOriginalName(),
+                            'mime_type' => $passportFile->getMimeType(),
+                            'file_size' => $passportFile->getSize(),
+                            'uploaded_at' => now(),
+                        ]);
+                    }
+
+                    $travelPermit = $passengerData['travel_permit'] ?? null;
+                    if ($travelPermit) {
+                        $path = $travelPermit->store('documents/permits', 'public');
+                        $passenger->documents()->create([
+                            'type' => 'travel_permit',
+                            'file_path' => $path,
+                            'file_name' => $travelPermit->getClientOriginalName(),
+                            'mime_type' => $travelPermit->getMimeType(),
+                            'file_size' => $travelPermit->getSize(),
+                            'uploaded_at' => now(),
+                        ]);
+                    }
                 }
-            }
 
-            if ($promo) {
-                $promo->increment('used_count');
-            }
+                if ($promo && $discountAmount > 0) {
+                    $promo->increment('used_count');
+                }
 
-            return $booking;
-        });
+                $booking->payment()->create([
+                    'amount' => $totalAfterDiscount,
+                    'payment_status' => 'pending',
+                ]);
 
-        Payment::create([
-            'booking_id' => $booking->id,
-            'amount' => $totalAfterDiscount,
-            'payment_status' => 'pending',
-        ]);
+                return $booking;
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         if ($isGuest) {
             MailHelper::sendBookingGuest($booking);
@@ -254,14 +314,16 @@ class BookingController extends Controller
             MailHelper::sendBookingPending($booking);
         }
 
-        return redirect()->route('booking.payment', $booking->booking_code);
+        return redirect()->route('booking.payment', ['code' => $booking->booking_code, 'token' => $guestToken]);
     }
 
-    public function showPayment($code)
+    public function showPayment($code, Request $request)
     {
         $booking = Booking::where('booking_code', $code)
             ->with(['passengers', 'payment', 'schedule.vessel', 'schedule.route', 'promo'])
             ->firstOrFail();
+
+        $this->authorizeBookingAccess($booking, $request->query('token'));
 
         if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
             DB::transaction(function () use ($booking) {
@@ -277,9 +339,9 @@ class BookingController extends Controller
             return view('booking.payment', compact('booking'));
         }
 
-        // If payment is already approved/paid, redirect to success
-        if (in_array($booking->payment_status, ['paid', 'approved'])) {
-            return redirect()->route('booking.success', $booking->booking_code);
+        // If payment is already paid, redirect to success
+        if ($booking->payment_status === 'paid') {
+            return redirect()->route('booking.success', ['code' => $booking->booking_code, 'token' => $booking->guest_token]);
         }
 
         return view('booking.payment', compact('booking'));
@@ -291,7 +353,9 @@ class BookingController extends Controller
             ->with('payment')
             ->firstOrFail();
 
-        if (!in_array($booking->payment_status, ['pending', 'rejected'])) {
+        $this->authorizeBookingAccess($booking, $request->query('token'));
+
+        if (! in_array($booking->payment_status, ['pending', 'rejected'])) {
             return back()->with('error', 'Payment already processed.');
         }
 
@@ -309,7 +373,9 @@ class BookingController extends Controller
             'proof_of_transfer' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
-        $payment = $booking->payment;
+        // Self-heal: bookings created before payments moved inside the transaction
+        $payment = $booking->payment
+            ?? $booking->payment()->create(['amount' => $booking->total_amount, 'payment_status' => 'pending']);
 
         $proofPath = $request->file('proof_of_transfer')->store('payments/proofs', 'public');
 
@@ -332,17 +398,24 @@ class BookingController extends Controller
             event(new SeatAvailabilityUpdated($booking->schedule));
         });
 
-        return redirect()->route('booking.payment', $booking->booking_code)
+        return redirect()->route('booking.payment', ['code' => $booking->booking_code, 'token' => $booking->guest_token])
             ->with('success', 'Proof of transfer uploaded successfully. Please wait for admin confirmation.');
     }
 
-    public function success($code)
+    public function success($code, Request $request)
     {
         $booking = Booking::where('booking_code', $code)
             ->with(['passengers.ticket', 'schedule.vessel', 'schedule.route', 'payment'])
             ->firstOrFail();
 
-        $isGuestAccess = $booking->guest_token !== null && !auth()->check();
+        $this->authorizeBookingAccess($booking, $request->query('token'));
+
+        // Tickets only exist after the payment is paid — never render "Confirmed" for an unpaid hold
+        if ($booking->payment_status !== 'paid') {
+            return redirect()->route('booking.payment', ['code' => $booking->booking_code, 'token' => $booking->guest_token]);
+        }
+
+        $isGuestAccess = $booking->guest_token !== null && ! auth()->check();
 
         return view('booking.success', compact('booking', 'isGuestAccess'));
     }
@@ -360,16 +433,11 @@ class BookingController extends Controller
 
     public function showBooking($code, Request $request)
     {
-        $query = Booking::where('booking_code', $code)
-            ->with(['passengers.ticket', 'passengers.documents', 'schedule.vessel', 'schedule.route', 'payment', 'refund']);
+        $booking = Booking::where('booking_code', $code)
+            ->with(['passengers.ticket', 'passengers.documents', 'schedule.vessel', 'schedule.route', 'payment', 'refund'])
+            ->firstOrFail();
 
-        // If a guest token is provided, verify against it
-        $guestToken = $request->query('token');
-        if ($guestToken) {
-            $query->where('guest_token', $guestToken);
-        }
-
-        $booking = $query->firstOrFail();
+        $this->authorizeBookingAccess($booking, $request->query('token'));
 
         // Auto-cancel expired payments
         if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
@@ -380,7 +448,7 @@ class BookingController extends Controller
             $booking->refresh();
         }
 
-        $isGuestAccess = $guestToken !== null;
+        $isGuestAccess = $booking->guest_token !== null && ! auth()->check();
 
         return view('booking.detail', compact('booking', 'isGuestAccess'));
     }
@@ -408,17 +476,19 @@ class BookingController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
+        $this->authorizeBookingAccess($booking, $request->query('token'));
+
         if ($booking->booking_status !== 'paid') {
             return back()->with('error', 'This booking is not eligible for refund.');
         }
 
         $schedule = $booking->schedule;
-        if ($schedule->isH6Passed) {
+        if ($schedule && $schedule->isH6Passed) {
             return back()->with('error', 'Refund window has closed (H-6).');
         }
 
         $existingRefund = Refund::where('booking_id', $booking->id)->first();
-        if ($existingRefund) {
+        if ($existingRefund && $existingRefund->refund_status !== 'rejected') {
             return back()->with('error', 'A refund request already exists for this booking.');
         }
 
@@ -428,20 +498,27 @@ class BookingController extends Controller
 
         $refundAmount = round($booking->total_amount * 0.25, 2);
 
-        DB::transaction(function () use ($booking, $validated, $refundAmount) {
-            Refund::create([
-                'booking_id' => $booking->id,
+        DB::transaction(function () use ($booking, $validated, $refundAmount, $existingRefund) {
+            $attributes = [
                 'refund_amount' => $refundAmount,
                 'refund_reason' => $validated['refund_reason'],
                 'refund_status' => 'requested',
-            ]);
+            ];
+
+            // Re-open the rejected request instead of locking the customer out forever
+            if ($existingRefund) {
+                $existingRefund->update($attributes);
+            } else {
+                Refund::create($attributes + ['booking_id' => $booking->id]);
+            }
 
             $booking->update(['booking_status' => 'refund_requested']);
 
-            event(new SeatAvailabilityUpdated($booking->schedule));
+            if ($booking->schedule) {
+                event(new SeatAvailabilityUpdated($booking->schedule));
+            }
         });
 
         return back()->with('success', 'Refund request submitted successfully. Admin will process via WhatsApp.');
     }
-
 }

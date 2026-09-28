@@ -1,17 +1,22 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE payments MODIFY COLUMN payment_status ENUM('pending','awaiting_approval','paid','approved','rejected','failed','expired','completed') DEFAULT 'pending'");
+        Schema::table('payments', function (Blueprint $table) {
+            $table->enum('payment_status', ['pending', 'awaiting_approval', 'paid', 'approved', 'rejected', 'failed', 'expired', 'completed'])->default('pending')->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE payments MODIFY COLUMN payment_status ENUM('pending','awaiting_approval','paid','approved','rejected','failed','expired') DEFAULT 'pending'");
+        Schema::table('payments', function (Blueprint $table) {
+            $table->enum('payment_status', ['pending', 'awaiting_approval', 'paid', 'approved', 'rejected', 'failed', 'expired'])->default('pending')->change();
+        });
     }
 };

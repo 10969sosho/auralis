@@ -43,6 +43,22 @@ class BoardingController extends Controller
             ]);
         }
 
+        if (! hash_equals((string) ($ticket->qr_token ?? ''), (string) ($qrData['token'] ?? ''))) {
+            return response()->json([
+                'success' => false,
+                'status' => 'invalid',
+                'message' => 'QR code signature does not match this ticket.',
+            ]);
+        }
+
+        if (filled($request->schedule_id) && ! $this->matchesSchedule($ticket, (int) $request->schedule_id)) {
+            return response()->json([
+                'success' => false,
+                'status' => 'invalid',
+                'message' => 'This ticket does not belong to the selected schedule.',
+            ]);
+        }
+
         $result = $this->validateTicket($ticket);
 
         BoardingLog::log(
@@ -56,14 +72,30 @@ class BoardingController extends Controller
         return response()->json($result);
     }
 
+    /**
+     * An open return ticket has no booking.schedule_id — it belongs to the sailing
+     * its return date was assigned to.
+     */
+    private function matchesSchedule(Ticket $ticket, int $scheduleId): bool
+    {
+        if ($ticket->booking->schedule_id !== null) {
+            return (int) $ticket->booking->schedule_id === $scheduleId;
+        }
+
+        return (int) $ticket->booking->openReturnTicket?->schedule()?->id === $scheduleId;
+    }
+
     public function manualValidate(Request $request)
     {
         $request->validate([
             'booking_code' => ['required', 'string'],
+            'ticket_id' => ['nullable', 'integer'],
         ]);
 
         $ticket = Ticket::whereHas('booking', function ($q) use ($request) {
             $q->where('booking_code', $request->booking_code);
+        })->when($request->ticket_id, function ($query) use ($request) {
+            $query->where('id', $request->ticket_id);
         })->with(['passenger', 'booking.schedule.vessel', 'booking.schedule.route'])->first();
 
         if (! $ticket) {
@@ -71,6 +103,29 @@ class BoardingController extends Controller
                 'success' => false,
                 'status' => 'invalid',
                 'message' => 'Ticket not found.',
+            ]);
+        }
+
+        if (filled($request->schedule_id) && ! $this->matchesSchedule($ticket, (int) $request->schedule_id)) {
+            return response()->json([
+                'success' => false,
+                'status' => 'invalid',
+                'message' => 'This ticket does not belong to the selected schedule.',
+            ]);
+        }
+
+        if (! $request->ticket_id && $ticket->booking->tickets()->count() > 1) {
+            return response()->json([
+                'success' => false,
+                'status' => 'select',
+                'message' => 'Multiple passengers on this booking. Select the passenger to board.',
+                'booking_code' => $ticket->booking->booking_code,
+                'tickets' => $ticket->booking->tickets()->with('passenger')->get()->map(fn (Ticket $t) => [
+                    'ticket_id' => $t->id,
+                    'ticket_number' => $t->ticket_number,
+                    'passenger_name' => $t->passenger->full_name,
+                    'ticket_status' => $t->ticket_status,
+                ])->values()->all(),
             ]);
         }
 
@@ -89,7 +144,26 @@ class BoardingController extends Controller
 
     private function validateTicket(Ticket $ticket): array
     {
-        $schedule = $ticket->booking->schedule;
+        $openReturn = $ticket->booking->openReturnTicket;
+        $schedule = $ticket->booking->schedule ?? $openReturn?->schedule();
+
+        if ($openReturn && ! in_array($openReturn->status, ['assigned', 'used'], true)) {
+            return [
+                'success' => false,
+                'status' => 'invalid',
+                'message' => 'Return leg is not assigned to a sailing yet.',
+                'type' => 'red_rejection',
+            ];
+        }
+
+        if (! $schedule) {
+            return [
+                'success' => false,
+                'status' => 'invalid',
+                'message' => 'This ticket is not assigned to any sailing.',
+                'type' => 'red_rejection',
+            ];
+        }
 
         if ($ticket->ticket_status === 'used') {
             return [
@@ -100,7 +174,7 @@ class BoardingController extends Controller
             ];
         }
 
-        if ($ticket->ticket_status === 'expired' || ($ticket->expiry_date && $ticket->expiry_date->isPast())) {
+        if ($ticket->ticket_status === 'expired' || ($ticket->expiry_date && $ticket->expiry_date->copy()->endOfDay()->isPast())) {
             return [
                 'success' => false,
                 'status' => 'expired',
@@ -152,9 +226,6 @@ class BoardingController extends Controller
             ]);
 
             $booking = $ticket->booking;
-            if ($booking->schedule->isFullyBooked) {
-                $booking->schedule->update(['status' => 'departed']);
-            }
 
             $allUsed = $booking->tickets()->where('ticket_status', '!=', 'used')->doesntExist();
             if ($allUsed) {
@@ -163,6 +234,7 @@ class BoardingController extends Controller
                 if ($booking->payment) {
                     $booking->payment->update(['payment_status' => 'completed']);
                 }
+                $booking->openReturnTicket?->update(['status' => 'used']);
             }
 
             event(new SeatAvailabilityUpdated($booking->schedule));
@@ -179,9 +251,9 @@ class BoardingController extends Controller
             'ticket_number' => $ticket->ticket_number,
             'ticket_class' => ucfirst($ticket->ticket_class),
             'passenger_type' => $ticket->passenger->passenger_type,
-            'route' => $schedule->route->origin_port.' → '.$schedule->route->destination_port,
-            'vessel' => $schedule->vessel->name,
-            'departure' => $schedule->departure_time->format('d M Y, H:i'),
+            'route' => $ticket->booking->route_display,
+            'vessel' => $ticket->booking->vessel_display,
+            'departure' => $schedule?->departure_time?->format('d M Y, H:i'),
         ];
     }
 

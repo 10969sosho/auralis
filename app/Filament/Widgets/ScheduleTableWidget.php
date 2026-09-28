@@ -2,17 +2,21 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Widgets\Concerns\AppliesReportFilters;
 use App\Http\Controllers\AdminReportController;
 use App\Models\Schedule;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Widgets\TableWidget;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
 
 class ScheduleTableWidget extends TableWidget
 {
-    protected int | string | array $columnSpan = ['default' => 1, 'xl' => 3];
+    use AppliesReportFilters;
 
-    public function getTableHeading(): string | Htmlable | null
+    protected int|string|array $columnSpan = ['default' => 1, 'xl' => 3];
+
+    public function getTableHeading(): string|Htmlable|null
     {
         return 'Schedule Analytics';
     }
@@ -22,16 +26,14 @@ class ScheduleTableWidget extends TableWidget
         return 'Detailed per-schedule performance metrics';
     }
 
-    protected function getTableQuery(): \Illuminate\Database\Eloquent\Builder
+    protected function getTableQuery(): Builder
     {
-        return Schedule::with('vessel', 'route')
+        return $this->reportSchedules()->with('vessel', 'route')
             ->orderBy('departure_time', 'desc');
     }
 
     protected function getTableColumns(): array
     {
-        $controller = new AdminReportController();
-
         return [
             TextColumn::make('vessel.name')
                 ->label('Vessel')
@@ -39,7 +41,7 @@ class ScheduleTableWidget extends TableWidget
                 ->sortable(),
             TextColumn::make('route_label')
                 ->label('Route')
-                ->state(fn (Schedule $record) => $record->route->origin_port . ' → ' . $record->route->destination_port),
+                ->state(fn (Schedule $record) => $record->route->origin_port.' → '.$record->route->destination_port),
             TextColumn::make('departure_time')
                 ->label('Departure')
                 ->dateTime('d M Y, H:i')
@@ -57,44 +59,36 @@ class ScheduleTableWidget extends TableWidget
             TextColumn::make('capacity')
                 ->label('Capacity')
                 ->state(fn (Schedule $record) => ($record->vessel->vip_capacity + $record->vessel->regular_capacity))
-                ->numeric()
-                ->sortable(),
+                ->numeric(),
             TextColumn::make('booked')
                 ->label('Booked')
-                ->state(fn (Schedule $record) => ((int)$record->vipBooked + (int)$record->regularBooked))
-                ->numeric()
-                ->sortable(),
+                ->state(fn (Schedule $record) => ((int) $record->vipBooked + (int) $record->regularBooked))
+                ->numeric(),
             TextColumn::make('paid')
                 ->label('Paid')
                 ->state(fn (Schedule $record) => $this->getMetric($record, 'total_payment_success'))
-                ->numeric()
-                ->sortable(),
+                ->numeric(),
             TextColumn::make('boarded')
                 ->label('Boarded')
                 ->state(fn (Schedule $record) => $this->getMetric($record, 'total_boarded'))
-                ->numeric()
-                ->sortable(),
+                ->numeric(),
             TextColumn::make('available')
                 ->label('Available')
-                ->state(fn (Schedule $record) => max(0, ($record->vessel->vip_capacity + $record->vessel->regular_capacity) - ((int)$record->vipBooked + (int)$record->regularBooked)))
+                ->state(fn (Schedule $record) => max(0, ($record->vessel->vip_capacity + $record->vessel->regular_capacity) - ((int) $record->vipBooked + (int) $record->regularBooked)))
                 ->numeric()
-                ->sortable()
                 ->color('success'),
             TextColumn::make('revenue')
                 ->label('Revenue')
                 ->money('MYR')
-                ->state(fn (Schedule $record) => $this->getMetric($record, 'total_revenue'))
-                ->sortable(),
+                ->state(fn (Schedule $record) => $this->getMetric($record, 'total_revenue')),
             TextColumn::make('refund')
                 ->label('Refund')
                 ->state(fn (Schedule $record) => $this->getMetric($record, 'total_refund'))
                 ->numeric()
-                ->sortable()
                 ->color('danger'),
             TextColumn::make('occupancy')
                 ->label('Occupancy')
-                ->state(fn (Schedule $record) => $this->getMetric($record, 'occupancy_percentage') . '%')
-                ->sortable(),
+                ->state(fn (Schedule $record) => $this->getMetric($record, 'occupancy_percentage').'%'),
         ];
     }
 
@@ -103,8 +97,8 @@ class ScheduleTableWidget extends TableWidget
         static $cache = [];
         $cacheKey = $schedule->id;
 
-        if (!isset($cache[$cacheKey])) {
-            $controller = new AdminReportController();
+        if (! isset($cache[$cacheKey])) {
+            $controller = new AdminReportController;
             $cache[$cacheKey] = $controller->getMetrics($schedule);
         }
 

@@ -14,9 +14,10 @@ class AuditLogging
         $response = $next($request);
 
         $auditableActions = [
-            'login', 'logout', 'booking.store', 'booking.payment',
-            'booking.refund', 'boarding.scan', 'schedule.store',
-            'promo.store',
+            'login', 'logout', 'booking.store', 'booking.process-payment',
+            'booking.refund', 'boarding.scan', 'counter.store', 'counter.refund',
+            'deportation.booking.store', 'deportation.payment.process',
+            'deportation.manifests.store', 'deportation.passengers.store',
         ];
 
         $routeName = $request->route()?->getName();

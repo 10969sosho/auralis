@@ -1,17 +1,22 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE booking_passengers MODIFY passenger_type VARCHAR(50) DEFAULT 'Adult'");
+        Schema::table('booking_passengers', function (Blueprint $table) {
+            $table->string('passenger_type', 50)->default('Adult')->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE booking_passengers MODIFY passenger_type ENUM('child', 'adult') DEFAULT 'adult'");
+        Schema::table('booking_passengers', function (Blueprint $table) {
+            $table->enum('passenger_type', ['child', 'adult'])->default('adult')->change();
+        });
     }
 };

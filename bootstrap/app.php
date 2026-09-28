@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'audit' => AuditLogging::class,
         ]);
+        $middleware->web(append: AuditLogging::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

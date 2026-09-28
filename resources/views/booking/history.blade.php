@@ -36,9 +36,10 @@
                     <span class="booking-card-status {{ $badgeClass }}">{{ $statusLabel }}</span>
                 </div>
 
+                @php [$originPort, $destinationPort] = array_pad(explode(' → ', $booking->route_display), 2, ''); @endphp
                 <div class="booking-card-route">
                     <div class="booking-card-route-point">
-                        <span class="booking-card-port">{{ $booking->schedule->route->origin_port }}</span>
+                        <span class="booking-card-port">{{ $originPort }}</span>
                         </div>
                     <div class="booking-card-route-line">
                         <div class="booking-card-line-dot"></div>
@@ -46,18 +47,18 @@
                         <div class="booking-card-line-dot"></div>
                     </div>
                     <div class="booking-card-route-point booking-card-route-point-right">
-                        <span class="booking-card-port">{{ $booking->schedule->route->destination_port }}</span>
+                        <span class="booking-card-port">{{ $destinationPort }}</span>
                     </div>
                 </div>
 
                 <div class="booking-card-info">
                     <div class="booking-card-info-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/><path d="M5 7h14l-2 5H7L5 7Z"/><circle cx="12" cy="7" r="1.5"/></svg>
-                        <span>{{ $booking->schedule->vessel->name }}</span>
+                        <span>{{ $booking->vessel_display }}</span>
                     </div>
                     <div class="booking-card-info-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        <span>{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</span>
+                        <span>{{ $booking->schedule?->departure_time?->format('d M Y, H:i') ?? $booking->openReturnTicket?->return_date?->format('d M Y') ?? '—' }}</span>
                     </div>
                     <div class="booking-card-info-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>

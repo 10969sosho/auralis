@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class DummyDataSeeder extends Seeder
 {
@@ -38,7 +39,7 @@ class DummyDataSeeder extends Seeder
         // ─── 2. ENSURE MASTER DATA EXISTS ─────────────────────────────
         // Vessel
         $vessel = Vessel::first();
-        if (!$vessel) {
+        if (! $vessel) {
             $vessel = Vessel::create([
                 'name' => 'KM Test',
                 'capacity' => 100,
@@ -51,7 +52,7 @@ class DummyDataSeeder extends Seeder
 
         // Route
         $route = Route::first();
-        if (!$route) {
+        if (! $route) {
             $route = Route::create([
                 'origin_port' => 'Batu Pahat',
                 'destination_port' => 'Muara',
@@ -62,7 +63,7 @@ class DummyDataSeeder extends Seeder
 
         // Schedule (tomorrow)
         $schedule = Schedule::first();
-        if (!$schedule) {
+        if (! $schedule) {
             $schedule = Schedule::create([
                 'vessel_id' => $vessel->id,
                 'route_id' => $route->id,
@@ -76,12 +77,8 @@ class DummyDataSeeder extends Seeder
             ]);
         }
 
-        // Age categories
-        if (AgeCategory::count() === 0) {
-            AgeCategory::create(['name' => 'Adult', 'min_age' => 12, 'max_age' => 120, 'sort_order' => 1]);
-            AgeCategory::create(['name' => 'Child', 'min_age' => 2, 'max_age' => 11, 'sort_order' => 2]);
-            AgeCategory::create(['name' => 'Infant', 'min_age' => 0, 'max_age' => 1, 'sort_order' => 3]);
-        }
+        // Age categories are owned by AgeCategorySeeder (single source of age boundaries)
+        $this->call(AgeCategorySeeder::class);
 
         // ─── 3. CREATE 10 TEST USERS ──────────────────────────────────
         $users = [];
@@ -90,15 +87,15 @@ class DummyDataSeeder extends Seeder
                 'name' => "Test User {$i}",
                 'email' => "testuser{$i}@example.com",
                 'password' => Hash::make('password'),
-                'phone' => '0812345678' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'phone' => '0812345678'.str_pad($i, 2, '0', STR_PAD_LEFT),
                 'nationality' => 'Malaysian',
-                'passport_number' => 'A' . str_pad($i, 8, '0', STR_PAD_LEFT),
+                'passport_number' => 'A'.str_pad($i, 8, '0', STR_PAD_LEFT),
                 'birth_date' => '1990-01-15',
                 'gender' => $i % 2 === 0 ? 'female' : 'male',
                 'is_active' => true,
             ]);
-            if (!\Spatie\Permission\Models\Role::where('name', 'customer')->exists()) {
-                \Spatie\Permission\Models\Role::create(['name' => 'customer', 'guard_name' => 'web']);
+            if (! Role::where('name', 'customer')->exists()) {
+                Role::create(['name' => 'customer', 'guard_name' => 'web']);
             }
             $user->assignRole('customer');
             $users[] = $user;
@@ -112,8 +109,8 @@ class DummyDataSeeder extends Seeder
             [2, 'used',             'completed',         180.00, true,  true,  true,  true],  // boarded
             [3, 'used',             'completed',         300.00, true,  true,  true,  true],  // boarded
             [4, 'pending_payment',  'pending',           150.00, false, false, false, false],
-            [5, 'awaiting_approval','awaiting_approval', 220.00, false, false, true,  true],  // uploaded proof, waiting ACC
-            [6, 'awaiting_approval','awaiting_approval', 175.00, false, false, true,  true],  // uploaded proof, waiting ACC
+            [5, 'awaiting_approval', 'awaiting_approval', 220.00, false, false, true,  true],  // uploaded proof, waiting ACC
+            [6, 'awaiting_approval', 'awaiting_approval', 175.00, false, false, true,  true],  // uploaded proof, waiting ACC
             [7, 'cancelled',        'expired',           0,      false, false, false, false],
             [8, 'refunded',         'paid',              190.00, true,  false, true,  true],
             [9, 'expired',          'expired',           0,      false, false, false, false],
@@ -129,7 +126,7 @@ class DummyDataSeeder extends Seeder
             $booking = Booking::create([
                 'user_id' => $user->id,
                 'schedule_id' => $schedule->id,
-                'booking_code' => 'TST-' . str_pad($idx + 1, 3, '0', STR_PAD_LEFT),
+                'booking_code' => 'TST-'.str_pad($idx + 1, 3, '0', STR_PAD_LEFT),
                 'total_passengers' => $hasTickets || in_array($bookingStatus, ['paid', 'used']) ? 2 : 0,
                 'total_amount' => $amount,
                 'discount_amount' => 0,
@@ -143,7 +140,7 @@ class DummyDataSeeder extends Seeder
             if ($hasTickets || in_array($bookingStatus, ['paid', 'used'])) {
                 $passenger1 = BookingPassenger::create([
                     'booking_id' => $booking->id,
-                    'full_name' => $user->name . ' (Adult)',
+                    'full_name' => $user->name.' (Adult)',
                     'gender' => $user->gender,
                     'birth_date' => '1990-06-15',
                     'nationality' => 'Malaysian',
@@ -155,11 +152,11 @@ class DummyDataSeeder extends Seeder
 
                 $passenger2 = BookingPassenger::create([
                     'booking_id' => $booking->id,
-                    'full_name' => $user->name . ' (Child)',
+                    'full_name' => $user->name.' (Child)',
                     'gender' => 'male',
                     'birth_date' => '2018-06-15',
                     'nationality' => 'Malaysian',
-                    'passport_number' => 'C' . str_pad($idx + 1, 8, '0', STR_PAD_LEFT),
+                    'passport_number' => 'C'.str_pad($idx + 1, 8, '0', STR_PAD_LEFT),
                     'passenger_type' => 'Child',
                     'ticket_class' => 'regular',
                     'age_category_id' => AgeCategory::skip(1)->first()?->id ?? $ageCategory?->id,
@@ -192,7 +189,7 @@ class DummyDataSeeder extends Seeder
                 $payment = Payment::create([
                     'booking_id' => $booking->id,
                     'payment_method' => 'transfer',
-                    'transaction_id' => 'TXN-' . str_pad($idx + 1, 6, '0', STR_PAD_LEFT),
+                    'transaction_id' => 'TXN-'.str_pad($idx + 1, 6, '0', STR_PAD_LEFT),
                     'proof_of_transfer' => $hasProof ? 'settings/qr/payment.jpg' : null,
                     'amount' => $amount,
                     'payment_status' => $paymentStatus,
@@ -214,7 +211,7 @@ class DummyDataSeeder extends Seeder
         $this->command->info('1x Refunded');
         $this->command->info('1x Expired');
         $this->command->info('');
-        $this->command->info('Schedule used: ' . $schedule->route->origin_port . ' → ' . $schedule->route->destination_port);
-        $this->command->info('Capacity: VIP ' . $vessel->vip_capacity . ', Regular ' . $vessel->regular_capacity);
+        $this->command->info('Schedule used: '.$schedule->route->origin_port.' → '.$schedule->route->destination_port);
+        $this->command->info('Capacity: VIP '.$vessel->vip_capacity.', Regular '.$vessel->regular_capacity);
     }
 }

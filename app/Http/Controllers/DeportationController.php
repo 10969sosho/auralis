@@ -27,7 +27,7 @@ class DeportationController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isDeportation()) {
+        if (! $user->isDeportation()) {
             return redirect()->route('home')->with('error', 'Akses terhad untuk akaun deportasi sahaja.');
         }
 
@@ -106,7 +106,7 @@ class DeportationController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isDeportation()) {
+        if (! $user->isDeportation()) {
             return redirect()->route('home')->with('error', 'Akses terhad untuk akaun deportasi sahaja.');
         }
 
@@ -117,8 +117,8 @@ class DeportationController extends Controller
             ->where('departure_time', '>', now())
             ->orderBy('departure_time')
             ->get()
-            ->groupBy(fn($s) => $s->route_id . '_' . $s->vessel_id)
-            ->map(fn($group) => $group->first())
+            ->groupBy(fn ($s) => $s->route_id.'_'.$s->vessel_id)
+            ->map(fn ($group) => $group->first())
             ->values();
 
         $ageCategories = AgeCategory::where('is_active', true)->orderBy('sort_order')->get();
@@ -133,7 +133,7 @@ class DeportationController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isDeportation()) {
+        if (! $user->isDeportation()) {
             return redirect()->route('home')->with('error', 'Akses terhad untuk akaun deportasi sahaja.');
         }
 
@@ -151,7 +151,9 @@ class DeportationController extends Controller
 
         $schedule = Schedule::with('vessel', 'route')->findOrFail($validated['schedule_id']);
 
-        if ($schedule->status !== 'scheduled' || !$schedule->is_active) {
+        // H-6 cutoff intentionally not applied: this schedule is only a price source for an
+        // open ticket that is not bound to a sailing (audit L10).
+        if ($schedule->status !== 'scheduled' || ! $schedule->is_active) {
             return back()->with('error', 'Perkhidmatan ini tidak lagi tersedia.');
         }
 
@@ -186,7 +188,7 @@ class DeportationController extends Controller
                 'is_deportation' => true,
                 'shelter_point' => $user->shelter_point,
                 'shelter_fee' => $shelterFee,
-                'route_text' => $schedule->route->origin_port . ' → ' . $schedule->route->destination_port,
+                'route_text' => $schedule->route->origin_port.' → '.$schedule->route->destination_port,
                 'vessel_text' => $schedule->vessel->name,
                 'route_vip_price' => $schedule->vip_price,
                 'route_regular_price' => $schedule->regular_price,
@@ -251,10 +253,11 @@ class DeportationController extends Controller
 
         if ($booking->expires_at && $booking->expires_at->isPast() && $booking->payment_status === 'pending') {
             $booking->update(['booking_status' => 'cancelled', 'payment_status' => 'expired']);
+
             return view('deportation.expired', compact('booking'));
         }
 
-        if (in_array($booking->payment_status, ['paid', 'approved'])) {
+        if ($booking->payment_status === 'paid') {
             return redirect()->route('deportation.success', $booking->booking_code);
         }
 
@@ -272,7 +275,7 @@ class DeportationController extends Controller
             ->with('payment')
             ->firstOrFail();
 
-        if (!in_array($booking->payment_status, ['pending', 'rejected'])) {
+        if (! in_array($booking->payment_status, ['pending', 'rejected'])) {
             return back()->with('error', 'Pembayaran sudah diproses.');
         }
 
@@ -336,7 +339,6 @@ class DeportationController extends Controller
         return view('deportation.ticket', compact('ticket'));
     }
 
-
     /**
      * Show deportation QR scanner for boarding officer.
      */
@@ -356,7 +358,7 @@ class DeportationController extends Controller
 
         $qrData = json_decode($request->qr_data, true);
 
-        if (!$qrData || !isset($qrData['ticket_id'])) {
+        if (! $qrData || ! isset($qrData['ticket_id'])) {
             return response()->json([
                 'success' => false,
                 'status' => 'invalid',
@@ -369,11 +371,19 @@ class DeportationController extends Controller
             ->with(['passenger', 'booking.user', 'booking.schedule.vessel', 'booking.schedule.route'])
             ->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             return response()->json([
                 'success' => false,
                 'status' => 'invalid',
                 'message' => 'Tiket deportasi tidak dijumpai.',
+            ]);
+        }
+
+        if (! hash_equals((string) ($ticket->qr_token ?? ''), (string) ($qrData['token'] ?? ''))) {
+            return response()->json([
+                'success' => false,
+                'status' => 'invalid',
+                'message' => 'Kod QR tidak sepadan dengan tiket ini.',
             ]);
         }
 
@@ -394,6 +404,15 @@ class DeportationController extends Controller
                 'success' => false,
                 'status' => 'invalid',
                 'message' => 'Tiket deportasi ini telah dibatalkan.',
+                'type' => 'red_rejection',
+            ]);
+        }
+
+        if ($ticket->ticket_status === 'refunded' || $ticket->ticket_status === 'expired') {
+            return response()->json([
+                'success' => false,
+                'status' => 'invalid',
+                'message' => 'Tiket deportasi ini tidak sah ('.$ticket->ticket_status.').',
                 'type' => 'red_rejection',
             ]);
         }
@@ -431,8 +450,6 @@ class DeportationController extends Controller
             ]);
         });
 
-        $schedule = $ticket->booking->schedule;
-
         return response()->json([
             'success' => true,
             'status' => 'valid',
@@ -442,10 +459,10 @@ class DeportationController extends Controller
             'ticket_number' => $ticket->ticket_number,
             'ticket_class' => ucfirst($ticket->ticket_class),
             'passenger_type' => $ticket->passenger->passenger_type,
-            'shelter_point' => $ticket->booking->user->shelter_point_name ?? '—',
-            'route' => $schedule->route->origin_port.' → '.$schedule->route->destination_port,
-            'vessel' => $schedule->vessel->name,
-            'departure' => $schedule->departure_time->format('d M Y, H:i'),
+            'shelter_point' => $ticket->booking->user?->shelter_point_name ?? '—',
+            'route' => $ticket->booking->route_display,
+            'vessel' => $ticket->booking->vessel_display,
+            'departure' => $ticket->booking->schedule?->departure_time?->format('d M Y, H:i') ?? '—',
         ]);
     }
 
@@ -456,7 +473,7 @@ class DeportationController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isDeportation()) {
+        if (! $user->isDeportation()) {
             return redirect()->route('home');
         }
 
@@ -550,7 +567,7 @@ class DeportationController extends Controller
 
         $qrData = json_decode($request->qr_data, true);
 
-        if (!$qrData || !isset($qrData['passenger_id'])) {
+        if (! $qrData || ! isset($qrData['passenger_id'])) {
             return response()->json([
                 'status' => 'invalid',
                 'message' => 'Invalid QR code.',
@@ -560,7 +577,7 @@ class DeportationController extends Controller
         $passenger = DeportationPassenger::with('manifest.schedule.vessel', 'manifest.schedule.route')
             ->find($qrData['passenger_id']);
 
-        if (!$passenger) {
+        if (! $passenger) {
             return response()->json([
                 'status' => 'invalid',
                 'message' => 'Passenger not found.',

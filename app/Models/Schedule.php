@@ -46,37 +46,38 @@ class Schedule extends Model
         return $this->hasMany(ScheduleAgePrice::class);
     }
 
-    public function getTotalBookedAttribute(): int
+    public function seatHolders()
     {
         return $this->bookings()
-            ->whereIn('booking_status', ['paid', 'used', 'refund_requested'])
-            ->with('passengers')
+            ->where(function ($query) {
+                $query->whereIn('booking_status', ['paid', 'used', 'refund_requested', 'awaiting_approval'])
+                    ->orWhere(function ($hold) {
+                        $hold->where('booking_status', 'pending_payment')
+                            ->where('expires_at', '>', now());
+                    });
+            })
+            ->with('passengers');
+    }
+
+    public function getTotalBookedAttribute(): int
+    {
+        return $this->seatHolders()
             ->get()
-            ->sum(function ($booking) {
-                return $booking->passengers->count();
-            });
+            ->sum(fn ($booking) => $booking->passengers->count());
     }
 
     public function getVipBookedAttribute(): int
     {
-        return $this->bookings()
-            ->whereIn('booking_status', ['paid', 'used', 'refund_requested'])
-            ->with('passengers')
+        return $this->seatHolders()
             ->get()
-            ->sum(function ($booking) {
-                return $booking->passengers->where('ticket_class', 'vip')->count();
-            });
+            ->sum(fn ($booking) => $booking->passengers->where('ticket_class', 'vip')->count());
     }
 
     public function getRegularBookedAttribute(): int
     {
-        return $this->bookings()
-            ->whereIn('booking_status', ['paid', 'used', 'refund_requested'])
-            ->with('passengers')
+        return $this->seatHolders()
             ->get()
-            ->sum(function ($booking) {
-                return $booking->passengers->where('ticket_class', 'regular')->count();
-            });
+            ->sum(fn ($booking) => $booking->passengers->where('ticket_class', 'regular')->count());
     }
 
     public function getIsFullyBookedAttribute(): bool
@@ -85,6 +86,63 @@ class Schedule extends Model
         $regularCapacity = $this->vessel?->regular_capacity ?? 0;
 
         return $this->vipBooked >= $vipCapacity && $this->regularBooked >= $regularCapacity;
+    }
+
+    /**
+     * Shared seat-availability payload used by the broadcast event and the JSON endpoint.
+     * `booked`/`remaining`/`available` all use the same status list so they can never disagree.
+     */
+    public function seatAvailabilityData(): array
+    {
+        $vipCapacity = (int) ($this->vessel?->vip_capacity ?? 0);
+        $regularCapacity = (int) ($this->vessel?->regular_capacity ?? 0);
+        $vipBooked = (int) $this->vip_booked;
+        $regularBooked = (int) $this->regular_booked;
+        $totalCapacity = $vipCapacity + $regularCapacity;
+        $totalBooked = $vipBooked + $regularBooked;
+
+        $vipPaid = 0;
+        $regularPaid = 0;
+        $paidBookings = $this->bookings()
+            ->whereIn('booking_status', ['paid', 'used'])
+            ->with('passengers')
+            ->get();
+        foreach ($paidBookings as $booking) {
+            foreach ($booking->passengers as $passenger) {
+                if ($passenger->ticket_class === 'vip') {
+                    $vipPaid++;
+                } else {
+                    $regularPaid++;
+                }
+            }
+        }
+        $totalPaid = $vipPaid + $regularPaid;
+
+        $class = function (int $capacity, int $booked, int $paid): array {
+            $remaining = max(0, $capacity - $booked);
+
+            return [
+                'capacity' => $capacity,
+                'booked' => $booked,
+                'paid' => $paid,
+                'remaining' => $remaining,
+                'available' => $remaining,
+                'status' => $remaining > 0 ? 'available' : 'full',
+            ];
+        };
+
+        return [
+            'vip' => $class($vipCapacity, $vipBooked, $vipPaid),
+            'regular' => $class($regularCapacity, $regularBooked, $regularPaid),
+            'total' => [
+                'capacity' => $totalCapacity,
+                'booked' => $totalBooked,
+                'paid' => $totalPaid,
+                'remaining' => max(0, $totalCapacity - $totalBooked),
+                'available' => max(0, $totalCapacity - $totalBooked),
+                'occupancy_percentage' => $totalCapacity > 0 ? round(($totalBooked / $totalCapacity) * 100, 2) : 0,
+            ],
+        ];
     }
 
     public function getIsH6PassedAttribute(): bool
@@ -110,7 +168,9 @@ class Schedule extends Model
 
         if ($category) {
             $agePrice = $this->getAgeCategoryPrice($category->id);
-            if ($agePrice !== null) {
+            // Age price only applies when it is class-agnostic (child/infant) —
+            // otherwise adults would silently pay the age price instead of vip_price.
+            if ($agePrice !== null && $ticketClass !== 'vip') {
                 return $agePrice;
             }
         }

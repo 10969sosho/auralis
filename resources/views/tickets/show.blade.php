@@ -20,7 +20,7 @@
                 <div class="ticket-pass-vessel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ticket-pass-ship"><path d="M2 21h20M6 18l2-6h8l2 6M9 12V7M15 12V7M12 7V3"/><path d="M5 7h14l-2 5H7L5 7Z"/><circle cx="12" cy="7" r="1.5"/></svg>
                     <div>
-                        <span class="ticket-pass-vessel-name">{{ $ticket->booking->schedule->vessel->name }}</span>
+                        <span class="ticket-pass-vessel-name">{{ $ticket->booking->vessel_display }}</span>
                         <span class="ticket-pass-badge" data-translate-en="International Ferry" data-translate-id="Ferry Internasional">International Ferry</span>
                     </div>
                 </div>
@@ -28,10 +28,11 @@
             </div>
         </div>
 
+        @php [$originPort, $destinationPort] = array_pad(explode(' → ', $ticket->booking->route_display), 2, ''); @endphp
         <div class="ticket-pass-route" style="margin-top:10px;">
             <div class="ticket-pass-point">
                 <span class="ticket-pass-point-label" data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</span>
-                <span class="ticket-pass-point-port">{{ $ticket->booking->schedule->route->origin_port }}</span>
+                <span class="ticket-pass-point-port">{{ $originPort }}</span>
             </div>
             <div class="ticket-pass-connect">
                 <div class="ticket-pass-line">
@@ -43,20 +44,20 @@
             </div>
             <div class="ticket-pass-point ticket-pass-point-right">
                 <span class="ticket-pass-point-label" data-translate-en="Arrival" data-translate-id="Kedatangan">Arrival</span>
-                <span class="ticket-pass-point-port">{{ $ticket->booking->schedule->route->destination_port }}</span>
+                <span class="ticket-pass-point-port">{{ $destinationPort }}</span>
             </div>
         </div>
 
         <div class="ticket-pass-times">
             <div class="ticket-pass-time-block">
                 <span class="ticket-pass-time-label" data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</span>
-                <span class="ticket-pass-time-value">{{ $ticket->booking->schedule->departure_time->format('H:i') }}</span>
-                <span class="ticket-pass-time-date">{{ $ticket->booking->schedule->departure_time->format('d M Y') }}</span>
+                <span class="ticket-pass-time-value">{{ $ticket->booking->schedule?->departure_time?->format('H:i') ?? '—' }}</span>
+                <span class="ticket-pass-time-date">{{ $ticket->booking->schedule?->departure_time?->format('d M Y') ?? ($ticket->booking->openReturnTicket?->return_date?->format('d M Y') ?? '—') }}</span>
             </div>
             <div class="ticket-pass-time-block ticket-pass-time-block-right">
                 <span class="ticket-pass-time-label" data-translate-en="Arrival" data-translate-id="Kedatangan">Arrival</span>
-                <span class="ticket-pass-time-value">{{ $ticket->booking->schedule->arrival_time->format('H:i') }}</span>
-                <span class="ticket-pass-time-date">{{ $ticket->booking->schedule->arrival_time->format('d M Y') }}</span>
+                <span class="ticket-pass-time-value">{{ $ticket->booking->schedule?->arrival_time?->format('H:i') ?? '—' }}</span>
+                <span class="ticket-pass-time-date">{{ $ticket->booking->schedule?->arrival_time?->format('d M Y') ?? '—' }}</span>
             </div>
         </div>
 

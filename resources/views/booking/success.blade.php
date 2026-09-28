@@ -16,15 +16,15 @@
         <div class="success-details">
             <div class="success-row">
                 <span class="success-label" data-translate-en="Vessel" data-translate-id="Kapal">Vessel</span>
-                <span class="success-value">{{ $booking->schedule->vessel->name }}</span>
+                <span class="success-value">{{ $booking->vessel_display }}</span>
             </div>
             <div class="success-row">
                 <span class="success-label" data-translate-en="Route" data-translate-id="Rute">Route</span>
-                <span class="success-value">{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</span>
+                <span class="success-value">{{ $booking->route_display }}</span>
             </div>
             <div class="success-row">
                 <span class="success-label" data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</span>
-                <span class="success-value">{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</span>
+                <span class="success-value">{{ $booking->schedule?->departure_time?->format('d M Y, H:i') ?? $booking->openReturnTicket?->return_date?->format('d M Y') ?? '—' }}</span>
             </div>
             <div class="success-row">
                 <span class="success-label" data-translate-en="Amount" data-translate-id="Jumlah">Amount</span>
@@ -32,7 +32,7 @@
             </div>
             <div class="success-row">
                 <span class="success-label" data-translate-en="Payment" data-translate-id="Pembayaran">Payment</span>
-                <span class="success-value capitalize">{{ $booking->payment->payment_method }}</span>
+                <span class="success-value capitalize">{{ $booking->payment?->payment_method ?? '—' }}</span>
             </div>
         </div>
     </div>
@@ -44,9 +44,11 @@
             <div class="success-ticket-item">
                 <div class="success-ticket-info">
                     <span class="success-ticket-name">{{ $passenger->full_name }}</span>
-                    <span class="success-ticket-meta">{{ $passenger->ticket->ticket_number }} | {{ ucfirst($passenger->ticket_class) }}</span>
+                    <span class="success-ticket-meta">{{ $passenger->ticket?->ticket_number ?? 'Ticket pending' }} | {{ ucfirst($passenger->ticket_class) }}</span>
                 </div>
+                @if($passenger->ticket)
                 <a href="{{ route('tickets.show', $passenger->ticket).(($isGuestAccess ?? false) ? '?token='.$booking->guest_token : '') }}" class="success-ticket-link" data-translate-en="View Ticket" data-translate-id="Lihat Tiket">View Ticket</a>
+                @endif
             </div>
             @endforeach
         </div>

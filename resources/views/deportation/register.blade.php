@@ -47,7 +47,7 @@
 
                 <div class="auth-form-row">
                     <div class="auth-field">
-                        <label for="phone" class="auth-label">Phone</label>
+                        <label for="phone" class="auth-label">Phone/WhatsApp Number</label>
                         <input type="text" name="phone" id="phone" value="{{ old('phone') }}" class="auth-input" placeholder="+60...">
                     </div>
                     <div class="auth-field">

@@ -1,4 +1,12 @@
 <x-filament-panels::page>
+@php
+    $reportFilters = [
+        'schedule_id' => $this->scheduleId ?: null,
+        'status' => $this->status ?: null,
+        'date_from' => $this->dateFrom ?: null,
+        'date_to' => $this->dateTo ?: null,
+    ];
+@endphp
 <div class="report-dashboard">
 
     {{-- Header --}}
@@ -47,22 +55,22 @@
 
     {{-- KPI Cards --}}
     <div class="rd-section" wire:poll.30s>
-        @livewire(\App\Filament\Widgets\ReportsStatsOverviewWidget::class)
+        @livewire(\App\Filament\Widgets\ReportsStatsOverviewWidget::class, ['filters' => $reportFilters])
     </div>
 
     {{-- Charts --}}
     <div class="rd-charts-row">
         <div class="rd-chart-box" wire:poll.30s>
-            @livewire(\App\Filament\Widgets\RevenueChartWidget::class)
+            @livewire(\App\Filament\Widgets\RevenueChartWidget::class, ['filters' => $reportFilters])
         </div>
         <div class="rd-chart-box" wire:poll.30s>
-            @livewire(\App\Filament\Widgets\BookingTrendChartWidget::class)
+            @livewire(\App\Filament\Widgets\BookingTrendChartWidget::class, ['filters' => $reportFilters])
         </div>
     </div>
 
     {{-- Table --}}
     <div class="rd-section" wire:poll.30s>
-        @livewire(\App\Filament\Widgets\ScheduleTableWidget::class)
+        @livewire(\App\Filament\Widgets\ScheduleTableWidget::class, ['filters' => $reportFilters])
     </div>
 
 </div>

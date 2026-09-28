@@ -105,7 +105,7 @@
                 <input type="text" name="passport_number" id="passport_number" class="form-input">
             </div>
             <div class="form-group">
-                <label for="phone" class="form-label" data-translate-en="Phone" data-translate-id="Telepon">Phone</label>
+                <label for="phone" class="form-label" data-translate-en="Phone/WhatsApp Number" data-translate-id="Nomor Telepon/WhatsApp">Phone/WhatsApp Number</label>
                 <input type="text" name="phone" id="phone" class="form-input">
             </div>
             <button type="submit" class="btn btn-primary btn-block" data-translate-en="Save Profile" data-translate-id="Simpan Profil">Save Profile</button>

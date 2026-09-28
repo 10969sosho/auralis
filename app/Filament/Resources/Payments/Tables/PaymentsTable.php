@@ -4,17 +4,17 @@ namespace App\Filament\Resources\Payments\Tables;
 
 use App\Events\SeatAvailabilityUpdated;
 use App\Helpers\MailHelper;
+use App\Helpers\StatusHelper;
 use App\Models\Payment;
 use App\Models\Ticket;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
-use App\Helpers\StatusHelper;
+use Illuminate\Support\Facades\DB;
 
 class PaymentsTable
 {
@@ -34,6 +34,7 @@ class PaymentsTable
                         if ($record->booking && is_null($record->booking->user_id)) {
                             return 'COUNTER';
                         }
+
                         return $record->booking?->user?->name ?? '—';
                     }),
 
@@ -42,11 +43,14 @@ class PaymentsTable
                     ->formatStateUsing(function (TextColumn $column) {
                         $record = $column->getRecord();
                         $booking = $record?->booking;
-                        if (!$booking) return '—';
+                        if (! $booking) {
+                            return '—';
+                        }
                         if ($booking->is_deportation) {
                             return $booking->route_display ?? 'Deportation';
                         }
-                        return ($booking->schedule?->route?->origin_port ?? '?') . ' → ' . ($booking->schedule?->route?->destination_port ?? '?');
+
+                        return ($booking->schedule?->route?->origin_port ?? '?').' → '.($booking->schedule?->route?->destination_port ?? '?');
                     }),
 
                 TextColumn::make('amount')
@@ -124,7 +128,7 @@ class PaymentsTable
                             $isDeportation = $booking->is_deportation ?? false;
 
                             foreach ($booking->passengers as $passenger) {
-                                if (!$passenger->ticket) {
+                                if (! $passenger->ticket) {
                                     $ticketData = [
                                         'booking_id' => $booking->id,
                                         'ticket_class' => $passenger->ticket_class,
@@ -138,14 +142,14 @@ class PaymentsTable
                                         $ticketData['expiry_date'] = null;
                                         $ticketData['is_deportation'] = true;
                                     } else {
-                                        $ticketData['expiry_date'] = $booking->schedule?->departure_time?->startOfDay();
+                                        $ticketData['expiry_date'] = $booking->schedule?->departure_time?->endOfDay();
                                     }
 
                                     $passenger->ticket()->create($ticketData);
                                 }
                             }
 
-                            if (!$isDeportation && $booking->schedule) {
+                            if (! $isDeportation && $booking->schedule) {
                                 event(new SeatAvailabilityUpdated($booking->schedule));
                             }
 
@@ -188,4 +192,3 @@ class PaymentsTable
             ]);
     }
 }
-

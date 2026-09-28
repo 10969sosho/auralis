@@ -2,13 +2,15 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Booking;
+use App\Filament\Widgets\Concerns\AppliesReportFilters;
 use Carbon\Carbon;
 use Filament\Widgets\LineChartWidget;
 
 class RevenueChartWidget extends LineChartWidget
 {
-    protected int | string | array $columnSpan = 1;
+    use AppliesReportFilters;
+
+    protected int|string|array $columnSpan = 1;
 
     public function getHeading(): ?string
     {
@@ -45,7 +47,7 @@ class RevenueChartWidget extends LineChartWidget
 
             return [
                 'label' => $date->format('d M'),
-                'revenue' => (float) Booking::whereIn('booking_status', ['paid', 'used'])
+                'revenue' => (float) $this->reportBookings()->whereIn('booking_status', ['paid', 'used'])
                     ->whereDate('created_at', $date)
                     ->sum('total_amount'),
             ];

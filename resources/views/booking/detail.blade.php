@@ -4,6 +4,7 @@
 @section('content')
 
 <div class="detail-page">
+    @php $guestTokenParam = ($isGuestAccess ?? false) && $booking->guest_token ? '?token='.$booking->guest_token : ''; @endphp
     <div class="detail-top">
         @if(!($isGuestAccess ?? false))
         <a href="{{ route('booking.history') }}" class="detail-back">
@@ -39,26 +40,29 @@
             <div class="detail-card-body">
                 <div class="detail-row">
                     <span class="detail-row-label" data-translate-en="Vessel" data-translate-id="Kapal">Vessel</span>
-                    <span class="detail-row-value">{{ $booking->schedule->vessel->name }}</span>
+                    <span class="detail-row-value">{{ $booking->vessel_display }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-row-label" data-translate-en="Route" data-translate-id="Rute">Route</span>
-                    <span class="detail-row-value">{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</span>
+                    <span class="detail-row-value">{{ $booking->route_display }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-row-label" data-translate-en="Departure" data-translate-id="Keberangkatan">Departure</span>
-                    <span class="detail-row-value">{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</span>
+                    <span class="detail-row-value">{{ $booking->schedule?->departure_time?->format('d M Y, H:i') ?? '—' }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-row-label" data-translate-en="Arrival" data-translate-id="Kedatangan">Arrival</span>
-                    <span class="detail-row-value">{{ $booking->schedule->arrival_time->format('d M Y, H:i') }}</span>
+                    <span class="detail-row-value">{{ $booking->schedule?->arrival_time?->format('d M Y, H:i') ?? '—' }}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-row-label" data-translate-en="Duration" data-translate-id="Durasi">Duration</span>
                     <span class="detail-row-value">
-                        {{ $booking->schedule->departure_time->diffInMinutes($booking->schedule->arrival_time) >= 60
-                            ? floor($booking->schedule->departure_time->diffInMinutes($booking->schedule->arrival_time) / 60).'h '.($booking->schedule->departure_time->diffInMinutes($booking->schedule->arrival_time) % 60).'m'
-                            : $booking->schedule->departure_time->diffInMinutes($booking->schedule->arrival_time).'m' }}
+                        @if($booking->schedule)
+                            @php $durationMinutes = (int) $booking->schedule->departure_time->diffInMinutes($booking->schedule->arrival_time); @endphp
+                            {{ $durationMinutes >= 60 ? floor($durationMinutes / 60).'h '.($durationMinutes % 60).'m' : $durationMinutes.'m' }}
+                        @else
+                            —
+                        @endif
                     </span>
                 </div>
                 <div class="detail-divider"></div>
@@ -156,7 +160,7 @@
             <h3 class="detail-refund-title" style="color:#d97706" data-translate-en="Payment Pending" data-translate-id="Pembayaran Tertunda">Payment Pending</h3>
             <p class="detail-refund-info" style="color:#6b7280;margin-bottom:16px;" data-translate-en="Your booking is waiting for payment. Please complete the payment to confirm your tickets." data-translate-id="Pemesanan Anda menunggu pembayaran. Silakan selesaikan pembayaran untuk mengonfirmasi tiket Anda.">Your booking is waiting for payment. Please complete the payment to confirm your tickets.</p>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <a href="{{ route('booking.payment', $booking->booking_code) }}" class="detail-refund-btn" style="background:#d97706;color:#fff;" data-translate-en="Continue to Payment" data-translate-id="Lanjutkan ke Pembayaran">
+                <a href="{{ route('booking.payment', $booking->booking_code).$guestTokenParam }}" class="detail-refund-btn" style="background:#d97706;color:#fff;" data-translate-en="Continue to Payment" data-translate-id="Lanjutkan ke Pembayaran">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     Continue to Payment
                 </a>
@@ -179,7 +183,7 @@
             @endif
             <p class="detail-refund-notice" style="color:#6b7280;margin-bottom:16px;" data-translate-en="Your proof of transfer was not accepted. Please re-upload a valid proof or contact support." data-translate-id="Bukti transfer Anda tidak diterima. Silakan unggah ulang bukti yang valid atau hubungi dukungan.">Your proof of transfer was not accepted. Please re-upload a valid proof or contact support.</p>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <a href="{{ route('booking.payment', $booking->booking_code) }}" class="detail-refund-btn" data-translate-en="Re-upload Proof" data-translate-id="Unggah Ulang Bukti">
+                <a href="{{ route('booking.payment', $booking->booking_code).$guestTokenParam }}" class="detail-refund-btn" data-translate-en="Re-upload Proof" data-translate-id="Unggah Ulang Bukti">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Re-upload Proof
                 </a>
@@ -212,7 +216,10 @@
                 <p class="detail-refund-notice" data-translate-en="Refund will be processed manually via WhatsApp by admin." data-translate-id="Pengembalian dana akan diproses secara manual melalui WhatsApp oleh admin.">Refund will be processed manually via WhatsApp by admin.</p>
             </div>
         </div>
-    @elseif($booking->booking_status === 'paid' && !$booking->schedule->isH6Passed)
+    @endif
+    @if($booking->booking_status === 'paid'
+        && !($booking->schedule?->isH6Passed ?? false)
+        && (!$booking->refund || $booking->refund->refund_status === 'rejected'))
         <div class="detail-refund-card detail-refund-card-orange">
             <div class="detail-refund-icon" style="color:#EA580C">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -220,7 +227,7 @@
             <div class="detail-refund-body">
                 <h3 class="detail-refund-title" data-translate-en="Request Refund" data-translate-id="Ajukan Pengembalian Dana">Request Refund</h3>
                 <p class="detail-refund-info" data-translate-en="Refund policy: 25% of total amount (RM ...). Request must be made before H-6 departure." data-translate-id="Kebijakan pengembalian dana: 25% dari jumlah total (RM ...). Permintaan harus diajukan sebelum H-6 keberangkatan.">Refund policy: <strong>25%</strong> of total amount (RM {{ number_format($booking->total_amount * 0.25, 2) }}). Request must be made before H-6 departure.</p>
-                <form action="{{ route('booking.refund', $booking->booking_code) }}" method="POST" class="detail-refund-form">
+                <form action="{{ route('booking.refund', $booking->booking_code).$guestTokenParam }}" method="POST" class="detail-refund-form">
                     @csrf
                     <textarea name="refund_reason" required placeholder="Tell us your reason for refund..." class="detail-refund-textarea" rows="3" data-translate-en="Tell us your reason for refund..." data-translate-id="Ceritakan alasan Anda untuk pengembalian dana..."></textarea>
                     <button type="submit" class="detail-refund-btn" data-translate-en="Request Refund" data-translate-id="Ajukan Pengembalian Dana">

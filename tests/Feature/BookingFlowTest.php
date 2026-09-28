@@ -8,7 +8,9 @@ use App\Models\User;
 use App\Models\Vessel;
 use Carbon\Carbon;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class BookingFlowTest extends TestCase
@@ -22,7 +24,7 @@ class BookingFlowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class);
+        $this->withoutMiddleware(VerifyCsrfToken::class);
 
         $this->seed(RoleAndPermissionSeeder::class);
 
@@ -78,7 +80,7 @@ class BookingFlowTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect('/');
+        $response->assertRedirect('/schedules');
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
     }
 
@@ -91,7 +93,7 @@ class BookingFlowTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/');
+        $response->assertRedirect('/schedules');
         $this->assertAuthenticatedAs($user);
     }
 
@@ -147,14 +149,25 @@ class BookingFlowTest extends TestCase
         $this->assertTrue($scheduleClose->isBoardingClosed);
     }
 
-    public function test_guest_redirected_to_login_for_booking(): void
+    public function test_guest_can_book_without_an_account(): void
     {
         $response = $this->post('/booking', [
             'schedule_id' => $this->schedule->id,
-            'passengers' => [],
+            'guest_email' => 'guest@example.com',
+            'passengers' => [[
+                'full_name' => 'Guest Passenger',
+                'gender' => 'male',
+                'birth_date' => '1990-01-01',
+                'nationality' => 'Malaysian',
+                'passport_number' => 'G000001',
+                'phone_number' => '0123456789',
+                'ticket_class' => 'regular',
+                'passport_file' => UploadedFile::fake()->create('passport.pdf', 10, 'application/pdf'),
+            ]],
         ]);
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect();
+        $this->assertDatabaseHas('bookings', ['guest_email' => 'guest@example.com']);
     }
 
     public function test_boarding_scanner_requires_auth(): void

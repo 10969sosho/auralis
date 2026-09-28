@@ -32,7 +32,7 @@ class RefundsTable
 
                 TextColumn::make('booking.schedule.route.origin_port')
                     ->label('Route')
-                    ->formatStateUsing(fn ($record) => ($record->booking?->schedule?->route->origin_port ?? '?') . ' → ' . ($record->booking?->schedule?->route->destination_port ?? '?')),
+                    ->formatStateUsing(fn ($record) => ($record->booking?->schedule?->route->origin_port ?? '?').' → '.($record->booking?->schedule?->route->destination_port ?? '?')),
 
                 TextColumn::make('refund_amount')
                     ->label('Amount')
@@ -57,7 +57,7 @@ class RefundsTable
                 TextColumn::make('booking.user.phone')
                     ->label('Contact')
                     ->formatStateUsing(fn ($state) => $state
-                        ? '<a href="https://wa.me/' . preg_replace('/[^0-9]/', '', $state) . '?text=Refund%20Booking%20' . urlencode($state) . '" target="_blank" class="text-green-600 underline text-sm">WhatsApp</a>'
+                        ? '<a href="https://wa.me/'.preg_replace('/[^0-9]/', '', $state).'?text=Refund%20Booking%20'.urlencode($record->booking?->booking_code ?? '').'" target="_blank" class="text-green-600 underline text-sm">WhatsApp</a>'
                         : '—'
                     )
                     ->html(),
@@ -95,7 +95,7 @@ class RefundsTable
                                         ->label('Customer'),
                                     TextEntry::make('booking.schedule.route.origin_port')
                                         ->label('Route')
-                                        ->formatStateUsing(fn ($record) => ($record->booking?->schedule?->route->origin_port ?? '?') . ' → ' . ($record->booking?->schedule?->route->destination_port ?? '?')),
+                                        ->formatStateUsing(fn ($record) => ($record->booking?->schedule?->route->origin_port ?? '?').' → '.($record->booking?->schedule?->route->destination_port ?? '?')),
                                     TextEntry::make('refund_amount')
                                         ->label('Refund Amount')
                                         ->money('MYR'),
@@ -214,9 +214,9 @@ class RefundsTable
                     ->label('WhatsApp')
                     ->color('success')
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                    ->url(fn (Refund $record): string => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $record->booking?->user?->phone ?? '') . '?text=Hi%20' . urlencode($record->booking?->user?->name ?? '') . '%2C%20regarding%20your%20refund%20request%20for%20Booking%20%23' . ($record->booking?->booking_code ?? '') . '.')
+                    ->url(fn (Refund $record): string => 'https://wa.me/'.preg_replace('/[^0-9]/', '', $record->booking?->user?->phone ?? '').'?text=Hi%20'.urlencode($record->booking?->user?->name ?? '').'%2C%20regarding%20your%20refund%20request%20for%20Booking%20%23'.($record->booking?->booking_code ?? '').'.')
                     ->openUrlInNewTab()
-                    ->visible(fn (Refund $record): bool => !empty($record->booking?->user?->phone)),
+                    ->visible(fn (Refund $record): bool => ! empty($record->booking?->user?->phone)),
             ]);
     }
 }

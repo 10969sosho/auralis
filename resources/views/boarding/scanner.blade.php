@@ -279,7 +279,32 @@ function manualValidate(e) {
     e.preventDefault();
     const code = document.getElementById('manualCode').value.trim();
     if (!code) return;
-    processScan(code);
+    validateManual(code);
+}
+
+function validateManual(code, ticketId) {
+    isScanning = false;
+    stopScanner();
+    document.getElementById('scannerStatus').textContent = 'Processing...';
+    document.getElementById('scannerStatus').style.color = '#6b7280';
+    document.getElementById('scanResult').style.display = 'none';
+
+    fetch('{{ route("boarding.manual-validate") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            booking_code: code,
+            ticket_id: ticketId || null,
+            schedule_id: '{{ request("schedule_id") }}',
+        }),
+    })
+    .then(r => r.json())
+    .then(renderScanResult)
+    .catch(renderConnectionError);
 }
 
 function processScan(qrData) {
@@ -297,10 +322,14 @@ function processScan(qrData) {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json',
         },
-        body: JSON.stringify({ qr_data: qrData }),
+        body: JSON.stringify({ qr_data: qrData, schedule_id: '{{ request("schedule_id") }}' }),
     })
     .then(r => r.json())
-    .then(data => {
+    .then(renderScanResult)
+    .catch(renderConnectionError);
+}
+
+function renderScanResult(data) {
         const result = document.getElementById('scanResult');
         const icon = document.getElementById('scanResultIcon');
         const title = document.getElementById('scanResultTitle');
@@ -323,6 +352,22 @@ function processScan(qrData) {
                 '<tr><td>Status</td><td><span style="color:#059669;font-weight:700;">BOARDED</span></td></tr>' +
                 '</table>';
             againBtn.style.display = 'block';
+        } else if (data.status === 'select') {
+            icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" style="width:48px;height:48px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+            title.textContent = 'Select Passenger';
+            title.style.color = '#2563EB';
+            let html = '<p style="color:#2563EB;text-align:center;padding:8px 0;font-size:0.95rem;">' + data.message + '</p>';
+            data.tickets.forEach(t => {
+                const disabled = t.ticket_status !== 'active';
+                html += '<button type="button" class="scanner-ticket-pick" ' + (disabled ? 'disabled' : '') +
+                    ' onclick="validateManual(\'' + data.booking_code + '\',' + t.ticket_id + ')" ' +
+                    'style="display:block;width:100%;margin:4px 0;padding:10px;border:1px solid #2563EB;border-radius:8px;background:#fff;color:#2563EB;font-weight:600;cursor:pointer;' +
+                    (disabled ? 'opacity:0.5;cursor:not-allowed;border-color:#9ca3af;color:#6b7280;' : '') + '">' +
+                    t.passenger_name + ' — ' + t.ticket_number +
+                    (disabled ? ' (' + t.ticket_status + ')' : '') + '</button>';
+            });
+            body.innerHTML = html;
+            againBtn.style.display = 'block';
         } else {
             icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" style="width:48px;height:48px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
             title.textContent = '✕ ' + (data.message || 'Invalid Ticket');
@@ -332,15 +377,15 @@ function processScan(qrData) {
         }
 
         againBtn.textContent = 'Scan Another Ticket';
-    })
-    .catch(err => {
+}
+
+function renderConnectionError() {
         document.getElementById('scanResult').style.display = 'block';
         document.getElementById('scanResultIcon').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="width:48px;height:48px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
         document.getElementById('scanResultTitle').textContent = 'Connection Error';
         document.getElementById('scanResultTitle').style.color = '#D97706';
         document.getElementById('scanResultBody').innerHTML = '<p style="color:#D97706;text-align:center;">Check your connection and try again.</p>';
         document.getElementById('scanAgainBtn').style.display = 'block';
-    });
 }
 
 function resetAndScan() {

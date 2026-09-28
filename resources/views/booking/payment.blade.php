@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Payment')
 
+@php $guestTokenParam = ($booking->guest_token ?? null) ? '?token='.$booking->guest_token : ''; @endphp
+
 @push('styles')
 <style>
 /* SVG icons base */
@@ -415,7 +417,6 @@
             <img src="{{ asset('storage/' . $booking->payment->proof_of_transfer) }}" alt="Proof of Transfer">
         </div>
         @endif
-        @php $guestTokenParam = $booking->guest_token ? '?token='.$booking->guest_token : ''; @endphp
         <div class="payment-actions">
             <a href="{{ route('booking.detail', $booking->booking_code).$guestTokenParam }}" class="btn btn-primary" data-translate-en="View Booking Details" data-translate-id="Lihat Detail Pemesanan">View Booking Details</a>
         </div>
@@ -427,7 +428,7 @@
         </div>
         <h2 data-translate-en="Payment Successful" data-translate-id="Pembayaran Berhasil">Payment Successful</h2>
         <div class="payment-actions">
-            <a href="{{ route('booking.success', $booking->booking_code) }}" class="btn btn-primary" data-translate-en="View Tickets" data-translate-id="Lihat Tiket">View Tickets</a>
+            <a href="{{ route('booking.success', $booking->booking_code).$guestTokenParam }}" class="btn btn-primary" data-translate-en="View Tickets" data-translate-id="Lihat Tiket">View Tickets</a>
         </div>
     </div>
     @else
@@ -460,15 +461,15 @@
             <div class="payment-card-body">
                 <div class="payment-info-row">
                     <span class="payment-info-label" data-translate-en="Vessel" data-translate-id="Kapal">Vessel</span>
-                    <span class="payment-info-value">{{ $booking->schedule->vessel->name }}</span>
+                    <span class="payment-info-value">{{ $booking->vessel_display }}</span>
                 </div>
                 <div class="payment-info-row">
                     <span class="payment-info-label" data-translate-en="Route" data-translate-id="Laluan">Route</span>
-                    <span class="payment-info-value">{{ $booking->schedule->route->origin_port }} → {{ $booking->schedule->route->destination_port }}</span>
+                    <span class="payment-info-value">{{ $booking->route_display }}</span>
                 </div>
                 <div class="payment-info-row">
                     <span class="payment-info-label" data-translate-en="Departure" data-translate-id="Berlepas">Departure</span>
-                    <span class="payment-info-value">{{ $booking->schedule->departure_time->format('d M Y, H:i') }}</span>
+                    <span class="payment-info-value">{{ $booking->schedule?->departure_time?->format('d M Y, H:i') ?? $booking->openReturnTicket?->return_date?->format('d M Y') ?? '—' }}</span>
                 </div>
                 <div class="payment-info-row">
                     <span class="payment-info-label" data-translate-en="Passengers" data-translate-id="Penumpang">Passengers</span>
@@ -530,7 +531,7 @@
 
                 <div class="payment-divider"></div>
 
-                <form action="{{ route('booking.process-payment', $booking->booking_code) }}" method="POST" enctype="multipart/form-data" class="payment-form">
+                <form action="{{ route('booking.process-payment', $booking->booking_code).$guestTokenParam }}" method="POST" enctype="multipart/form-data" class="payment-form">
                     @csrf
                     <input type="hidden" name="payment_method" value="manual_transfer">
 
@@ -618,6 +619,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const qrHint = document.getElementById('qrHint');
     const paymentExpiry = document.getElementById('paymentExpiry');
 
+    let timerInterval;
+
     function updateCountdown() {
         const clientNow = new Date().getTime();
         const adjustedNow = clientNow - clientOffset;
@@ -652,7 +655,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     updateCountdown();
-    const timerInterval = setInterval(updateCountdown, 1000);
+    if (!window.bookingCancelled) {
+        timerInterval = setInterval(updateCountdown, 1000);
+    }
 
     // QR click to enlarge
     const qrImageWrapEl = document.getElementById('qrImageWrap');

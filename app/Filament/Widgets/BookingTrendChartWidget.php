@@ -2,13 +2,15 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Booking;
+use App\Filament\Widgets\Concerns\AppliesReportFilters;
 use Carbon\Carbon;
 use Filament\Widgets\LineChartWidget;
 
 class BookingTrendChartWidget extends LineChartWidget
 {
-    protected int | string | array $columnSpan = 1;
+    use AppliesReportFilters;
+
+    protected int|string|array $columnSpan = 1;
 
     public function getHeading(): ?string
     {
@@ -42,8 +44,8 @@ class BookingTrendChartWidget extends LineChartWidget
 
             return [
                 'label' => $date->format('d M'),
-                'total' => Booking::whereDate('created_at', $date)->count(),
-                'paid' => Booking::whereDate('created_at', $date)
+                'total' => $this->reportBookings()->whereDate('created_at', $date)->count(),
+                'paid' => $this->reportBookings()->whereDate('created_at', $date)
                     ->whereIn('booking_status', ['paid', 'used'])
                     ->count(),
             ];

@@ -2,44 +2,43 @@
 
 namespace App\Filament\Widgets;
 
-use App\Http\Controllers\AdminReportController;
-use App\Models\Booking;
-use App\Models\Schedule;
+use App\Filament\Widgets\Concerns\AppliesReportFilters;
 use App\Models\Ticket;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Carbon\Carbon;
 
 class ReportsStatsOverviewWidget extends StatsOverviewWidget
 {
-    public function getColumns(): int | array | null
+    use AppliesReportFilters;
+
+    public function getColumns(): int|array|null
     {
         return 4;
     }
 
     protected function getStats(): array
     {
-        $controller = new AdminReportController();
-
-        $allSchedules = Schedule::where('status', 'scheduled')
+        $allSchedules = $this->reportSchedules()
+            ->when(empty($this->filters['status']), fn ($query) => $query->where('status', 'scheduled'))
             ->where('departure_time', '>', now())
             ->count();
 
-        $todayBookings = Booking::whereDate('created_at', today())->count();
-        $totalRevenueToday = Booking::whereDate('created_at', today())
+        $todayBookings = $this->reportBookings()->whereDate('created_at', today())->count();
+        $totalRevenueToday = $this->reportBookings()->whereDate('created_at', today())
             ->where('booking_status', 'paid')
             ->sum('total_amount');
 
-        $totalTickets = Booking::sum('total_passengers');
-        $totalPaidPassengers = Booking::whereIn('booking_status', ['paid', 'used'])
+        $totalTickets = $this->reportBookings()->sum('total_passengers');
+        $totalPaidPassengers = $this->reportBookings()->whereIn('booking_status', ['paid', 'used'])
             ->sum('total_passengers');
 
-        $totalPending = Booking::where('booking_status', 'pending_payment')->count();
-        $totalRefunded = Booking::where('booking_status', 'refunded')->count();
-        $totalCancelled = Booking::whereIn('booking_status', ['cancelled', 'expired'])->count();
-        $totalBoarded = Ticket::where('ticket_status', 'used')->count();
+        $totalPending = $this->reportBookings()->where('booking_status', 'pending_payment')->count();
+        $totalRefunded = $this->reportBookings()->where('booking_status', 'refunded')->count();
+        $totalCancelled = $this->reportBookings()->whereIn('booking_status', ['cancelled', 'expired'])->count();
+        $totalBoarded = Ticket::whereIn('booking_id', $this->reportBookings()->select('id'))
+            ->where('ticket_status', 'used')->count();
 
-        $totalBookings = Booking::count();
+        $totalBookings = $this->reportBookings()->count();
 
         return [
             Stat::make('Live Bookings Today', $todayBookings)
@@ -54,7 +53,7 @@ class ReportsStatsOverviewWidget extends StatsOverviewWidget
                 ->color('gray'),
 
             Stat::make('Total Revenue', 'MYR '.number_format(
-                Booking::whereIn('booking_status', ['paid', 'used'])->sum('total_amount'), 0
+                $this->reportBookings()->whereIn('booking_status', ['paid', 'used'])->sum('total_amount'), 0
             ))
                 ->description('Across all schedules')
                 ->descriptionIcon('heroicon-m-currency-dollar')

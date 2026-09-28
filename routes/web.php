@@ -1,16 +1,18 @@
 <?php
 
+use App\Http\Controllers\AdminReportController;
+use App\Http\Controllers\AdminScheduleController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BoardingController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CounterController;
 use App\Http\Controllers\DeportationController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PassengerProfileController;
 use App\Http\Controllers\SeatAvailabilityController;
+use App\Http\Controllers\TicketController;
 use App\Models\Route as RouteModel;
 use App\Models\Schedule;
-use App\Models\Vessel;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,8 +23,8 @@ Route::get('/', function () {
         ->select('route_id', 'vip_price', 'regular_price')
         ->distinct()
         ->get()
-        ->groupBy(fn($s) => $s->route->origin_port . '→' . $s->route->destination_port)
-        ->map(fn($group) => $group->first())
+        ->groupBy(fn ($s) => $s->route->origin_port.'→'.$s->route->destination_port)
+        ->map(fn ($group) => $group->first())
         ->take(3);
 
     $schedules = Schedule::where('status', 'scheduled')
@@ -43,8 +45,8 @@ Route::get('/prices', function () {
         ->select('route_id', 'vip_price', 'regular_price')
         ->distinct()
         ->get()
-        ->groupBy(fn($s) => $s->route->origin_port . '→' . $s->route->destination_port)
-        ->map(fn($group) => $group->first());
+        ->groupBy(fn ($s) => $s->route->origin_port.'→'.$s->route->destination_port)
+        ->map(fn ($group) => $group->first());
 
     $ports = RouteModel::where('active', true)
         ->pluck('origin_port')
@@ -59,7 +61,7 @@ Route::get('/information', fn () => view('information'))->name('information');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::get('/register', fn () => view('auth.register-choice'))->name('register');
     Route::get('/register/regular', [AuthController::class, 'showRegister'])->name('register.regular');
     Route::post('/register', [AuthController::class, 'register']);
@@ -165,25 +167,25 @@ Route::middleware(['auth', 'role:deportation_officer,admin'])->prefix('deportati
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Reports
-    Route::get('/report-list', [App\Http\Controllers\AdminReportController::class, 'index'])->name('reports.index');
+    Route::get('/report-list', [AdminReportController::class, 'index'])->name('reports.index');
     Route::prefix('exports')->name('reports.')->group(function () {
-        Route::get('/csv', [App\Http\Controllers\AdminReportController::class, 'exportCsv'])->name('csv');
-        Route::get('/excel', [App\Http\Controllers\AdminReportController::class, 'exportExcel'])->name('excel');
+        Route::get('/csv', [AdminReportController::class, 'exportCsv'])->name('csv');
+        Route::get('/excel', [AdminReportController::class, 'exportExcel'])->name('excel');
     });
 
     // Schedule Passenger List (Show)
-    Route::get('/schedules/{schedule}/passengers', [App\Http\Controllers\AdminScheduleController::class, 'passengers'])->name('schedule.passengers');
-    Route::get('/schedules/{schedule}/passengers/export/pdf', [App\Http\Controllers\AdminScheduleController::class, 'exportToPdf'])->name('schedule.passengers.export.pdf');
-    Route::get('/schedules/{schedule}/passengers/export/excel', [App\Http\Controllers\AdminScheduleController::class, 'exportToExcel'])->name('schedule.passengers.export.excel');
+    Route::get('/schedules/{schedule}/passengers', [AdminScheduleController::class, 'passengers'])->name('schedule.passengers');
+    Route::get('/schedules/{schedule}/passengers/export/pdf', [AdminScheduleController::class, 'exportToPdf'])->name('schedule.passengers.export.pdf');
+    Route::get('/schedules/{schedule}/passengers/export/excel', [AdminScheduleController::class, 'exportToExcel'])->name('schedule.passengers.export.excel');
 });
 
 Route::middleware(['auth', 'role:ticket_counter_officer,admin'])->prefix('counter')->name('counter.')->group(function () {
-    Route::get('/', [App\Http\Controllers\CounterController::class, 'dashboard'])->name('dashboard');
-    Route::get('/create/{schedule}', [App\Http\Controllers\CounterController::class, 'newBooking'])->name('create');
-    Route::post('/store', [App\Http\Controllers\CounterController::class, 'store'])->name('store');
-    Route::get('/success', [App\Http\Controllers\CounterController::class, 'success'])->name('success');
-    Route::get('/search', [App\Http\Controllers\CounterController::class, 'search'])->name('search');
-    Route::get('/history', [App\Http\Controllers\CounterController::class, 'history'])->name('history');
-    Route::get('/booking/{code}', [App\Http\Controllers\CounterController::class, 'detail'])->name('detail');
-    Route::post('/booking/{code}/refund', [App\Http\Controllers\CounterController::class, 'refundRequest'])->name('refund');
+    Route::get('/', [CounterController::class, 'dashboard'])->name('dashboard');
+    Route::get('/create/{schedule}', [CounterController::class, 'newBooking'])->name('create');
+    Route::post('/store', [CounterController::class, 'store'])->name('store');
+    Route::get('/success', [CounterController::class, 'success'])->name('success');
+    Route::get('/search', [CounterController::class, 'search'])->name('search');
+    Route::get('/history', [CounterController::class, 'history'])->name('history');
+    Route::get('/booking/{code}', [CounterController::class, 'detail'])->name('detail');
+    Route::post('/booking/{code}/refund', [CounterController::class, 'refundRequest'])->name('refund');
 });

@@ -8,6 +8,8 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class PaymentSettings extends Page implements HasForms
 {
@@ -56,11 +58,11 @@ class PaymentSettings extends Page implements HasForms
         $this->payment_qr_image = $path ? [$path] : [];
     }
 
-    public function form(\Filament\Schemas\Schema $form): \Filament\Schemas\Schema
+    public function form(Schema $form): Schema
     {
         return $form
             ->schema([
-                \Filament\Schemas\Components\Section::make('QR Code Pembayaran (Manual Transfer)')
+                Section::make('QR Code Pembayaran (Manual Transfer)')
                     ->description('Upload QR code yang akan ditampilkan ke buyer saat pembayaran manual transfer. Format: JPG/PNG. Maks 2MB.')
                     ->schema([
                         FileUpload::make('payment_qr_image')
@@ -83,12 +85,16 @@ class PaymentSettings extends Page implements HasForms
         $data = $this->form->getState();
 
         $qrImage = $data['payment_qr_image'] ?? null;
-        if ($qrImage !== null && $qrImage !== '' && !(is_array($qrImage) && empty($qrImage))) {
+        if ($qrImage !== null && $qrImage !== '' && ! (is_array($qrImage) && empty($qrImage))) {
             $path = is_array($qrImage) ? ($qrImage[0] ?? null) : $qrImage;
             if ($path) {
                 Setting::setValue('payment_qr_image', $path);
                 $this->payment_qr_image = [$path];
             }
+        } else {
+            // Cleared upload — actually remove the QR so admins can delete it from the UI
+            Setting::setValue('payment_qr_image', null);
+            $this->payment_qr_image = [];
         }
 
         Notification::make()

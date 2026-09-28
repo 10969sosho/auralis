@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Events\SeatAvailabilityUpdated;
 use App\Models\AgeCategory;
 use App\Models\Booking;
-use App\Models\Payment;
+use App\Models\Refund;
 use App\Models\Schedule;
 use App\Models\Ticket;
-use App\Models\Refund;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +29,7 @@ class CounterController extends Controller
     {
         $schedule->load('vessel', 'route', 'agePrices.ageCategory');
 
-        if ($schedule->isH6Passed || !$schedule->is_active) {
+        if ($schedule->isH6Passed || $schedule->status !== 'scheduled' || ! $schedule->is_active) {
             return back()->with('error', 'This schedule is no longer available.');
         }
 
@@ -62,23 +61,12 @@ class CounterController extends Controller
 
         $schedule = Schedule::with('vessel')->findOrFail($validated['schedule_id']);
 
-        if ($schedule->isH6Passed || !$schedule->is_active) {
+        if ($schedule->isH6Passed || $schedule->status !== 'scheduled' || ! $schedule->is_active) {
             return back()->with('error', 'This schedule is no longer available.');
         }
 
         $vipCount = collect($validated['passengers'])->where('ticket_class', 'vip')->count();
         $regularCount = collect($validated['passengers'])->where('ticket_class', 'regular')->count();
-
-        $vipBooked = (int) $schedule->vipBooked;
-        $regularBooked = (int) $schedule->regularBooked;
-
-        if (($vipBooked + $vipCount) > $schedule->vessel->vip_capacity) {
-            return back()->with('error', 'Not enough VIP seats available.');
-        }
-
-        if (($regularBooked + $regularCount) > $schedule->vessel->regular_capacity) {
-            return back()->with('error', 'Not enough Regular seats available.');
-        }
 
         $totalAmount = 0;
         foreach ($validated['passengers'] as $p) {
@@ -96,65 +84,79 @@ class CounterController extends Controller
         $changeAmount = max(0, $amountReceived - $totalAmount);
 
         if ($amountReceived < $totalAmount) {
-            return back()->with('error', 'Amount received is less than total amount. Need MYR ' . number_format($totalAmount - $amountReceived, 2) . ' more.');
+            return back()->with('error', 'Amount received is less than total amount. Need MYR '.number_format($totalAmount - $amountReceived, 2).' more.');
         }
 
-        $booking = DB::transaction(function () use ($validated, $schedule, $totalAmount) {
-            $booking = Booking::create([
-                'user_id' => null,
-                'schedule_id' => $schedule->id,
-                'booking_code' => strtoupper('BK-'.date('Ymd').'-'.substr(uniqid(), -5)),
-                'total_passengers' => count($validated['passengers']),
-                'total_amount' => $totalAmount,
-                'discount_amount' => 0,
-                'promo_id' => null,
-                'booking_status' => 'paid',
-                'payment_status' => 'paid',
-                'locked_at' => now(),
-                'expires_at' => now()->addMinutes(30),
-                'paid_at' => now(),
-            ]);
+        try {
+            $booking = DB::transaction(function () use ($validated, $schedule, $totalAmount, $vipCount, $regularCount) {
+                // Re-check capacity on a locked row so concurrent submissions cannot oversell
+                $locked = Schedule::with('vessel')->whereKey($schedule->id)->lockForUpdate()->first() ?? $schedule;
 
-            foreach ($validated['passengers'] as $passengerData) {
-                $birthDate = Carbon::parse($passengerData['birth_date']);
-                $age = $birthDate->diffInYears(now());
-                $category = AgeCategory::detectCategory($age);
+                if (($locked->vipBooked + $vipCount) > (int) $locked->vessel->vip_capacity) {
+                    throw new \RuntimeException('Not enough VIP seats available.');
+                }
 
-                $passenger = $booking->passengers()->create([
-                    'full_name' => $passengerData['full_name'],
-                    'gender' => $passengerData['gender'],
-                    'birth_date' => $passengerData['birth_date'],
-                    'nationality' => $passengerData['nationality'],
-                    'passport_number' => $passengerData['passport_number'],
-                    'phone_number' => $passengerData['phone_number'] ?? null,
-                    'passenger_type' => $category ? $category->name : ($age <= 12 ? 'Child' : 'Adult'),
-                    'ticket_class' => $passengerData['ticket_class'],
-                    'age_category_id' => $category?->id,
+                if (($locked->regularBooked + $regularCount) > (int) $locked->vessel->regular_capacity) {
+                    throw new \RuntimeException('Not enough Regular seats available.');
+                }
+
+                $booking = Booking::create([
+                    'user_id' => null,
+                    'schedule_id' => $schedule->id,
+                    'booking_code' => strtoupper('BK-'.date('Ymd').'-'.substr(uniqid(), -5)),
+                    'total_passengers' => count($validated['passengers']),
+                    'total_amount' => $totalAmount,
+                    'discount_amount' => 0,
+                    'promo_id' => null,
+                    'booking_status' => 'paid',
+                    'payment_status' => 'paid',
+                    'locked_at' => now(),
+                    'expires_at' => now()->addMinutes(30),
+                    'paid_at' => now(),
                 ]);
-            }
 
-            foreach ($booking->passengers as $passenger) {
-                $passenger->ticket()->create([
-                    'booking_id' => $booking->id,
-                    'ticket_class' => $passenger->ticket_class,
-                    'qr_token' => Ticket::generateQrToken(),
-                    'ticket_number' => Ticket::generateTicketNumber(),
-                    'ticket_status' => 'active',
-                    'expiry_date' => $schedule->departure_time->startOfDay(),
+                foreach ($validated['passengers'] as $passengerData) {
+                    $birthDate = Carbon::parse($passengerData['birth_date']);
+                    $age = $birthDate->diffInYears(now());
+                    $category = AgeCategory::detectCategory($age);
+
+                    $passenger = $booking->passengers()->create([
+                        'full_name' => $passengerData['full_name'],
+                        'gender' => $passengerData['gender'],
+                        'birth_date' => $passengerData['birth_date'],
+                        'nationality' => $passengerData['nationality'],
+                        'passport_number' => $passengerData['passport_number'],
+                        'phone_number' => $passengerData['phone_number'] ?? null,
+                        'passenger_type' => $category ? $category->name : ($age <= 12 ? 'Child' : 'Adult'),
+                        'ticket_class' => $passengerData['ticket_class'],
+                        'age_category_id' => $category?->id,
+                    ]);
+                }
+
+                foreach ($booking->passengers as $passenger) {
+                    $passenger->ticket()->create([
+                        'booking_id' => $booking->id,
+                        'ticket_class' => $passenger->ticket_class,
+                        'qr_token' => Ticket::generateQrToken(),
+                        'ticket_number' => Ticket::generateTicketNumber(),
+                        'ticket_status' => 'active',
+                        'expiry_date' => $schedule->departure_time->endOfDay(),
+                    ]);
+                }
+
+                $booking->payment()->create([
+                    'amount' => $totalAmount,
+                    'payment_method' => $validated['payment_method'],
+                    'payment_status' => 'paid',
+                    'transaction_id' => 'OFF-'.strtoupper(uniqid()),
+                    'paid_at' => now(),
                 ]);
-            }
 
-            return $booking;
-        });
-
-        Payment::create([
-            'booking_id' => $booking->id,
-            'amount' => $totalAmount,
-            'payment_method' => $validated['payment_method'],
-            'payment_status' => 'paid',
-            'transaction_id' => 'OFF-'.strtoupper(uniqid()),
-            'paid_at' => now(),
-        ]);
+                return $booking;
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         event(new SeatAvailabilityUpdated($schedule));
 
@@ -230,23 +232,27 @@ class CounterController extends Controller
             return back()->with('error', 'Only paid bookings can be refunded.');
         }
 
-        if ($booking->schedule->isH6Passed) {
+        if ($booking->schedule && $booking->schedule->isH6Passed) {
             return back()->with('error', 'Refund period has passed (H-6 before departure).');
         }
 
-        if ($booking->refund) {
+        if ($booking->refund && $booking->refund->refund_status !== 'rejected') {
             return back()->with('error', 'A refund request already exists for this booking.');
         }
 
         $refundAmount = $booking->total_amount * 0.25;
 
-        Refund::create([
-            'booking_id' => $booking->id,
-            'requested_by' => auth()->id(),
+        $attributes = [
             'refund_amount' => $refundAmount,
             'refund_reason' => $request->refund_reason,
-            'refund_status' => 'pending',
-        ]);
+            'refund_status' => 'requested',
+        ];
+
+        if ($booking->refund) {
+            $booking->refund->update($attributes);
+        } else {
+            Refund::create($attributes + ['booking_id' => $booking->id]);
+        }
 
         $booking->update(['booking_status' => 'refund_requested']);
 

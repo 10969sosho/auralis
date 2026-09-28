@@ -61,7 +61,7 @@
                     <input type="text" name="passengers[0][passport_number]" required class="form-input" id="passport-0" placeholder="Passport number" data-translate-en="Passport number" data-translate-id="Nomor paspor">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" data-translate-en="Phone" data-translate-id="Telepon">Phone</label>
+                    <label class="form-label" data-translate-en="Phone/WhatsApp Number" data-translate-id="Nomor Telepon/WhatsApp">Phone/WhatsApp Number</label>
                     <input type="text" name="passengers[0][phone_number]" class="form-input" id="phone-0" placeholder="Optional" data-translate-en="Optional" data-translate-id="Opsional">
                 </div>
                 <div class="form-group">
@@ -141,7 +141,7 @@ function findAgeCategory(age) {
 
 function getPassengerPrice(age, ticketClass) {
     const category = findAgeCategory(age);
-    if (category && schedulePrices.agePrices[category.id] !== undefined) {
+    if (ticketClass !== 'vip' && category && schedulePrices.agePrices[category.id] !== undefined) {
         return schedulePrices.agePrices[category.id];
     }
     return ticketClass === 'vip' ? schedulePrices.vip : schedulePrices.regular;
@@ -266,7 +266,7 @@ function addPassenger() {
             <div class="form-group"><label class="form-label">Age <span class="text-xs text-gray-400">(auto)</span></label><input type="text" class="form-input bg-gray-100" id="age-display-${idx}" readonly placeholder="Select birth date"></div>
             <div class="form-group"><label class="form-label">Nationality *</label><input type="text" name="passengers[${idx}][nationality]" required placeholder="e.g. Malaysian" class="form-input" id="nationality-${idx}"></div>
             <div class="form-group"><label class="form-label">Passport/ID *</label><input type="text" name="passengers[${idx}][passport_number]" required class="form-input" id="passport-${idx}" placeholder="Passport number"></div>
-            <div class="form-group"><label class="form-label">Phone</label><input type="text" name="passengers[${idx}][phone_number]" class="form-input" id="phone-${idx}" placeholder="Optional"></div>
+            <div class="form-group"><label class="form-label">Phone/WhatsApp Number</label><input type="text" name="passengers[${idx}][phone_number]" class="form-input" id="phone-${idx}" placeholder="Optional"></div>
             <div class="form-group"><label class="form-label">Class *</label><select name="passengers[${idx}][ticket_class]" required class="form-select" id="class-${idx}" onchange="recalculateTotal()"><option value="regular">Regular — RM ${schedulePrices.regular.toFixed(2)} (available)</option><option value="vip">VIP — RM ${schedulePrices.vip.toFixed(2)} (available)</option></select></div>
         </div>`;
     container.appendChild(card);

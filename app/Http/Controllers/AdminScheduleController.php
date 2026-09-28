@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Schedule;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class AdminScheduleController extends Controller
 {
@@ -36,7 +37,7 @@ class AdminScheduleController extends Controller
                 case 'not_boarded':
                     $query->where(function ($q) {
                         $q->where('tickets.ticket_status', '!=', 'used')
-                          ->orWhereNull('tickets.id');
+                            ->orWhereNull('tickets.id');
                     });
                     break;
                 case 'active':
@@ -50,7 +51,12 @@ class AdminScheduleController extends Controller
 
         // Filter by payment status
         if ($request->filled('payment_status')) {
-            $query->where('bookings.payment_status', $request->payment_status);
+            // `refunded` does not exist in bookings.payment_status — it lives on booking_status
+            if ($request->payment_status === 'refunded') {
+                $query->where('bookings.booking_status', 'refunded');
+            } else {
+                $query->where('bookings.payment_status', $request->payment_status);
+            }
         }
 
         // Filter by booking status
@@ -73,10 +79,10 @@ class AdminScheduleController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('booking_passengers.full_name', 'like', "%{$search}%")
-                  ->orWhere('booking_passengers.passport_number', 'like', "%{$search}%")
-                  ->orWhere('booking_passengers.phone_number', 'like', "%{$search}%")
-                  ->orWhere('bookings.booking_code', 'like', "%{$search}%")
-                  ->orWhere('tickets.ticket_number', 'like', "%{$search}%");
+                    ->orWhere('booking_passengers.passport_number', 'like', "%{$search}%")
+                    ->orWhere('booking_passengers.phone_number', 'like', "%{$search}%")
+                    ->orWhere('bookings.booking_code', 'like', "%{$search}%")
+                    ->orWhere('tickets.ticket_number', 'like', "%{$search}%");
             });
         }
 
@@ -115,7 +121,7 @@ class AdminScheduleController extends Controller
                 case 'not_boarded':
                     $query->where(function ($q) {
                         $q->where('tickets.ticket_status', '!=', 'used')
-                          ->orWhereNull('tickets.id');
+                            ->orWhereNull('tickets.id');
                     });
                     break;
                 case 'active':
@@ -128,7 +134,11 @@ class AdminScheduleController extends Controller
         }
 
         if ($request->filled('payment_status')) {
-            $query->where('bookings.payment_status', $request->payment_status);
+            if ($request->payment_status === 'refunded') {
+                $query->where('bookings.booking_status', 'refunded');
+            } else {
+                $query->where('bookings.payment_status', $request->payment_status);
+            }
         }
 
         if ($request->filled('booking_status')) {
@@ -147,10 +157,10 @@ class AdminScheduleController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('booking_passengers.full_name', 'like', "%{$search}%")
-                  ->orWhere('booking_passengers.passport_number', 'like', "%{$search}%")
-                  ->orWhere('booking_passengers.phone_number', 'like', "%{$search}%")
-                  ->orWhere('bookings.booking_code', 'like', "%{$search}%")
-                  ->orWhere('tickets.ticket_number', 'like', "%{$search}%");
+                    ->orWhere('booking_passengers.passport_number', 'like', "%{$search}%")
+                    ->orWhere('booking_passengers.phone_number', 'like', "%{$search}%")
+                    ->orWhere('bookings.booking_code', 'like', "%{$search}%")
+                    ->orWhere('tickets.ticket_number', 'like', "%{$search}%");
             });
         }
 
@@ -165,7 +175,7 @@ class AdminScheduleController extends Controller
         $pdf = Pdf::loadView('admin.exports.passengers-pdf', compact('schedule', 'passengers'));
         $pdf->setPaper('a4', 'landscape');
 
-        return $pdf->download('schedule-' . $schedule->id . '-passengers-' . date('Ymd') . '.pdf');
+        return $pdf->download('schedule-'.$schedule->id.'-passengers-'.date('Ymd').'.pdf');
     }
 
     public function exportToExcel(Schedule $schedule, Request $request)
@@ -174,16 +184,23 @@ class AdminScheduleController extends Controller
         $passengers = $this->buildExportQuery($schedule, $request)->get();
 
         $fmt = function ($val, $fmtStr = 'd M Y') {
-            if (!$val) return '-';
-            if ($val instanceof \Illuminate\Support\Carbon) return $val->format($fmtStr);
-            if (is_string($val) && strtotime($val)) return date($fmtStr, strtotime($val));
+            if (! $val) {
+                return '-';
+            }
+            if ($val instanceof Carbon) {
+                return $val->format($fmtStr);
+            }
+            if (is_string($val) && strtotime($val)) {
+                return date($fmtStr, strtotime($val));
+            }
+
             return (string) $val;
         };
 
         $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
 <head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Passengers</x:Name></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
 <style>td,th{border:1px solid #ccc;padding:4px 6px;font-size:11px;font-family:sans-serif}th{background:#1D4ED8;color:#fff;font-weight:600}tr:nth-child(even){background:#f9fafb}</style></head><body>
-<h2>' . htmlspecialchars($schedule->vessel->name) . ' — ' . htmlspecialchars($schedule->route->origin_port . ' → ' . $schedule->route->destination_port) . ' · ' . $fmt($schedule->departure_time, 'd M Y, H:i') . '</h2>
+<h2>'.htmlspecialchars($schedule->vessel->name).' — '.htmlspecialchars($schedule->route->origin_port.' → '.$schedule->route->destination_port).' · '.$fmt($schedule->departure_time, 'd M Y, H:i').'</h2>
 <table><thead><tr>
 <th>No</th><th>Full Name</th><th>Gender</th><th>Birth Date</th><th>Nationality</th>
 <th>Passport Number</th><th>Phone Number</th><th>Passenger Type</th>
@@ -198,21 +215,21 @@ class AdminScheduleController extends Controller
             };
 
             $html .= '<tr>
-<td>' . ($i + 1) . '</td>
-<td>' . htmlspecialchars($p->full_name) . '</td>
-<td>' . htmlspecialchars($p->gender ?? '-') . '</td>
-<td>' . $fmt($p->birth_date ?? null) . '</td>
-<td>' . htmlspecialchars($p->nationality ?? '-') . '</td>
-<td>' . htmlspecialchars($p->passport_number ?? '-') . '</td>
-<td>' . htmlspecialchars($p->phone_number ?? '-') . '</td>
-<td>' . htmlspecialchars(ucfirst($p->passenger_type ?? '-')) . '</td>
-<td>' . htmlspecialchars(ucfirst($p->ticket_class ?? '-')) . '</td>
-<td>' . htmlspecialchars($p->booking_code) . '</td>
-<td>' . htmlspecialchars(ucfirst(str_replace('_', ' ', $p->booking_status))) . '</td>
-<td>' . htmlspecialchars(ucfirst(str_replace('_', ' ', $p->payment_status ?? '-'))) . '</td>
-<td>' . htmlspecialchars($p->ticket_number ?? '-') . '</td>
-<td>' . $boardingStatus . '</td>
-<td>' . $fmt($p->boarded_at ?? null, 'd M Y H:i') . '</td>
+<td>'.($i + 1).'</td>
+<td>'.htmlspecialchars($p->full_name).'</td>
+<td>'.htmlspecialchars($p->gender ?? '-').'</td>
+<td>'.$fmt($p->birth_date ?? null).'</td>
+<td>'.htmlspecialchars($p->nationality ?? '-').'</td>
+<td>'.htmlspecialchars($p->passport_number ?? '-').'</td>
+<td>'.htmlspecialchars($p->phone_number ?? '-').'</td>
+<td>'.htmlspecialchars(ucfirst($p->passenger_type ?? '-')).'</td>
+<td>'.htmlspecialchars(ucfirst($p->ticket_class ?? '-')).'</td>
+<td>'.htmlspecialchars($p->booking_code).'</td>
+<td>'.htmlspecialchars(ucfirst(str_replace('_', ' ', $p->booking_status))).'</td>
+<td>'.htmlspecialchars(ucfirst(str_replace('_', ' ', $p->payment_status ?? '-'))).'</td>
+<td>'.htmlspecialchars($p->ticket_number ?? '-').'</td>
+<td>'.$boardingStatus.'</td>
+<td>'.$fmt($p->boarded_at ?? null, 'd M Y H:i').'</td>
 </tr>';
         }
 
@@ -220,7 +237,7 @@ class AdminScheduleController extends Controller
 
         return response($html, 200, [
             'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="schedule-' . $schedule->id . '-passengers-' . date('Ymd') . '.xls"',
+            'Content-Disposition' => 'attachment; filename="schedule-'.$schedule->id.'-passengers-'.date('Ymd').'.xls"',
         ]);
     }
 

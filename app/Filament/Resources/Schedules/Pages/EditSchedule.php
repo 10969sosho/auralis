@@ -13,6 +13,7 @@ class EditSchedule extends EditRecord
     protected static string $resource = ScheduleResource::class;
 
     protected ?Carbon $oldDepartureTime = null;
+
     protected ?Carbon $oldArrivalTime = null;
 
     protected function getRedirectUrl(): string
@@ -40,16 +41,16 @@ class EditSchedule extends EditRecord
         $newDeparture = $schedule->departure_time;
         $newArrival = $schedule->arrival_time;
 
-        $departureChanged = $this->oldDepartureTime && $newDeparture && !$this->oldDepartureTime->eq($newDeparture);
-        $arrivalChanged = $this->oldArrivalTime && $newArrival && !$this->oldArrivalTime->eq($newArrival);
+        $departureChanged = $this->oldDepartureTime && $newDeparture && ! $this->oldDepartureTime->eq($newDeparture);
+        $arrivalChanged = $this->oldArrivalTime && $newArrival && ! $this->oldArrivalTime->eq($newArrival);
 
-        if (!$departureChanged && !$arrivalChanged) {
+        if (! $departureChanged && ! $arrivalChanged) {
             return;
         }
 
         // Get all users who have active bookings for this schedule
         $userIds = $schedule->bookings()
-            ->whereIn('booking_status', ['pending_payment', 'paid', 'used'])
+            ->whereIn('booking_status', ['pending_payment', 'paid', 'used', 'awaiting_approval', 'refund_requested'])
             ->whereNotNull('user_id')
             ->pluck('user_id')
             ->unique();
@@ -60,16 +61,16 @@ class EditSchedule extends EditRecord
 
         $changes = [];
         if ($departureChanged) {
-            $changes[] = 'departure from ' . $this->oldDepartureTime->format('d M Y, H:i') . ' to ' . $newDeparture->format('d M Y, H:i');
+            $changes[] = 'departure from '.$this->oldDepartureTime->format('d M Y, H:i').' to '.$newDeparture->format('d M Y, H:i');
         }
         if ($arrivalChanged) {
-            $changes[] = 'arrival from ' . $this->oldArrivalTime->format('d M Y, H:i') . ' to ' . $newArrival->format('d M Y, H:i');
+            $changes[] = 'arrival from '.$this->oldArrivalTime->format('d M Y, H:i').' to '.$newArrival->format('d M Y, H:i');
         }
 
-        $routeLabel = $schedule->route->origin_port . ' → ' . $schedule->route->destination_port;
+        $routeLabel = $schedule->route->origin_port.' → '.$schedule->route->destination_port;
 
         $title = 'Schedule Time Changed';
-        $body = 'Your booking for ' . $routeLabel . ' has been updated: ' . implode(' and ', $changes) . '. Please check your booking details.';
+        $body = 'Your booking for '.$routeLabel.' has been updated: '.implode(' and ', $changes).'. Please check your booking details.';
 
         foreach ($userIds as $userId) {
             NotificationController::createForUser(

@@ -124,7 +124,7 @@
                         @if($i === 0 && $userProfile && $userProfile['passport_number']) value="{{ $userProfile['passport_number'] }}" @endif>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" data-translate-en="Phone Number" data-translate-id="Nomor Telepon">Phone Number</label>
+                    <label class="form-label" data-translate-en="Phone/WhatsApp Number" data-translate-id="Nomor Telepon/WhatsApp">Phone/WhatsApp Number</label>
                     <input type="text" name="passengers[{{ $i }}][phone_number]" class="form-input"
                         id="phone-{{ $i }}"
                         @if($i === 0 && $userProfile && $userProfile['phone']) value="{{ $userProfile['phone'] }}" @endif>
@@ -161,7 +161,7 @@
             <p class="text-lg font-bold text-blue-600" id="totalAmount" data-translate-en="Total:" data-translate-id="Total:">Total: RM 0.00</p>
         </div>
         <p class="mt-2 text-sm text-gray-600">Free baggage: {{ $schedule->vessel->free_baggage }}kg <span data-translate-en="per passenger" data-translate-id="per penumpang">per passenger</span></p>
-        <p class="mt-2 text-sm text-gray-500" data-translate-en="Booking will be held for 30 minutes after submission." data-translate-id="Pemesanan akan ditahan selama 30 menit setelah pengiriman.">Booking will be held for 30 minutes after submission.</p>
+        <p class="mt-2 text-sm text-gray-500" data-translate-en="Booking will be held for 10 minutes after submission." data-translate-id="Pemesanan akan ditahan selama 10 menit setelah pengiriman.">Booking will be held for 10 minutes after submission.</p>
         <button type="submit" class="btn btn-primary btn-lg mt-4 sm:w-auto btn-block" data-translate-en="Continue to Payment" data-translate-id="Lanjutkan ke Pembayaran">Continue to Payment</button>
     </div>
 </form>
@@ -207,7 +207,7 @@ function findAgeCategory(age) {
 
 function getPassengerPrice(age, ticketClass) {
     const category = findAgeCategory(age);
-    if (category && schedulePrices.agePrices[category.id] !== undefined) {
+    if (ticketClass !== 'vip' && category && schedulePrices.agePrices[category.id] !== undefined) {
         return schedulePrices.agePrices[category.id];
     }
     return ticketClass === 'vip' ? schedulePrices.vip : schedulePrices.regular;
