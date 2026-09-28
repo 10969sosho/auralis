@@ -243,8 +243,6 @@
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.18.1/echo.iife.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/8.3.0/pusher.min.js"></script>
     @stack('scripts')
     <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -283,19 +281,6 @@
             });
             dropdown.addEventListener('click', function (e) {
                 e.stopPropagation();
-            });
-        }
-
-        // Echo / Pusher
-        if (typeof Pusher !== 'undefined' && typeof Echo === 'undefined') {
-            window.Echo = new Echo({
-                broadcaster: 'pusher',
-                key: '{{ env("PUSHER_APP_KEY") }}',
-                wsHost: '{{ env("PUSHER_HOST") }}',
-                wsPort: {{ env("PUSHER_PORT", 6001) }},
-                forceTLS: false,
-                disableStats: true,
-                enabledTransports: ['ws', 'wss'],
             });
         }
 

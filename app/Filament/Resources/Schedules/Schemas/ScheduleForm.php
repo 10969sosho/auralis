@@ -9,7 +9,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Get;
 
 class ScheduleForm
 {
@@ -41,7 +40,7 @@ class ScheduleForm
                             ->searchable(),
                         Select::make('route_id')
                             ->relationship('route', 'origin_port')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->origin_port . ' → ' . $record->destination_port)
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->origin_port.' → '.$record->destination_port)
                             ->required()
                             ->searchable(['origin_port', 'destination_port']),
                     ]),
@@ -52,11 +51,9 @@ class ScheduleForm
                     ->schema([
                         DateTimePicker::make('departure_time')
                             ->required()
-                            ->native(false)
                             ->displayFormat('d/m/Y H:i'),
                         DateTimePicker::make('arrival_time')
                             ->required()
-                            ->native(false)
                             ->displayFormat('d/m/Y H:i'),
                     ]),
 
@@ -95,6 +92,7 @@ class ScheduleForm
                             ->addActionLabel('Add Age Price')
                             ->columns(2)
                             ->collapsible()
+                            ->defaultItems(0)
                             ->helperText('Set specific pricing for age categories. If not set, the default VIP/Regular price applies.'),
                     ]),
             ]);

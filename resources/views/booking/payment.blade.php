@@ -443,6 +443,7 @@
     </div>
     @endif
 
+    @if($booking->expires_at)
     <div class="payment-expiry" id="paymentExpiry">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span data-translate-en="Booking expires in" data-translate-id="Pemesanan tamat dalam">Booking expires in <strong id="expiryDisplay">{{ $booking->expires_at->diffForHumans(null, true) }}</strong>.</span>
@@ -451,6 +452,7 @@
     {{-- Server-time countdown data --}}
     <input type="hidden" id="expiresAt" value="{{ $booking->expires_at->timestamp }}">
     <input type="hidden" id="serverNow" value="{{ now()->timestamp }}">
+    @endif
 
     <div class="payment-grid">
         <div class="payment-card">
@@ -607,7 +609,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Server-time based countdown (timezone-safe)
-    const expiresAt = {{ $booking->expires_at->timestamp }} * 1000;
+    const expiresAt = {{ $booking->expires_at?->timestamp ?? 0 }} * 1000;
+    if (!expiresAt) return;
     const serverNow = {{ now()->timestamp }} * 1000;
     const clientOffset = new Date().getTime() - serverNow;
 

@@ -34,7 +34,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function isDeportation(): bool
     {
-        return $this->account_type === 'deportation';
+        return $this->account_type === 'deportation' || $this->hasRole('deportation_officer');
     }
 
     public function getShelterFeeAttribute(): int
